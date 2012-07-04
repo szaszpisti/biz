@@ -1,0 +1,22 @@
+# YAML
+
+# bizonyítvány
+
+forras: forras
+
+om:   029752
+hely: Szeged
+# isk1: Dugonics András Piarista Gimnázium
+# isk2: Szakközépiskola és Kollégium
+isk1: ''
+isk2: ''
+
+bizDate:    2012. június 15
+vegzosDate: 2012. május 5
+kezdDate:   2011. június 22
+
+# a nyomtatott oldal pontosabb pozícionálása (eltérés a mért értékektől)
+posX: -1
+posY:  4
+fent:  5
+

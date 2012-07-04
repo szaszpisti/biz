@@ -1,0 +1,76 @@
+
+/* 1-2. lap */
+div.tmezo {
+	height: 7mm;
+	padding-left: 10mm;
+	margin-top: 6mm;
+}
+input.ttext {
+	border: none;
+	border-bottom: 2px dashed #666;
+	background-color: transparent;
+	width: 82mm;
+	height: 5mm;
+	text-align: center;
+}
+div.center { text-align: center; padding: 0 3mm; }
+
+/* 3. lap */
+table.jegy             { border-collapse: collapse; }
+table.jegy tr          { background-color: inherit; font-size: 8pt; height: 5mm; width: 40mm; margin: 0; padding: 0; }
+table.jegy tr td       { width: 38mm; margin: 0; padding: 0; padding-left: 2mm; }
+table.jegy tr td+td    { width: 10mm; text-align: right; padding-left: 0; }
+table.jegy tr td+td+td { width: 36mm; text-align: center; padding-left: 0; }
+table.diff tr { margin: 0; padding: 0; }
+table.bal tr, table.bal td { margin: 0; padding: 0; text-align: center; }
+#nevsor option { padding: 0 .5em; }
+
+div.bal-gomb { float: left; text-align: center; }
+
+/* általános */
+
+div.page { float: left; margin: .5em; margin-left: 2em; position: relative; height: 190mm; }
+
+p { margin: 0; }
+input[type='checkbox'] { margin: 0; }
+
+#spanDebug, #spanFrame { cursor: default; }
+
+body {
+	background-color: white;
+	padding: .5em;
+	border-left: 10px double #00688b;
+	font-family: Verdana, Tahoma, Helvetica, Arial, sans-serif;
+}
+
+div.body { padding: 0; }
+
+.menu {
+	font-size: 12pt;
+	color: #cccccc;
+	background-color: #00688b;
+	text-indent: 0; margin: 0;
+	font-family: Verdana, Tahoma, Helvetica, Arial, sans-serif;
+	font-weight: bold;
+	padding: 2pt 4pt;
+}
+.menu span { padding: inherit; }
+.menu a {
+	color: #eeeeee;
+	background-color: inherit;
+	font-weight: inherit;
+	cursor: pointer;
+	padding: inherit;
+}
+.menu a:hover {
+	text-decoration: underline overline;
+}
+
+.alahuzott { }
+
+.pselect { font-size: 150%; font-weight: bold; vertical-align: middle; }
+.p { padding: .2em .3em; cursor: pointer; background-color: #dddddd; }
+.p:hover { background-color: #bbbbbb; }
+
+img.emil { vertical-align: bottom; }
+
