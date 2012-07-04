@@ -144,13 +144,18 @@ $(document).ready(function() {
   $("#spanDebug").click(function(){ toggleDebug(); });
   $("#spanFrame").click(function(){ toggleFrame(); });
 
-  shortcut.add("Ctrl+P", function() { alert("Print..."); });
+  shortcut.add("Ctrl+P", function() { nyomtat(); });
 
   // Az operában sajnos nem működnek az Alt+x gyorsbillentyűk, Alt nélkül használjuk
+  shortcut.add("1", function(){ goPage(1); });
+  shortcut.add("2", function(){ goPage(2); });
+  shortcut.add("3", function(){ goPage(3); });
+
   shortcut.add("B", function(){ $('[name="bal"]:checked').focus(); });
   shortcut.add("J", function(){ $('[name="diff"]:checked').focus(); });
   shortcut.add("G", function(){ $('#gerinc').focus(); });
   shortcut.add("N", function(){ $('#nevsor').focus(); });
+  shortcut.add("O", function(){ $('#oszt').focus(); });
   shortcut.add("D", function(){ toggleDebug(); });
   shortcut.add("K", function(){ toggleFrame(); });
 
