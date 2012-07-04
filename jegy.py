@@ -138,7 +138,7 @@ class Bizonyitvany():
                         E[hely][1], E[hely][2] = oraszam, jegy
 
                     # Ha külön van az irodalom és nyelvtan:
-                    if E[2][1] != '':
+                    if E[2][1] != '---': # Ha a nyelvtan óraszám nem üres
                         E[1][0] = '--------'
                         E[2][0] = 'Magyar nyelv'
                     if jegy == 'elégtelen': Bukott.append(targy)
