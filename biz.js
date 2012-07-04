@@ -145,19 +145,17 @@ $(document).ready(function() {
   $("#spanFrame").click(function(){ toggleFrame(); });
 
   shortcut.add("Ctrl+P", function() { alert("Print..."); });
-  // Az operában sajnos nem működnek az Alt+x gyorsbillentyűk.
-  if ( !$.browser.opera && !$.browser.safari ) {
-    $('.alahuzott').css('text-decoration', 'underline'); // csak akkor legyenek aláhúzva, ha kell
-    shortcut.add("Alt+B",  function(){ $('[name="bal"]:checked').focus(); });
-    shortcut.add("Alt+J",  function(){ $('[name="diff"]:checked').focus(); });
-    shortcut.add("Alt+G",  function(){ $('#gerinc').focus(); });
-    shortcut.add("Alt+N",  function(){ $('#nevsor').focus(); });
-    shortcut.add("Alt+D",  function(){ toggleDebug(); });
-    shortcut.add("Alt+K",  function(){ toggleFrame(); });
 
-    shortcut.add("Up",   function(){ $('#gerinc').val(parseInt($('#gerinc').val())+1); }, {'target': document.biz.gerinc});
-    shortcut.add("Down", function(){ $('#gerinc').val(parseInt($('#gerinc').val())-1); }, {'target': document.biz.gerinc});
-  }
+  // Az operában sajnos nem működnek az Alt+x gyorsbillentyűk, Alt nélkül használjuk
+  shortcut.add("B", function(){ $('[name="bal"]:checked').focus(); });
+  shortcut.add("J", function(){ $('[name="diff"]:checked').focus(); });
+  shortcut.add("G", function(){ $('#gerinc').focus(); });
+  shortcut.add("N", function(){ $('#nevsor').focus(); });
+  shortcut.add("D", function(){ toggleDebug(); });
+  shortcut.add("K", function(){ toggleFrame(); });
+
+  shortcut.add("Up",   function(){ $('#gerinc').val(parseInt($('#gerinc').val())+1); }, {'target': document.biz.gerinc});
+  shortcut.add("Down", function(){ $('#gerinc').val(parseInt($('#gerinc').val())-1); }, {'target': document.biz.gerinc});
 
   changeOsztaly();
 

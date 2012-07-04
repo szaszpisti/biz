@@ -66,7 +66,7 @@ div.body { padding: 0; }
 	text-decoration: underline overline;
 }
 
-.alahuzott { }
+.alahuzott { text-decoration: underline; font-weight: bold; }
 
 .pselect { font-size: 150%; font-weight: bold; vertical-align: middle; }
 .p { padding: .2em .3em; cursor: pointer; background-color: #dddddd; }
