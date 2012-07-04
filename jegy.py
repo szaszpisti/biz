@@ -1,0 +1,335 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# python-yaml
+
+import sys, string, locale, csv, re
+
+reload(sys)
+sys.setdefaultencoding( "utf-8" )
+
+import locale
+locale.setlocale(locale.LC_ALL, '')
+
+def main():
+#    print Bizonyitvany('7a', True).bizOsztaly['77642413171']
+#    print getOsztalyLista().lista
+    for oszt, osztaly, tmp, tmp in getOsztalyLista().lista:
+        print oszt,
+        t = Bizonyitvany(oszt, XLS=True, quite=True)
+        t.csvOut()
+
+class Osztaly():
+    def __init__(self, oszt):
+        '''
+        data: ['10b', '10. B', 10, True]
+        '''
+        import re
+        evfolyam = re.compile(r'[^0-9]').sub('', oszt) # '10b' => '10'
+        osztaly = evfolyam + '. ' + oszt[len(evfolyam):].upper()
+        evfolyam = int(evfolyam)
+
+        felso = False
+        if evfolyam > 8: felso = True
+
+        self.data = [oszt, osztaly, evfolyam, felso]
+
+class getOsztalyLista():
+    def __init__(self):
+        '''
+                  oszt, osztaly, evfolyam, felso
+        lista: [['10b', '10. B', 10, True], ...]
+        '''
+        from yaml import load  
+        config = load(open('biz.yaml')) 
+
+        self.lista = []
+
+        import glob
+        files = glob.glob('%s/*.xls' % config['forras'])
+
+        for xlsFile in files:
+            oszt = xlsFile.split('/')[-1].split('.')[0]
+            self.lista.append(Osztaly(oszt).data)
+
+        def sortOszt(x, y):
+            if cmp(x[2], y[2]) == 0: return cmp(x[1], y[1])
+            else: return cmp(x[2], y[2])
+        self.lista.sort(cmp=sortOszt)
+
+
+#    t = Evvege('10a.xls').getTargyak()
+#    print '\n'.join(t)
+
+#    e = Evvege('10a.xls').getEvvegeRows()
+#    print '==%s==' % e[0][7]
+#    t = Bizonyitvany('10b')
+#    print t.bizOsztaly['73946433164']
+#    print t.ki('73946433164')
+#    print t.nevsor
+#    print t.ki('Török András')
+#    print t.ki(5)
+#    print '\n'.join(t.getNevsor())
+
+# targyak = {}
+
+class Bizonyitvany():
+    def __init__(self, oszt, XLS=False, quite=False):
+        '''
+        bool XLS: xls forrást használjon (lehet csv-t generálni)
+        bool quite: ne kérdezze meg a bukásokat -> automatikus évismétlés
+        '''
+        self.oszt = oszt
+        bizOsztaly = {}
+
+        config = self.getConfig('biz.yaml', oszt)
+
+        if not XLS:
+            # akkor be lehet olvasni a csv-ből
+
+            import csv
+            biz_csv = '%s/%s.csv' % (config['forras'], oszt)
+            biz_reader = csv.reader(open(biz_csv, "rb"), delimiter='\t', quoting=csv.QUOTE_MINIMAL)
+
+            head = biz_reader.next()
+
+            for sor in biz_reader:
+                bizOsztaly[sor[0]] = dict(zip(head, sor))
+
+        else:
+            import xlrd
+            osztalyFile = xlrd.open_workbook('%s/%s.xls' % (config['forras'], oszt)).sheet_by_index(0)
+
+            # A felső évfolyamok jelölésére, a 6 osztályos bizonyítványban más lapra kell nyomtatni!
+    #        self.Felso = True
+    #        if evfolyam < 9: self.Felso = False
+
+            targySorrend = self.getTargySorrend(config['felso'])
+
+            head = ['nev', 'uid', '', 'tsz', 'szulhely', 'szulido', '', 'mnev', 'pnev']
+
+            for i in range (1, osztalyFile.nrows):
+                sor = osztalyFile.row_values(i)
+
+                diak = dict(zip(head, sor[:9]))
+                diak['mnev'] = diak['mnev'].strip() # A taninformban az anyja nevénél extra szóköz van
+                del(diak[''])
+
+                diak.update(config)
+                diak['szulido'] = self.getDatum(diak['szulido']) + '.'
+
+                E, nyelv, szabad = self.newBiz(config['felso'])
+                Bukott, Dicseret = [], []
+
+                for t in range(9, len(sor)-4, 3):
+                    if sor[t] == '': continue
+                    targy, oraszam, jegy = sor[t].lower(), sor[t+2], sor[t+1]
+                    hely = targySorrend[targy]
+
+                    if hely == 'f':
+                        E[szabad.pop(0)] = [targy.capitalize(), oraszam, jegy]
+
+                    elif hely == 'n': # ez egy nyelvi tárgy
+                        targy = targy.split()[0]
+                        E[nyelv.pop(0)] = [targy.capitalize(), oraszam, jegy]
+
+                    else:
+                        hely = int(hely)
+                        E[hely][1], E[hely][2] = oraszam, jegy
+
+                    # Ha külön van az irodalom és nyelvtan:
+                    if E[2][1] != '':
+                        E[1][0] = '--------'
+                        E[2][0] = 'Magyar nyelv'
+                    if jegy == 'elégtelen': Bukott.append(targy)
+                    if jegy == 'kitűnő':  Dicseret.append(targy)
+
+                E[int(targySorrend[u'magatartás'])][2] = sor[-3]
+                E[int(targySorrend[u'szorgalom'])][2]  = sor[-1]
+
+                for i in range(1, len(E)):
+                    t, o, j = E[i]
+                    diak['t%02d' % i] = t
+                    diak['o%02d' % i] = o
+                    diak['j%02d' % i] = j
+
+    #            diak['biz'] = E
+
+                diak.update(self.getZaradek(config['evfolyam'], diak['nev'], Bukott, Dicseret, quite))
+
+                bizOsztaly[diak['uid']] = diak
+
+        self.bizOsztaly = bizOsztaly
+        self.nevsor, self.nevsorId = self.makeNevsor()
+
+    def getConfig(self, iniFile, oszt):
+        from yaml import load
+        configAll = load(open(iniFile))
+
+        ''' "10b" => (10, "10. B") '''
+        import re
+        evfolyam = re.compile(r'[^0-9]').sub('', oszt) # '10b' => '10'
+
+        osztaly = evfolyam + '. ' + oszt[len(evfolyam):].upper()
+        evfolyam = int(evfolyam)
+        config = { 'osztaly': osztaly, 'evfolyam': evfolyam, 'forras': configAll['forras'] }
+
+        config['felso'] = True
+        if evfolyam < 9: config['felso'] = False
+
+        config['kev'], config['kho'], config['knap'] = re.compile("[\. ]*").split(configAll['kezdDate'])
+        if evfolyam >= 12: bizDate = configAll['vegzosDate']
+        else:              bizDate = configAll['bizDate']
+        config['ev'], config['ho'], config['nap'] = re.compile("[\. ]*").split(configAll['bizDate'])
+        config['om'], config['hely'], config['khely'] = configAll['om'], configAll['hely'], configAll['hely']
+        config['tanev'] = '%s  %s' % (int(config['ev'])-1,  config['ev'])
+
+        return config
+
+    def getDatum(self, datum):
+        ''' "2007.03.08" => "2007. március 8"'''
+        import datetime
+        ev, ho, nap = map(int, re.compile("[\. ]*").split(datum)[:3])
+        d = datetime.date(ev, ho, nap).strftime("%Y. %B ") + '%s'%nap # azért így, hogy ne legyen bevezető '0' ill. ' '
+        return d
+
+    def getZaradek(self, evfolyam, nev, Bukott, Dicseret, quite=False):
+        SZAMNEV = { 7:'hetedik', 8:'nyolcadik', 9:'kilencedik', 10:'tizedik', 11:'tizenegyedik', 12:'tizenkettedik', 13:'tizenharmadik' }
+        if   len(Bukott) == 0:
+            if evfolyam >= 12:  tovabb = 'Érettségi vizsgát tehet.'
+            else:              tovabb = 'Tanulmányait a %s évfolyamon folytathatja.' % SZAMNEV[evfolyam+1]
+        elif len(Bukott) <= 1: tovabb = 'Javítóvizsgát tehet %s tantárgyból.' % Bukott[0]
+        elif len(Bukott) <= 2: tovabb = 'Javítóvizsgát tehet %s valamint %s tantárgyakból.' % (', '.join(Bukott[:-1]), Bukott[-1])
+        else:                # tovabb = 'Évismétlés' ########  TODO  #######
+            tovabb = "A %s évfolyam követelményeit nem teljesítette, az évfolyamot megismételheti." % SZAMNEV[evfolyam]
+            uzenet = ("FIGYELEM!!!! Több tárgyból bukott: %s, a beírt szöveg: \n%s\n" % (nev, tovabb))
+#            raw_input (uzenet)
+            if not quite: raw_input (uzenet)
+
+        if   len(Dicseret) == 0: jegyzet = ''
+        elif len(Dicseret) <= 1: jegyzet = 'Dicséretben részesült %s tantárgyból.' % Dicseret[0]
+        elif len(Dicseret) <= 3: jegyzet = 'Dicséretben részesült %s valamint %s tantárgyakból.' % (', '.join(Dicseret[:-1]), Dicseret[-1])
+        else:                    jegyzet = 'Kiváló tanulmányi munkájáért általános dicséretben részesült.'
+
+        return {'tovabb': tovabb, 'jegyzet': jegyzet}
+
+    def newBiz(self, felso):
+        # Megcsináljuk az eredmények sablonját, majd ezt fogjuk töltögetni az aktuális jegyekkel
+        E = [ ['', '---', '-------------' ] for i in range(30) ] # az összes sor sémája, ez lesz feltöltve a jegyekkel
+        E[0] = ['','','']                                        # csak a helyes számozás végett, a végén törölhető
+        E[26][1], E[27][1], E[28][2], E[29][2] = ['']*4          # mag-szorg-nál nem kell évi óraszám, hiányzásnál jegy
+        if felso:                                                # a felsősöknek másképp néz ki a bizonyítványa
+            E[21][0] = 'Hittan'
+            nyelv = [5, 6]                                       # ide kerül a két nyelv
+            szabad = [22, 23, 24, 25]                            # a hittanon kivuli szabad bizonyitvany-sorok
+        else:
+            E[17][0] = 'Hittan'
+            nyelv = [4, 5]
+            szabad = [24, 25]
+        return E, nyelv, szabad
+
+    def getTargySorrend(self, felso):
+        import csv
+        targy_reader = csv.reader(open("tantargyak.csv", "rb"), delimiter=';', quoting=csv.QUOTE_MINIMAL)
+        targy_reader.next()
+
+        targySorrend = {}
+        for sor in targy_reader:
+            if len(sor) < 3 or sor[0] == '': continue
+            targySorrend[sor[2].strip().decode('utf8')] = sor[int(felso)]
+
+        return targySorrend
+
+    def makeNevsor(self):
+        '''
+           nevsor: ['Alma Attila', 'Baka Béla', ...]
+           nevsorId: [['Alma Attila', '123456789'], ['Baka Béla', '987654321'], ...]
+        '''
+        nevsorId = []
+        for uid in self.bizOsztaly.keys():
+            nevsorId.append ([self.bizOsztaly[uid]['nev'], uid])
+
+        sort = lambda x, y: locale.strcoll(x[0], y[0])
+        nevsorId.sort(cmp=sort)
+
+        nevsor = [ nev[0] for nev in nevsorId ]
+        return nevsor, nevsorId
+
+    def csvOut(self):
+        config = {'forras': 'forras'}
+        out_csv = '%s/%s.csv' % (config['forras'], self.oszt)
+        jegy_writer = csv.writer(open(out_csv, 'wb'), delimiter='\t')
+
+        fejlec = self.getFejlec()
+
+        jegy_writer.writerow(fejlec)
+
+        for nev, uid in self.nevsorId:
+            diak = self.bizOsztaly[uid]
+            sor = [ diak[key] for key in fejlec ]
+
+            jegy_writer.writerow (sor)
+
+    def getFejlec(self):
+
+        fejlec = ['uid', 'osztaly', 'nev', 'szulhely', 'szulido', 'pnev', 'mnev', 'khely', 'kev', 'kho', 'knap', 'om', 'tsz', 'tanev']
+        for i in range(1, 30): fejlec.extend([ 't%02d' % i, 'o%02d' % i, 'j%02d' % i ])
+        fejlec.extend(['tovabb', 'jegyzet', 'hely', 'ev', 'ho', 'nap'])
+
+        return fejlec
+
+    def ki(self, uid):
+        toStr = lambda i: '%-15s %4s %12s' % (i[0].capitalize(), i[1], i[2].center(10))
+
+        if type(uid) == int: # sorszám
+            n = uid
+            diak = self.bizOsztaly[self.nevsorId[n][1]]
+        elif ' ' in uid: # név - ebben biztos van szóköz
+            n = self.nevsor.index(uid)
+            diak = self.bizOsztaly[self.nevsorId[n][1]]
+        elif len(uid) == 11: # uid
+            diak = self.bizOsztaly[uid]
+        else: # sorszám string
+            n = int(uid)
+            diak = self.bizOsztaly[self.nevsorId[n][1]]
+
+        out = [diak['nev'], diak['tsz']]
+        for jegy in diak['biz']:
+            out.append(toStr(jegy))
+        return '\n'.join(out)
+
+def usage(msg = None):
+    print 'Usage: %s [-qvot] oszt' % sys.argv[0]
+    if msg: print msg
+    sys.exit(1)
+
+if __name__ == "__main__":
+    main()
+
+'''
+def main():
+    import getopt
+    try:
+        opts, argv = getopt.getopt(sys.argv[1:], "hoqv", ['help'])
+    except getopt.GetoptError, err:
+        print str(err)
+        usage()
+        sys.exit(2)
+    oVerbose, quite, oOraszam = False, False, False
+    for o, a in opts:
+        if o == "-v":
+            oVerbose = True
+        elif o == "-q":
+            quite = True
+        elif o in ("-h", "--help"):
+            usage()
+            sys.exit()
+        elif o in ("-o", "--oraszam"):
+            oOraszam = True
+        else:
+            assert False, "unhandled option"
+
+    biz = Bizonyitvany(argv[0], oVerbose=oVerbose, quite=quite)
+#    b = Bizonyitvany(oszt)
+#    if not quite: print '#'*80 + '\n  Dátumot beírtad?\n' + '#'*80 + '\n'
+'''
