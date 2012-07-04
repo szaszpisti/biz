@@ -1,0 +1,11 @@
+*.swp
+*~
+*.[0-9]
+*.xls
+*.pyc
+*.csv
+c:
+forras
+tmp
+jquery*.js
+shortcut.js
