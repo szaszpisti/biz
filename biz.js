@@ -152,12 +152,12 @@ $(document).ready(function() {
   shortcut.add("3", function(){ goPage(3); });
 
   shortcut.add("B", function(){ $('[name="bal"]:checked').focus(); });
-  shortcut.add("J", function(){ $('[name="diff"]:checked').focus(); });
+  shortcut.add("F", function(){ $('[name="diff"]:checked').focus(); });
   shortcut.add("G", function(){ $('#gerinc').focus(); });
   shortcut.add("N", function(){ $('#nevsor').focus(); });
   shortcut.add("O", function(){ $('#oszt').focus(); });
   shortcut.add("D", function(){ toggleDebug(); });
-  shortcut.add("K", function(){ toggleFrame(); });
+  shortcut.add("E", function(){ toggleFrame(); });
 
   shortcut.add("Up",   function(){ $('#gerinc').val(parseInt($('#gerinc').val())+1); }, {'target': document.biz.gerinc});
   shortcut.add("Down", function(){ $('#gerinc').val(parseInt($('#gerinc').val())-1); }, {'target': document.biz.gerinc});
