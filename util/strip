@@ -1,0 +1,13 @@
+#!/bin/bash
+
+set -e
+[ ! -d tmp ] && mkdir tmp
+
+for f in $*; do
+	n=$( ./bgrep -b '\r<!DOCTYPE' $f )
+	[ -z "$n" ] && continue
+	cp $f tmp
+	dd if=tmp/$f of=$f bs=512 count=$n
+	dd if=tmp/$f of=${f%.xls}.html bs=512 skip=$n
+done
+
