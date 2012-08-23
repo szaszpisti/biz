@@ -1,0 +1,26 @@
+K. Kö. 6103 Bizonyítvány
+hat és nyolc évfolyamos gimnáziumok számára
+
+
+Balla Tibor Bence mentes, de nincs ott óraszám!
+
+ttf-bitstream-vera
+libapache2-mod-python
+python-reportlab
+
+
+------ 8>< ======================= ><8 ------
+
+#!/bin/bash
+
+if [ ! -f "$1" ]; then
+	echo "No: $1"
+	exit 1
+fi
+
+gs -dSAFER -dBATCH -dNOPAUSE -dQUIET -sDEVICE=epsonc -r180 -sOutputFile=- $1 | \
+	lpr -P TallyGenicom_5040
+
+------ 8>< ======================= ><8 ------
+
+
