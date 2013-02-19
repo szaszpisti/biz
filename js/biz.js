@@ -50,7 +50,7 @@ $(document).ready(function() {
   }
   $('#divBalGomb').append('<div style="clear: both"></div>');
   $('#divBalGomb').append('<p style="text-align: center; border-top: 1px solid;"><span class="alahuzott">b</span>al margó</p>');
-  $('input:radio[name=bal]:[value='+balDefault+']').attr('checked', 'checked');
+  $('input[name="bal"][value="'+balDefault+'"]').attr('checked', 'checked');
 
   // egy diák adatainak betöltése
   var getData = function() {
@@ -86,7 +86,7 @@ $(document).ready(function() {
   };
 
   /*
-   * Egérgörgetések következnek
+   * Egérgörgetések
    */
 
   $('#spanGerinc').bind("mousewheel DOMMouseScroll", function(event) {
@@ -98,21 +98,21 @@ $(document).ready(function() {
 
   $('#divDiff').bind("mousewheel DOMMouseScroll", function(event) {
     var delta = event.wheelDelta ||  event.detail || -event.originalEvent.wheelDelta || event.originalEvent.detail;
-    diff = parseInt($('input:radio[name=diff]:checked').val());
+    diff = parseInt($('input[name=diff]:checked').val());
     diff = delta>0 ? diff-1 : diff+1;
     diff = 3-diff;
     if (diff<0) diff = 0;
     if (diff>6) diff = 6;
-    $('input:radio[name=diff]')[diff].checked = true;
+    $('input[name=diff]')[diff].checked = true;
     return false;
   });
 
   $('#divBalGomb').bind("mousewheel DOMMouseScroll", function(event) {
     var delta = event.wheelDelta ||  event.detail || -event.originalEvent.wheelDelta || event.originalEvent.detail;
-    bal = parseInt($('input:radio[name=bal]:checked').val());
+    bal = parseInt($('input[name=bal]:checked').val());
     balUj = delta>0 ? bal-1 : bal+1;
     if (balMin<=balUj && balUj<=balMax) bal = balUj
-    $('input:radio[name=bal]:[value='+balUj+']').attr('checked', 'checked');
+    $('input[name=bal][value='+balUj+']').attr('checked', 'checked');
     return false;
   });
 
