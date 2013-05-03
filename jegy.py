@@ -15,7 +15,7 @@ reload(sys)
 sys.setdefaultencoding( "utf-8" )
 
 import locale
-locale.setlocale(locale.LC_ALL, '')
+locale.setlocale(locale.LC_ALL, 'hu_HU')
 
 def main():
 #    print Bizonyitvany('7a', True).bizOsztaly['77642413171']
