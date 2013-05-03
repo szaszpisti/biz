@@ -153,16 +153,24 @@ class Bizonyitvany():
                     diak['o%02d' % i] = o
                     diak['j%02d' % i] = j
 
-    #            diak['biz'] = E
-
-                diak.update(self.getZaradek(config['evfolyam'], diak['nev'], Bukott, Dicseret, quite))
+                # Hozzáadjuk a továbbhaladást és a záradékot
+                diak.update(self.getZaradek(config['evfolyam'], diak['nev'], Bukott, Dicseret, quiet))
 
                 bizOsztaly[diak['uid']] = diak
 
+        ## Egy-egy osztály tanulóinak bizonyítványa
         self.bizOsztaly = bizOsztaly
+        ## Az osztály névsora, ill. névsor+id listája
         self.nevsor, self.nevsorId = self.makeNevsor()
 
     def getConfig(self, iniFile, oszt):
+        '''Beolvassa a config fájlt (biz.yaml)
+
+        @param iniFile az ini fájl neve (biz.yaml)
+        @param oszt osztály azonosító
+
+        @return a konfigurációs fájlból vett és a számított beállítások szótára
+        '''
         from yaml import load
         configAll = load(open(iniFile))
 
@@ -178,8 +186,10 @@ class Bizonyitvany():
         if evfolyam < 9: config['felso'] = False
 
         config['kev'], config['kho'], config['knap'] = re.compile("[\. ]*").split(configAll['kezdDate'])
-        if evfolyam >= 12: bizDate = configAll['vegzosDate']
-        else:              bizDate = configAll['bizDate']
+        if evfolyam >= 12:
+            bizDate = configAll['vegzosDate']
+        else:
+            bizDate = configAll['bizDate']
         config['ev'], config['ho'], config['nap'] = re.compile("[\. ]*").split(configAll['bizDate'])
         config['om'], config['hely'], config['khely'] = configAll['om'], configAll['hely'], configAll['hely']
         config['tanev'] = '%s  %s' % (int(config['ev'])-1,  config['ev'])
@@ -187,13 +197,26 @@ class Bizonyitvany():
         return config
 
     def getDatum(self, datum):
-        ''' "2007.03.08" => "2007. március 8"'''
+        '''"2007.03.08" => "2007. március 8"
+        
+        @param datum a dátum "2007.03.08" formában
+        '''
         import datetime
         ev, ho, nap = map(int, re.compile("[\. ]*").split(datum)[:3])
         d = datetime.date(ev, ho, nap).strftime("%Y. %B ") + '%s'%nap # azért így, hogy ne legyen bevezető '0' ill. ' '
         return d
 
-    def getZaradek(self, evfolyam, nev, Bukott, Dicseret, quite=False):
+    def getZaradek(self, evfolyam, nev, Bukott, Dicseret, quiet=False):
+        '''Adott diákhoz generálja a záradékot
+
+        @param evfolyam A diák évfolyama
+        @param nev A diák neve
+        @param Bukott <tt>['Tárgy', ...]</tt>
+        @param Dicseret <tt>['Tárgy', ...]</tt>
+        @param quiet ha True, akkor nem áll meg a legalább 3 tárgyból bukottaknál
+        
+        @return <tt>{'tovabb': a tanuló továbbhaladása, 'jegyzet': dicséret stb. }</tt>
+        '''
         SZAMNEV = { 7:'hetedik', 8:'nyolcadik', 9:'kilencedik', 10:'tizedik', 11:'tizenegyedik', 12:'tizenkettedik', 13:'tizenharmadik' }
         if   len(Bukott) == 0:
             if evfolyam >= 12:  tovabb = 'Érettségi vizsgát tehet.'
@@ -203,8 +226,7 @@ class Bizonyitvany():
         else:                # tovabb = 'Évismétlés' ########  TODO  #######
             tovabb = "A %s évfolyam követelményeit nem teljesítette, az évfolyamot megismételheti." % SZAMNEV[evfolyam]
             uzenet = ("FIGYELEM!!!! Több tárgyból bukott: %s, a beírt szöveg: \n%s\n" % (nev, tovabb))
-#            raw_input (uzenet)
-            if not quite: raw_input (uzenet)
+            if not quiet: raw_input (uzenet)
 
         if   len(Dicseret) == 0: jegyzet = ''
         elif len(Dicseret) <= 1: jegyzet = 'Dicséretben részesült %s tantárgyból.' % Dicseret[0]
@@ -214,7 +236,15 @@ class Bizonyitvany():
         return {'tovabb': tovabb, 'jegyzet': jegyzet}
 
     def newBiz(self, felso):
-        # Megcsináljuk az eredmények sablonját, majd ezt fogjuk töltögetni az aktuális jegyekkel
+        '''Egy diák bizonyítványátak sablonja, majd ezt fogjuk töltögetni az aktuális jegyekkel
+
+        @param felso felsős-e (9-12)? - ott más bizonyítvány van
+
+        @return <tt>[['', '---', '-------------' ], ...], [5, 6], [24, 25]</tt>
+            - E: az üres bizonyítvány
+            - [5, 6]: a nyelveknek fölhasználható helyek
+            - [24, 25]: szabad, tetszőleges tárgynak fölhasználható helyek
+        '''
         E = [ ['', '---', '-------------' ] for i in range(30) ] # az összes sor sémája, ez lesz feltöltve a jegyekkel
         E[0] = ['','','']                                        # csak a helyes számozás végett, a végén törölhető
         E[26][1], E[27][1], E[28][2], E[29][2] = ['']*4          # mag-szorg-nál nem kell évi óraszám, hiányzásnál jegy
@@ -229,21 +259,32 @@ class Bizonyitvany():
         return E, nyelv, szabad
 
     def getTargySorrend(self, felso):
+        '''A "tantargyak.csv"-ből beolvassa a tárgyakhoz tartozó helyeket
+
+        @param felso felsős-e (9-12)? - az egyes tárgyakhoz másik oszlopban van a szám
+            1. oszlop: alsó
+            2. oszlop: felső
+        @return <tt>{'irodalom': 1, 'matematika': 6, ...}</tt>
+        '''
         import csv
         targy_reader = csv.reader(open("tantargyak.csv", "rb"), delimiter=';', quoting=csv.QUOTE_MINIMAL)
         targy_reader.next()
 
         targySorrend = {}
         for sor in targy_reader:
-            if len(sor) < 3 or sor[0] == '': continue
-            targySorrend[sor[2].strip().decode('utf8')] = sor[int(felso)]
+            if len(sor) < 3 or sor[0] == '': continue # ha kevés a mező vagy ';'-vel kezdődik
+            # egy mezőhöz tartozhat több tárgynév is, ezeket vesszük sorra
+            for targyNev in sor[2:]:
+                targySorrend[targyNev.strip().decode('utf8')] = sor[int(felso)]
 
         return targySorrend
 
     def makeNevsor(self):
-        '''
-           nevsor: ['Alma Attila', 'Baka Béla', ...]
-           nevsorId: [['Alma Attila', '123456789'], ['Baka Béla', '987654321'], ...]
+        '''A bizOsztaly-ból névsort készít
+
+        @return nevsor, nevsorId
+           - nevsor: <tt>['Alma Attila', 'Baka Béla', ...]</tt>
+           - nevsorId: <tt>[['Alma Attila', '123456789'], ['Baka Béla', '987654321'], ...]</tt>
         '''
         nevsorId = []
         for uid in self.bizOsztaly.keys():
@@ -256,6 +297,8 @@ class Bizonyitvany():
         return nevsor, nevsorId
 
     def csvOut(self):
+        '''Fájlba írja a csv-t
+        '''
         config = {'forras': 'forras'}
         out_csv = '%s/%s.csv' % (config['forras'], self.oszt)
         jegy_writer = csv.writer(open(out_csv, 'wb'), delimiter='\t')
@@ -271,14 +314,28 @@ class Bizonyitvany():
             jegy_writer.writerow (sor)
 
     def getFejlec(self):
+        '''A fejléc mezők neveit generálja
 
+        @return fejlec
+            - fejlec: ['uid', 'osztaly', ... 't15', 'o15', 'j15', ... 'tovabb', 'jegyzet', ...]
+        '''
         fejlec = ['uid', 'osztaly', 'nev', 'szulhely', 'szulido', 'pnev', 'mnev', 'khely', 'kev', 'kho', 'knap', 'om', 'tsz', 'tanev']
-        for i in range(1, 30): fejlec.extend([ 't%02d' % i, 'o%02d' % i, 'j%02d' % i ])
+        for i in range(1, 30):
+            fejlec.extend([ 't%02d' % i, 'o%02d' % i, 'j%02d' % i ])
         fejlec.extend(['tovabb', 'jegyzet', 'hely', 'ev', 'ho', 'nap'])
 
         return fejlec
 
     def ki(self, uid):
+        '''Diák kiírása ellenőrzésképpen
+
+        @param uid a kiírandó diák azonosítója, lehet:
+            - sorszám (int vagy str),
+            - név,
+            - oktatási azonosító.
+        @return a kiírandó szöveg
+        '''
+        # egy tanulósor előállítása
         toStr = lambda i: '%-15s %4s %12s' % (i[0].capitalize(), i[1], i[2].center(10))
 
         if type(uid) == int: # sorszám
@@ -287,7 +344,7 @@ class Bizonyitvany():
         elif ' ' in uid: # név - ebben biztos van szóköz
             n = self.nevsor.index(uid)
             diak = self.bizOsztaly[self.nevsorId[n][1]]
-        elif len(uid) == 11: # uid
+        elif len(uid) == 11: # uid, oktatási azonosító
             diak = self.bizOsztaly[uid]
         else: # sorszám string
             n = int(uid)
@@ -298,38 +355,6 @@ class Bizonyitvany():
             out.append(toStr(jegy))
         return '\n'.join(out)
 
-def usage(msg = None):
-    print 'Usage: %s [-qvot] oszt' % sys.argv[0]
-    if msg: print msg
-    sys.exit(1)
-
 if __name__ == "__main__":
     main()
 
-'''
-def main():
-    import getopt
-    try:
-        opts, argv = getopt.getopt(sys.argv[1:], "hoqv", ['help'])
-    except getopt.GetoptError, err:
-        print str(err)
-        usage()
-        sys.exit(2)
-    oVerbose, quite, oOraszam = False, False, False
-    for o, a in opts:
-        if o == "-v":
-            oVerbose = True
-        elif o == "-q":
-            quite = True
-        elif o in ("-h", "--help"):
-            usage()
-            sys.exit()
-        elif o in ("-o", "--oraszam"):
-            oOraszam = True
-        else:
-            assert False, "unhandled option"
-
-    biz = Bizonyitvany(argv[0], oVerbose=oVerbose, quite=quite)
-#    b = Bizonyitvany(oszt)
-#    if not quite: print '#'*80 + '\n  Dátumot beírtad?\n' + '#'*80 + '\n'
-'''

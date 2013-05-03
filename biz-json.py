@@ -35,7 +35,7 @@ def main():
         oszt = query['oszt'].value
         from jegy import Bizonyitvany
 
-        res = [ '<option value="%s">%s</option>\n' % (t[1], t[0]) for t in Bizonyitvany(oszt, quite=True).nevsorId ]
+        res = [ '<option value="%s">%s</option>\n' % (t[1], t[0]) for t in Bizonyitvany(oszt, quiet=True).nevsorId ]
 
         pre, sep, post = res[0].partition('>')
         res[0] = pre + ' selected>' + post
@@ -46,7 +46,7 @@ def main():
         oszt = query['oszt'].value
         uid = query['uid'].value
 
-        res = Bizonyitvany(oszt, quite=True).bizOsztaly[uid]
+        res = Bizonyitvany(oszt, quiet=True).bizOsztaly[uid]
         return json.dumps(res)
 
     elif tip == 'nyomtat':
