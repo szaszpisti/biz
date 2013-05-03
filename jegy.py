@@ -124,8 +124,11 @@ class Bizonyitvany():
 
                 # egyelőre csak a személyes adatok lesznek benne; diak: {'nev': 'Sámli Samu', 'uid': '1234567890', ...}
                 diak = dict(zip(head, sor[:9]))
-                diak['mnev'] = diak['mnev'].strip() # A taninformban az anyja nevénél extra szóköz van
                 del(diak[''])
+
+                if sor[-2] != u'Igazolatlan':
+                    print u'********* %s: hiányos a bizonyítványa, átugrom.' % diak['nev']
+                    continue
 
                 diak.update(config)
                 # a születési időt hosszú alakúra írjuk át
