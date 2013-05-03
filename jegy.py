@@ -44,11 +44,12 @@ class getOsztalyLista():
 
         # vesszük a forrás könyvtárban található összes xls-t
         import glob
-        files = glob.glob('%s/*.xls' % config['forras'])
+        xlsFiles = glob.glob('%s/*.xls' % config['forras'])
 
-        for xlsFile in files:
-            oszt = xlsFile.split('/')[-1].split('.')[0]
-            self.lista.append(Osztaly(oszt).data)
+        for xlsFile in xlsFiles:
+            f = xlsFile.split('/')[-1] # basename
+            oszt = f[:f.rfind('.')]
+            self.lista.append(self.Osztaly(oszt))
 
         # rendezzük az osztálylistát évfolyam(2), majd név(1) alapján
         def sortOszt(x, y):
