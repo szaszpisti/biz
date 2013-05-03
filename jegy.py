@@ -145,7 +145,7 @@ class Bizonyitvany():
                 # egy tárgyhoz 3 mező tartozik: tárgynév, jegy, óraszám
                 for t in range(0, len(sor)-8, 3):
                     if sor[t] == '': continue
-                    targy, oraszam, jegy = sor[t].lower(), sor[t+2], sor[t+1]
+                    targy, jegy, oraszam = sor[t].lower(), sor[t+1], sor[t+2]
                     hely = targySorrend[targy]
 
                     if hely == 'f': # szabad helyre kerülő tárgy (pl. fakultáció)
