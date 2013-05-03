@@ -1,6 +1,12 @@
 #!/usr/bin/python
 # coding: utf-8
 
+'''@file "biz-json.py"
+
+A HTML lekérdezéseket kiszolgáló háttéralkalmazás.
+Osztálylistát, névsorokat szolgáltat.
+'''
+
 import cgi, csv, sys, simplejson as json
 
 from yaml import load
@@ -88,7 +94,10 @@ def main():
         return json.dumps ({'message': 'NYOMTATVA (<span style="color: white;">%s</span>) %s' % (b.filename, arg)})
 
 def printPDF(filename):
+    '''A pdf fájlt elküldi nyomtatóra
 
+    @param filename ezt a fájlt kell elküldeni
+    '''
     from subprocess import Popen, PIPE
     from os import waitpid
 

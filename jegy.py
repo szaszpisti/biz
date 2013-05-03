@@ -1,7 +1,13 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# python-yaml
+'''@package jegy
+Feldolgozza az "Évvégi eredményeket"
+
+Lefuttatva feldolgozza a biz.yaml[forras] könyvtárban található oszt.xls fájlokat,
+mindegyikhez elkészíti az oszt.csv-t, ami a bizonyítvány input formátumában van.
+'''
+# python-yaml python-xlrd
 
 import sys, string, locale, csv, re
 
@@ -16,7 +22,7 @@ def main():
 #    print getOsztalyLista().lista
     for oszt, osztaly, tmp, tmp in getOsztalyLista().lista:
         print oszt,
-        t = Bizonyitvany(oszt, XLS=True, quite=True)
+        t = Bizonyitvany(oszt, XLS=True, quiet=True)
         t.csvOut()
 
 class Osztaly():
@@ -35,16 +41,23 @@ class Osztaly():
         self.data = [oszt, osztaly, evfolyam, felso]
 
 class getOsztalyLista():
+    '''A forrás könyvtárban található összes xls-t végigveszi,
+    a fájlnevek alapján elkészíti belőle az osztálylistát
+    '''
     def __init__(self):
         '''
-                  oszt, osztaly, evfolyam, felso
-        lista: [['10b', '10. B', 10, True], ...]
+                  osztályID, osztályNév, évfolyam, felső-e
+        lista: [ ['10b',     '10. B',    10,       True],   ...]
         '''
         from yaml import load  
         config = load(open('biz.yaml')) 
 
+        ## az osztályok listája a következő formában:
+        #           osztályID, osztályNév, évfolyam, felső-e
+        # lista: [ ['10b',     '10. B',    10,       True],   ...]
         self.lista = []
 
+        # vesszük a forrás könyvtárban található összes xls-t
         import glob
         files = glob.glob('%s/*.xls' % config['forras'])
 
@@ -52,6 +65,7 @@ class getOsztalyLista():
             oszt = xlsFile.split('/')[-1].split('.')[0]
             self.lista.append(Osztaly(oszt).data)
 
+        # rendezzük az osztálylistát évfolyam(2), majd név(1) alapján
         def sortOszt(x, y):
             if cmp(x[2], y[2]) == 0: return cmp(x[1], y[1])
             else: return cmp(x[2], y[2])
@@ -71,14 +85,15 @@ class getOsztalyLista():
 #    print t.ki(5)
 #    print '\n'.join(t.getNevsor())
 
-# targyak = {}
-
 class Bizonyitvany():
-    def __init__(self, oszt, XLS=False, quite=False):
+    def __init__(self, oszt, XLS=False, quiet=False):
+        '''Egy osztályhoz tartozó bizonyítványok
+
+        @param oszt osztályazonosító
+        @param XLS xls forrást használjon (lehet csv-t generálni)
+        @param quiet ne kérdezze meg a bukásokat -> 3 bukásra automatikusan évismétlést ír be
         '''
-        bool XLS: xls forrást használjon (lehet csv-t generálni)
-        bool quite: ne kérdezze meg a bukásokat -> automatikus évismétlés
-        '''
+        ##
         self.oszt = oszt
         bizOsztaly = {}
 
@@ -100,33 +115,38 @@ class Bizonyitvany():
             import xlrd
             osztalyFile = xlrd.open_workbook('%s/%s.xls' % (config['forras'], oszt)).sheet_by_index(0)
 
-            # A felső évfolyamok jelölésére, a 6 osztályos bizonyítványban más lapra kell nyomtatni!
-    #        self.Felso = True
-    #        if evfolyam < 9: self.Felso = False
-
             targySorrend = self.getTargySorrend(config['felso'])
 
+            # az "Évvégi eredmények" táblázatban ezek az oszlopok vannak elöl - a szükségtelen mezőket később töröljük
             head = ['nev', 'uid', '', 'tsz', 'szulhely', 'szulido', '', 'mnev', 'pnev']
 
             for i in range (1, osztalyFile.nrows):
                 sor = osztalyFile.row_values(i)
 
+                # egyelőre csak a személyes adatok lesznek benne; diak: {'nev': 'Sámli Samu', 'uid': '1234567890', ...}
                 diak = dict(zip(head, sor[:9]))
                 diak['mnev'] = diak['mnev'].strip() # A taninformban az anyja nevénél extra szóköz van
                 del(diak[''])
 
                 diak.update(config)
+                # a születési időt hosszú alakúra írjuk át
                 diak['szulido'] = self.getDatum(diak['szulido']) + '.'
 
+                # üres bizonyítvány
                 E, nyelv, szabad = self.newBiz(config['felso'])
+                # ide gyűjtjük a bukásokat és a dicséreteket
                 Bukott, Dicseret = [], []
 
-                for t in range(9, len(sor)-4, 3):
+                # a 9. oszloptól kezdődnek a jegyek, addig személyes adatok vannak, az már fel van dolgozva
+                sor = sor[9:]
+                # a végén 4 db "tárgy" 2-2, összesen 8 helyet foglal (mag-szorg, mulasztások)
+                # egy tárgyhoz 3 mező tartozik: tárgynév, jegy, óraszám
+                for t in range(0, len(sor)-8, 3):
                     if sor[t] == '': continue
                     targy, oraszam, jegy = sor[t].lower(), sor[t+2], sor[t+1]
                     hely = targySorrend[targy]
 
-                    if hely == 'f':
+                    if hely == 'f': # szabad helyre kerülő tárgy (pl. fakultáció)
                         E[szabad.pop(0)] = [targy.capitalize(), oraszam, jegy]
 
                     elif hely == 'n': # ez egy nyelvi tárgy
@@ -144,9 +164,13 @@ class Bizonyitvany():
                     if jegy == 'elégtelen': Bukott.append(targy)
                     if jegy == 'kitűnő':  Dicseret.append(targy)
 
-                E[int(targySorrend[u'magatartás'])][2] = sor[-3]
-                E[int(targySorrend[u'szorgalom'])][2]  = sor[-1]
+                # A sor vége mindig: ... magatartás, szorgalom, igazolt, igazolatlan
+                E[int(targySorrend[u'magatartás'])][2] = sor[-7]
+                E[int(targySorrend[u'szorgalom'])][2]  = sor[-5]
+                E[int(targySorrend[u'igazolatlan'])][1]  = sor[-1]
+                E[int(targySorrend[u'osszes'])][1]  = '%d' % (int(sor[-3]) + int(sor[-1]))
 
+                # A diák adatait feltöltjük a feldolgozott bizonyítvány-értékekkel
                 for i in range(1, len(E)):
                     t, o, j = E[i]
                     diak['t%02d' % i] = t
