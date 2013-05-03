@@ -25,21 +25,6 @@ def main():
         t = Bizonyitvany(oszt, XLS=True, quiet=True)
         t.csvOut()
 
-class Osztaly():
-    def __init__(self, oszt):
-        '''
-        data: ['10b', '10. B', 10, True]
-        '''
-        import re
-        evfolyam = re.compile(r'[^0-9]').sub('', oszt) # '10b' => '10'
-        osztaly = evfolyam + '. ' + oszt[len(evfolyam):].upper()
-        evfolyam = int(evfolyam)
-
-        felso = False
-        if evfolyam > 8: felso = True
-
-        self.data = [oszt, osztaly, evfolyam, felso]
-
 class getOsztalyLista():
     '''A forrás könyvtárban található összes xls-t végigveszi,
     a fájlnevek alapján elkészíti belőle az osztálylistát
@@ -71,12 +56,25 @@ class getOsztalyLista():
             else: return cmp(x[2], y[2])
         self.lista.sort(cmp=sortOszt)
 
+    def Osztaly(self, oszt):
+        '''A paraméterként kapott osztálynevet dolgozza fel
 
-#    t = Evvege('10a.xls').getTargyak()
-#    print '\n'.join(t)
+        @param string oszt: a feldolgozandó osztályazonosító ("10b")
 
-#    e = Evvege('10a.xls').getEvvegeRows()
-#    print '==%s==' % e[0][7]
+        @return <tt>['10b', '10. B', 10, True]</tt>
+        '''
+        import re
+        m = re.match(r'^(\d+)[^a-zA-Z]*([a-zA-Z]*)', oszt).groups()
+        osztaly = '%s. %s' % (m[0], m[1].upper())
+        evfolyam = int(m[0])
+
+        felso = False
+        if evfolyam > 8: felso = True
+
+        return [oszt, osztaly, evfolyam, felso]
+
+
+
 #    t = Bizonyitvany('10b')
 #    print t.bizOsztaly['73946433164']
 #    print t.ki('73946433164')
