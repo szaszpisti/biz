@@ -217,7 +217,7 @@ class Bizonyitvany():
             bizDate = configAll['vegzosDate']
         else:
             bizDate = configAll['bizDate']
-        config['ev'], config['ho'], config['nap'] = re.compile("[\. ]*").split(configAll['bizDate'])
+        config['ev'], config['ho'], config['nap'] = re.compile("[\. ]*").split(bizDate)
         config['om'], config['hely'], config['khely'] = configAll['om'], configAll['hely'], configAll['hely']
         config['tanev'] = '%s  %s' % (int(config['ev'])-1,  config['ev'])
 
