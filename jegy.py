@@ -15,7 +15,7 @@ reload(sys)
 sys.setdefaultencoding( "utf-8" )
 
 import locale
-locale.setlocale(locale.LC_ALL, 'hu_HU')
+locale.setlocale(locale.LC_ALL, 'hu_HU.UTF-8')
 
 def main():
     '''Főprogram'''
