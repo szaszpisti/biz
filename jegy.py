@@ -174,6 +174,8 @@ class Bizonyitvany():
                 # A diák adatait feltöltjük a feldolgozott bizonyítvány-értékekkel
                 for i in range(1, len(E)):
                     t, o, j = E[i]
+                    # a "kitűnő" értékelésű tárgyakat visszaírjuk "jeles"-re
+                    if j == 'kitűnő': j = 'jeles'
                     diak['t%02d' % i] = t
                     diak['o%02d' % i] = o
                     diak['j%02d' % i] = j
