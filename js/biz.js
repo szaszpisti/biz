@@ -1,9 +1,23 @@
+/*!
+ * @file biz.js
+ * A biz.html-hez tartozó JavaScript (jQuery) függvények.
+ */
+
+/*!
+ * 1-2-3. oldal valamelyikére ugrunk
+ * @param n 1, 2, 3 valamelyike
+ */
 
 if (typeof(jQuery) == 'undefined') {
     alert("Kérlek, telepítsd a jQuery-t a js/ könyvtárba!");
 } else {
     var page = 3
+    // 1-2-3. oldal valamelyikére ugrunk
     var goPage = function(n) {
+        /*!
+         * 1-2-3. oldal valamelyikére ugrunk
+         * @param n 1, 2, 3 valamelyike
+         */
         $('.page').hide();
         $('#page'+n).show();
 

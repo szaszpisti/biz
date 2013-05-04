@@ -10,13 +10,18 @@ Osztálylistát, névsorokat szolgáltat.
 import cgi, csv, sys, simplejson as json
 
 from yaml import load
+## a konfigurációs fájlból vett adatok
 data = load(open('biz.yaml'))
 
+## a bizonyítvány-dátumból kigyűjtjük az aktuális évet
 ev = data['bizDate'].split('.')[0]
 
+## CGI-ként az érkezett http adatok
 query = cgi.FieldStorage()
 
 def main():
+    '''A kérés típusa alapján (tip) ad vissza eredményt
+    '''
     if query.has_key('tip'): tip = query['tip'].value
     else: tip = 'oszt'
     forras = 'forras'

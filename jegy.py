@@ -18,6 +18,7 @@ import locale
 locale.setlocale(locale.LC_ALL, 'hu_HU')
 
 def main():
+    '''Főprogram'''
 #    print Bizonyitvany('7a', True).bizOsztaly['77642413171']
 #    print getOsztalyLista().lista
     for oszt, osztaly, tmp, tmp in getOsztalyLista().lista:
@@ -60,7 +61,7 @@ class getOsztalyLista():
     def Osztaly(self, oszt):
         '''A paraméterként kapott osztálynevet dolgozza fel
 
-        @param string oszt: a feldolgozandó osztályazonosító ("10b")
+        @param oszt: a feldolgozandó osztályazonosító ("10b")
 
         @return <tt>['10b', '10. B', 10, True]</tt>
         '''
@@ -73,8 +74,6 @@ class getOsztalyLista():
         if evfolyam > 8: felso = True
 
         return [oszt, osztaly, evfolyam, felso]
-
-
 
 #    t = Bizonyitvany('10b')
 #    print t.bizOsztaly['73946433164']
@@ -92,7 +91,7 @@ class Bizonyitvany():
         @param XLS xls forrást használjon (lehet csv-t generálni)
         @param quiet ne kérdezze meg a bukásokat -> 3 bukásra automatikusan évismétlést ír be
         '''
-        ##
+        ## osztályazonosító
         self.oszt = oszt
         bizOsztaly = {}
 
