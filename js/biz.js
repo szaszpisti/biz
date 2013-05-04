@@ -144,12 +144,12 @@ if (typeof(jQuery) == 'undefined') {
         }
 
         var toggleDebug = function(){
-            $('#debug').attr('checked', !$('#debug').attr('checked'));
+            $('#debug').prop('checked', !$('#debug').prop('checked'));
             verbose = !verbose;
         };
 
         var toggleFrame = function(){
-            $('#frame').attr('checked', !$('#frame').attr('checked'));
+            $('#frame').prop('checked', !$('#frame').prop('checked'));
         }
 
         $('#spanOsztaly').change ( function(){ changeOsztaly(); });
