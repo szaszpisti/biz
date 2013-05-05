@@ -11,9 +11,9 @@ hely: Szeged
 isk1: ''
 isk2: ''
 
-bizDate:    2012. június 15
-vegzosDate: 2012. május 5
-kezdDate:   2011. június 22
+bizDate:    2013. június 14
+vegzosDate: 2013. május 2
+kezdDate:   2012. június 28
 
 # a nyomtatott oldal pontosabb pozícionálása (eltérés a mért értékektől)
 posX: -1
