@@ -3,6 +3,7 @@
 # fájlokban keres mintát és kiírja az első találat helyét
 # bgrep 'B\x65\131' valami masik
 # bgrep -x 65f8 *
+#  -b: a blokkok számát írja ki (512 bájtos)
 
 if ( $ARGV[0] eq '-x' ) {
 	shift;
