@@ -37,8 +37,8 @@ document.getElementById("jsTest").style.display = 'none';
 
     <div id="divBal" style="float: left; margin-top: .5em;"><!-- bal gomb -->
       <div>
-        <img src="image/mouse.png" style="float: left; padding-right: 1em;">
-        <span style="  float: left;">
+        <img title="Görgővel is állíhatók a távolságok." src="image/mouse.png" alt="Egér kép" style="float: left; padding-right: 1em;">
+        <span style="float: left;">
           <input type="hidden" id="pp" name="pp" value="">
           <span class="p" id="p1" onClick="goPage(1)">1</span>
           <span class="p" id="p2" onClick="goPage(2)">2</span>
@@ -46,14 +46,14 @@ document.getElementById("jsTest").style.display = 'none';
         </span>
       </div>
       <div style="clear: both"></div>
-      <div id="divBalGomb" style="float: right; margin: .7em 0;">
+      <div title="A bal tükör távolsága a bizonyítvány szélétől." id="divBalGomb" style="float: right; margin: .7em 0;">
         <!-- a "bal" rádiógombokat a JavaScript generálja -->
       </div>
       <div style="clear: both"></div>
-      <span style="margin-left: 1em; text-align: right;" id="spanGerinc"><span class="alahuzott">g</span>erinc: <input type="text" id="gerinc" name="gerinc" size="2" value="12"> mm</span>
+      <span title="A bal és jobb tükör távolsága." style="margin-left: 1em; text-align: right;" id="spanGerinc"><span class="alahuzott">g</span>erinc: <input type="text" id="gerinc" name="gerinc" size="2" value="12"> mm</span>
     </div><!-- /bal gomb -->
-    <div id="divDiff" style="text-align: right; margin-left: 1em; float: left;"><!-- diff -->
-      <p style="text-align: center;">di<span class="alahuzott">f</span>f</p>
+    <div title="A jobb tükör tetejének eltérése a baltól." id="divDiff" style="text-align: right; margin-left: 1em; float: left;"><!-- diff -->
+      <p style="text-align: center;">di<span class="alahuzott">f</span>f (mm)</p>
       <ul style="list-style-type: none; padding-left: 0; margin-top: .2em;">
         <li>+3 <input name="diff" type="radio" value="3"></li>
         <li>+2 <input name="diff" type="radio" value="2"></li>
