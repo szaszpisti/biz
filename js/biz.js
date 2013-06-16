@@ -87,6 +87,10 @@ if (typeof(jQuery) == 'undefined') {
                 // a "nyelv és" kihúzása, ha szükséges
                 s = $('#t01').html();
                 if (s.substr(-3, 3) == '---') $('#t01').html('<span style="padding-left: 10mm;">' + s + '</span>');
+
+                // Taninform link: az aktuális link "=" előtti részéhez hozzárakjuk az om azonosítót
+                url = $("#url").attr('href').split('=')[0] + '=' + result['om']
+                $("#url").attr('href', url)
             });
         };
 
