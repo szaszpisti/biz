@@ -4,7 +4,7 @@
 '''@package jegy
 Feldolgozza az "Évvégi eredményeket"
 
-Lefuttatva feldolgozza a biz.yaml[forras] könyvtárban található oszt.xls fájlokat,
+Lefuttatva feldolgozza a "forras" könyvtárban található oszt.xls fájlokat,
 mindegyikhez elkészíti az oszt.csv-t, ami a bizonyítvány input formátumában van.
 '''
 # python-yaml python-xlrd
@@ -45,11 +45,11 @@ class getOsztalyLista():
 
         # vesszük a forrás könyvtárban található összes xls-t
         import glob
-        xlsFiles = glob.glob('%s/*.xls' % config['forras'])
+        xlsFiles = glob.glob('forras/*.xls')
 
         for xlsFile in xlsFiles:
             f = xlsFile.split('/')[-1] # basename
-            oszt = f[:f.rfind('.')]
+            oszt = f[:f.rfind('.')]    # levágjuk a kiterjesztést
             self.lista.append(self.Osztaly(oszt))
 
         # rendezzük az osztálylistát évfolyam(2), majd név(1) alapján
@@ -100,9 +100,8 @@ class Bizonyitvany():
         if not XLS:
             # akkor be lehet olvasni a csv-ből
 
-            import csv
-            biz_csv = '%s/%s.csv' % (config['forras'], oszt)
-            biz_reader = csv.reader(open(biz_csv, "rb"), delimiter='\t', quoting=csv.QUOTE_MINIMAL)
+        # Ha nincs még csv vagy régebbi az xls-nél, akkor generálni kell
+        if not os.path.isfile(self.csvFile) or os.path.getmtime(self.csvFile) < os.path.getmtime(self.xlsFile):
 
             head = biz_reader.next()
 
@@ -111,7 +110,7 @@ class Bizonyitvany():
 
         else:
             import xlrd
-            osztalyFile = xlrd.open_workbook('%s/%s.xls' % (config['forras'], oszt)).sheet_by_index(0)
+            osztalyFile = xlrd.open_workbook(self.xlsFile).sheet_by_index(0)
 
             targySorrend = self.getTargySorrend(config['felso'])
 
@@ -207,7 +206,7 @@ class Bizonyitvany():
 
         osztaly = evfolyam + '. ' + oszt[len(evfolyam):].upper()
         evfolyam = int(evfolyam)
-        config = { 'osztaly': osztaly, 'evfolyam': evfolyam, 'forras': configAll['forras'] }
+        config = { 'osztaly': osztaly, 'evfolyam': evfolyam }
 
         config['felso'] = True
         if evfolyam < 9: config['felso'] = False
@@ -326,9 +325,7 @@ class Bizonyitvany():
     def csvOut(self):
         '''Fájlba írja a csv-t
         '''
-        config = {'forras': 'forras'}
-        out_csv = '%s/%s.csv' % (config['forras'], self.oszt)
-        jegy_writer = csv.writer(open(out_csv, 'wb'), delimiter='\t')
+        jegy_writer = csv.writer(open(self.csvFile, 'wb'), delimiter='\t')
 
         fejlec = self.getFejlec()
 
