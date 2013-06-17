@@ -26,8 +26,8 @@ def main():
 #    print getOsztalyLista().lista
     for oszt, osztaly, tmp, tmp in getOsztalyLista().lista:
         print oszt,
-        t = Bizonyitvany(oszt, XLS=True, quiet=True)
-        t.csvOut()
+        t = Bizonyitvany(oszt, quiet=True)
+#        t.csvOut()
 
 class getOsztalyLista():
     '''A forrás könyvtárban található összes xls-t végigveszi,
@@ -88,11 +88,10 @@ class getOsztalyLista():
 #    print '\n'.join(t.getNevsor())
 
 class Bizonyitvany():
-    def __init__(self, oszt, XLS=False, quiet=False):
+    def __init__(self, oszt, quiet=False):
         '''Egy osztályhoz tartozó bizonyítványok
 
         @param oszt osztályazonosító
-        @param XLS xls forrást használjon (lehet csv-t generálni)
         @param quiet ne kérdezze meg a bukásokat -> 3 bukásra automatikusan évismétlést ír be
         '''
 
@@ -111,12 +110,21 @@ class Bizonyitvany():
         # Ha nincs még csv vagy régebbi az xls-nél, akkor generálni kell
         if not os.path.isfile(self.csvFile) or os.path.getmtime(self.csvFile) < os.path.getmtime(self.xlsFile):
 
-            head = biz_reader.next()
+            print u'\n   Nincs csv, elkészítem: %s' % self.csvFile,
 
-            for sor in biz_reader:
-                bizOsztaly[sor[0]] = dict(zip(head, sor))
+            try:
+                # A taninformos xls-hez hozzá van csapva egy HTML dokumentum, ezt levágjuk
+                # és visszaállítjuk az eredeti időbélyeget
 
-        else:
+                xlsStat = os.stat(self.xlsFile)
+                xlsContent = open(self.xlsFile, 'rb').read()
+
+                i = xlsContent.index('\r<!DOCTYPE')
+                open(self.xlsFile, 'wb').write(xlsContent[:i])
+                os.utime(self.xlsFile, (xlsStat.st_atime, xlsStat.st_mtime))
+            except ValueError:
+                pass
+
             import xlrd
             osztalyFile = xlrd.open_workbook(self.xlsFile).sheet_by_index(0)
 
@@ -133,7 +141,7 @@ class Bizonyitvany():
                 del(diak[''])
 
                 if sor[-2] != u'Igazolatlan':
-                    print u'********* %s: hiányos a bizonyítványa, átugrom.' % diak['nev']
+                    print u'\n   *** %s (%s): hiányos a bizonyítványa, átugrom.' % (diak['nev'], oszt)
                     continue
 
                 diak.update(config)
@@ -190,12 +198,21 @@ class Bizonyitvany():
                 # Hozzáadjuk a továbbhaladást és a záradékot
                 diak.update(self.getZaradek(config['evfolyam'], diak['nev'], Bukott, Dicseret, quiet))
 
-                bizOsztaly[diak['uid']] = diak
+                self.bizOsztaly[diak['uid']] = diak
 
-        ## Egy-egy osztály tanulóinak bizonyítványa
-        self.bizOsztaly = bizOsztaly
-        ## Az osztály névsora, ill. névsor+id listája
-        self.nevsor, self.nevsorId = self.makeNevsor()
+            self.nevsor, self.nevsorById = self.makeNevsor()
+            self.csvOut()
+
+        else:
+            # Már megvan a csv, lehet beolvasni.
+            biz_reader = csv.reader(open(self.csvFile, "rb"), delimiter='\t', quoting=csv.QUOTE_MINIMAL)
+
+            head = biz_reader.next()
+
+            for sor in biz_reader:
+                self.bizOsztaly[sor[0]] = dict(zip(head, sor))
+
+            self.nevsor, self.nevsorById = self.makeNevsor()
 
     def getConfig(self, iniFile, oszt):
         '''Beolvassa a config fájlt (biz.yaml)
@@ -341,7 +358,7 @@ class Bizonyitvany():
 
         jegy_writer.writerow(fejlec)
 
-        for nev, uid in self.nevsorId:
+        for nev, uid in self.nevsorById:
             diak = self.bizOsztaly[uid]
             sor = [ diak[key] for key in fejlec ]
 
@@ -374,15 +391,15 @@ class Bizonyitvany():
 
         if type(uid) == int: # sorszám
             n = uid
-            diak = self.bizOsztaly[self.nevsorId[n][1]]
+            diak = self.bizOsztaly[self.nevsorById[n][1]]
         elif ' ' in uid: # név - ebben biztos van szóköz
             n = self.nevsor.index(uid)
-            diak = self.bizOsztaly[self.nevsorId[n][1]]
+            diak = self.bizOsztaly[self.nevsorById[n][1]]
         elif len(uid) == 11: # uid, oktatási azonosító
             diak = self.bizOsztaly[uid]
         else: # sorszám string
             n = int(uid)
-            diak = self.bizOsztaly[self.nevsorId[n][1]]
+            diak = self.bizOsztaly[self.nevsorById[n][1]]
 
         out = [diak['nev'], diak['tsz']]
         for jegy in diak['biz']:
