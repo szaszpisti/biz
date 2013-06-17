@@ -91,7 +91,7 @@ def application(environ, start_response):
         b = Biz(oszt, uid,
                  bal=int(query['bal']),
                  gerinc=int(query['gerinc']),
-                 diff=int(query['diff']),
+                 diff=float(query['diff']),
                  frame=frame,
                )
         if query.has_key('debug'):

@@ -49,16 +49,16 @@ document.getElementById("jsTest").style.display = 'none';
       <div style="clear: both"></div>
       <span title="A bal és jobb tükör távolsága." style="margin-left: 1em; text-align: right;" id="spanGerinc"><span class="alahuzott">g</span>erinc: <input type="text" id="gerinc" name="gerinc" size="2" value="12"> mm</span>
     </div><!-- /bal gomb -->
-    <div title="A jobb tükör tetejének eltérése a baltól." id="divDiff" style="text-align: right; margin-left: 1em; float: left;"><!-- diff -->
+    <div title="A jobb tükröt fejlebb (+) vagy lejjebb (-) nyomtassa?" id="divDiff" style="text-align: right; margin-left: 1em; float: left;"><!-- diff -->
       <p style="text-align: center;">di<span class="alahuzott">f</span>f (mm)</p>
       <ul style="list-style-type: none; padding-left: 0; margin-top: .2em;">
-        <li>+3 <input name="diff" type="radio" value="3"></li>
-        <li>+2 <input name="diff" type="radio" value="2"></li>
-        <li>+1 <input name="diff" type="radio" value="1"></li>
-        <li> 0 <input name="diff" type="radio" value="0" checked></li>
-        <li>-1 <input name="diff" type="radio" value="-1"></li>
-        <li>-2 <input name="diff" type="radio" value="-2"></li>
-        <li>-3 <input name="diff" type="radio" value="-3"></li>
+        <li>+3 <input name="diff" type="radio" value="3" class="egesz"><input name="diff" type="radio" value="2.5" class="fel"></li>
+        <li>+2 <input name="diff" type="radio" value="2" class="egesz"><input name="diff" type="radio" value="1.5" class="fel"></li>
+        <li>+1 <input name="diff" type="radio" value="1" class="egesz"><input name="diff" type="radio" value="0.5" class="fel"></li>
+        <li> 0 <input name="diff" type="radio" value="0" checked class="egesz"><input name="diff" type="radio" value="-0.5" class="fel"></li>
+        <li>-1 <input name="diff" type="radio" value="-1" class="egesz"><input name="diff" type="radio" value="-1.5" class="fel"></li>
+        <li>-2 <input name="diff" type="radio" value="-2" class="egesz"><input name="diff" type="radio" value="-2.5" class="fel"></li>
+        <li>-3 <input name="diff" type="radio" value="-3" class="egesz"><input name="none" type="radio" value="-2.5" style="visibility: hidden; margin-left: 0;"></li>
       </ul>
     </div><!-- /diff -->
   </div><!-- /radio -->

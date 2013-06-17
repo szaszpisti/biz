@@ -66,7 +66,7 @@ if (typeof(jQuery) == 'undefined') {
             $('#divBalGomb').append('<div class="bal-gomb"><p><input name="bal" type="radio" value="' + i + '"><br>' + i + '</p></div>');
         }
         $('#divBalGomb').append('<div style="clear: both"></div>');
-        $('#divBalGomb').append('<p style="text-align: center; border-top: 1px solid;"><span class="alahuzott">b</span>al margó</p>');
+        $('#divBalGomb').append('<p style="text-align: center; border-top: 1px solid;"><span class="alahuzott">b</span>al margó (mm)</p>');
         $('input[name="bal"][value="'+balDefault+'"]').attr('checked', 'checked');
 
         // egy diák adatainak betöltése
@@ -119,12 +119,12 @@ if (typeof(jQuery) == 'undefined') {
 
         $('#divDiff').bind("mousewheel DOMMouseScroll", function(event) {
             var delta = event.wheelDelta ||  event.detail || -event.originalEvent.wheelDelta || event.originalEvent.detail;
-            diff = parseInt($('input[name=diff]:checked').val());
-            diff = delta>0 ? diff-1 : diff+1;
+            diff = parseFloat($('input[name=diff]:checked').val());
+            diff = delta>0 ? diff-0.5 : diff+0.5;
             diff = 3-diff;
             if (diff<0) diff = 0;
             if (diff>6) diff = 6;
-            $('input[name=diff]')[diff].checked = true;
+            $('input[name=diff]')[parseInt(diff*2)].checked = true;
             return false;
         });
 

@@ -74,3 +74,7 @@ div.body { padding: 0; }
 
 img.emil { vertical-align: bottom; }
 
+/* A jobb tükör pozíciójánál az egész és a fél mm. */
+input[name=diff].egesz { margin-right: 0; }
+input[name=diff].fel { position: relative; top: 50%; margin-left: 0; }
+
