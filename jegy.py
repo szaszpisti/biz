@@ -335,19 +335,19 @@ class Bizonyitvany():
     def makeNevsor(self):
         '''A bizOsztaly-ból névsort készít
 
-        @return nevsor, nevsorId
+        @return nevsor, nevsorById
            - nevsor: <tt>['Alma Attila', 'Baka Béla', ...]</tt>
-           - nevsorId: <tt>[['Alma Attila', '123456789'], ['Baka Béla', '987654321'], ...]</tt>
+           - nevsorById: <tt>[['Alma Attila', '123456789'], ['Baka Béla', '987654321'], ...]</tt>
         '''
-        nevsorId = []
+        nevsorById = []
         for uid in self.bizOsztaly.keys():
-            nevsorId.append ([self.bizOsztaly[uid]['nev'], uid])
+            nevsorById.append ([self.bizOsztaly[uid]['nev'], uid])
 
         sort = lambda x, y: locale.strcoll(x[0], y[0])
-        nevsorId.sort(cmp=sort)
+        nevsorById.sort(cmp=sort)
 
-        nevsor = [ nev[0] for nev in nevsorId ]
-        return nevsor, nevsorId
+        nevsor = [ nev[0] for nev in nevsorById ]
+        return nevsor, nevsorById
 
     def csvOut(self):
         '''Fájlba írja a csv-t
