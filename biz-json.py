@@ -7,26 +7,31 @@ A HTML lekérdezéseket kiszolgáló háttéralkalmazás.
 Osztálylistát, névsorokat szolgáltat.
 '''
 
-import cgi, csv, sys, simplejson as json
-
+import csv, sys, os.path, simplejson as json
 from yaml import load
+
+# A wsgi miatt kell tudnunk az aktuális könyvtár nevét
+BASE = os.path.dirname(__file__)
+sys.path.append(BASE)
+
 ## a konfigurációs fájlból vett adatok
-data = load(open('biz.yaml'))
+config = load(open(BASE + '/biz.yaml'))
 
 ## a bizonyítvány-dátumból kigyűjtjük az aktuális évet
-ev = data['bizDate'].split('.')[0]
+ev = config['bizDate'].split('.')[0]
 
-## CGI-ként az érkezett http adatok
-query = cgi.FieldStorage()
+def application(environ, start_response):
 
-def main():
     '''A kérés típusa alapján (tip) ad vissza eredményt
     '''
-    if query.has_key('tip'): tip = query['tip'].value
-    else: tip = 'oszt'
-    forras = 'forras'
-
     from jegy import Bizonyitvany
+    from urlparse import parse_qsl
+    query = dict(parse_qsl(environ['QUERY_STRING']))
+
+    if query.has_key('tip'): tip = query['tip']
+    else: tip = 'oszt'
+
+    start_response('200 OK', [('Content-type', 'text/plain')])
 
     if tip == 'oszt':
         ''' beírja az elérhető bizonyítványok osztályait egy HTML SELECT-be '''
@@ -39,35 +44,39 @@ def main():
         pre, sep, post = res[0].partition('>')
         res[0] = pre + ' selected>' + post
 
-        return json.dumps('\n'.join(['<select id="oszt" name="oszt">'] + res + ['</select>']))
+        data = json.dumps('\n'.join(['<select id="oszt" name="oszt">'] + res + ['</select>']))
+        return [data]
 
     elif tip == 'nevsor':
         # adott osztálynévhez tartozó osztálynévsor
-        oszt = query['oszt'].value
+        oszt = query['oszt']
         from jegy import Bizonyitvany
 
-        res = [ '<option value="%s">%s</option>\n' % (t[1], t[0]) for t in Bizonyitvany(oszt, quiet=True).nevsorId ]
+        res = [ '<option value="%s">%s</option>\n' % (t[1], t[0]) for t in Bizonyitvany(oszt, quiet=True).nevsorById ]
 
         pre, sep, post = res[0].partition('>')
         res[0] = pre + ' selected>' + post
 
-        return json.dumps('\n'.join(res))
+        data = json.dumps('\n'.join(res))
+        return [data]
 
     elif tip == 'uid':
-        oszt = query['oszt'].value
-        uid = query['uid'].value
+        oszt = query['oszt']
+        uid = query['uid']
 
         res = Bizonyitvany(oszt, quiet=True).bizOsztaly[uid]
-        return json.dumps(res)
+
+        data = json.dumps(res)
+        return [data]
 
     elif tip == 'nyomtat':
-        uid  = query['uid'].value
-        oszt = query['oszt'].value
-        pp   = query['pp'].value
+        uid  = query['uid']
+        oszt = query['oszt']
+        pp   = query['pp']
 
         arg = ''
         for key in query:
-            arg += '%s=%s ' % (key, query[key].value)
+            arg += '%s=%s ' % (key, query[key])
         log = open('/tmp/BIZ.txt', 'a')
         log.write(arg + '\n')
 
@@ -80,9 +89,9 @@ def main():
         elif pp == '3': from bizonyitvany import Biz3 as Biz
 
         b = Biz(oszt, uid,
-                 bal=int(query['bal'].value),
-                 gerinc=int(query['gerinc'].value),
-                 diff=int(query['diff'].value),
+                 bal=int(query['bal']),
+                 gerinc=int(query['gerinc']),
+                 diff=int(query['diff']),
                  frame=frame,
                )
         if query.has_key('debug'):
@@ -96,7 +105,8 @@ def main():
             printPDF(b.filename)
             unlink(b.filename)
 
-        return json.dumps ({'message': 'NYOMTATVA (<span style="color: white;">%s</span>) %s' % (b.filename, arg)})
+        data = json.dumps ({'message': 'NYOMTATVA (<span style="color: white;">%s</span>) %s' % (b.filename, arg)})
+        return [data]
 
 def printPDF(filename):
     '''A pdf fájlt elküldi nyomtatóra
@@ -112,5 +122,5 @@ def printPDF(filename):
 
 if __name__ == '__main__':
     print "Content-type: text/plain\n"
-    print main()
+#    print application()
 

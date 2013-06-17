@@ -9,7 +9,10 @@ mindegyikhez elkészíti az oszt.csv-t, ami a bizonyítvány input formátumába
 '''
 # python-yaml python-xlrd
 
-import sys, string, locale, csv, re
+import sys, string, locale, csv, re, os.path
+
+BASE = os.path.dirname(__file__)
+sys.path.append(BASE)
 
 reload(sys)
 sys.setdefaultencoding( "utf-8" )
@@ -35,8 +38,9 @@ class getOsztalyLista():
                   osztályID, osztályNév, évfolyam, felső-e
         lista: [ ['10b',     '10. B',    10,       True],   ...]
         '''
+        BASE = os.path.dirname(__file__)
         from yaml import load  
-        config = load(open('biz.yaml')) 
+        config = load(open(BASE + '/biz.yaml')) 
 
         ## az osztályok listája a következő formában:
         #           osztályID, osztályNév, évfolyam, felső-e
@@ -45,7 +49,7 @@ class getOsztalyLista():
 
         # vesszük a forrás könyvtárban található összes xls-t
         import glob
-        xlsFiles = glob.glob('forras/*.xls')
+        xlsFiles = glob.glob(BASE + '/forras/*.xls')
 
         for xlsFile in xlsFiles:
             f = xlsFile.split('/')[-1] # basename
@@ -91,14 +95,18 @@ class Bizonyitvany():
         @param XLS xls forrást használjon (lehet csv-t generálni)
         @param quiet ne kérdezze meg a bukásokat -> 3 bukásra automatikusan évismétlést ír be
         '''
+
+        global BASE
+
         ## osztályazonosító
         self.oszt = oszt
-        bizOsztaly = {}
+        self.bizOsztaly = {}
 
-        config = self.getConfig('biz.yaml', oszt)
+        BASE = os.path.dirname(__file__)
+        config = self.getConfig(BASE + '/biz.yaml', oszt)
 
-        if not XLS:
-            # akkor be lehet olvasni a csv-ből
+        self.xlsFile = BASE + '/forras/%s.xls' % oszt
+        self.csvFile = BASE + '/forras/%s.csv' % oszt
 
         # Ha nincs még csv vagy régebbi az xls-nél, akkor generálni kell
         if not os.path.isfile(self.csvFile) or os.path.getmtime(self.csvFile) < os.path.getmtime(self.xlsFile):
@@ -197,7 +205,9 @@ class Bizonyitvany():
 
         @return a konfigurációs fájlból vett és a számított beállítások szótára
         '''
+        global BASE
         from yaml import load
+        BASE = os.path.dirname(__file__)
         configAll = load(open(iniFile))
 
         ''' "10b" => (10, "10. B") '''
@@ -293,7 +303,7 @@ class Bizonyitvany():
         @return <tt>{'irodalom': 1, 'matematika': 6, ...}</tt>
         '''
         import csv
-        targy_reader = csv.reader(open("tantargyak.csv", "rb"), delimiter=';', quoting=csv.QUOTE_MINIMAL)
+        targy_reader = csv.reader(open(BASE + '/' + "tantargyak.csv", "rb"), delimiter=';', quoting=csv.QUOTE_MINIMAL)
         targy_reader.next()
 
         targySorrend = {}

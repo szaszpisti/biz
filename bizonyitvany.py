@@ -1,7 +1,13 @@
 #!/usr/bin/python
 # coding: utf-8
 
+import sys, os.path
+
+BASE = os.path.dirname(__file__)
+sys.path.append(BASE)
+
 class Biz:
+    global BASE
     def __init__(self, oszt, uid, bal, gerinc, fent, diff, frame):
 
         '''
@@ -15,7 +21,7 @@ class Biz:
         import jegy
         from yaml import load
         self.data = jegy.Bizonyitvany(oszt).bizOsztaly[uid]
-        self.data.update(load(open('biz.yaml')))
+        self.data.update(load(open(BASE + '/biz.yaml')))
 
         self.data.update({'bal': bal, 'gerinc': gerinc, 'fent': fent, 'diff': diff, 'frame': frame })
 
@@ -65,9 +71,9 @@ class Biz:
         # "DejaVu Sans Semi-Condensed" "DejaVu Sans Bold Semi-Condensed"
 
         # A használt betűtípusok betöltése
-        pdfmetrics.registerFont(TTFont('LinBiolinum', 'font/LinBiolinum_R.ttf'))
-        pdfmetrics.registerFont(TTFont('LinBiolinum-SC', 'font/LinBiolinum_aS.ttf'))
-        pdfmetrics.registerFont(TTFont('LinBiolinum-Bold', 'font/LinBiolinum_RB.ttf'))
+        pdfmetrics.registerFont(TTFont('LinBiolinum', BASE + '/font/LinBiolinum_R.ttf'))
+        pdfmetrics.registerFont(TTFont('LinBiolinum-SC', BASE + '/font/LinBiolinum_aS.ttf'))
+        pdfmetrics.registerFont(TTFont('LinBiolinum-Bold', BASE + '/font/LinBiolinum_RB.ttf'))
         pdfmetrics.registerFont(TTFont('DejaVu', 'DejaVuSansCondensed.ttf'))
         pdfmetrics.registerFont(TTFont('DejaVu-Bold', 'DejaVuSansCondensed-Bold.ttf'))
 
@@ -144,7 +150,6 @@ class Biz2(Biz):
         ##############################################################################################
         # JOBB OLDAL
 
-        self.fontBase = "DejaVu" # "Vera" # "Helvetica"
         self.fontBase = 'LinBiolinum' # "DejaVu" # "Vera" # "Helvetica"
 
         # jobb oldal eltolása
