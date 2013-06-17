@@ -287,14 +287,17 @@ class Biz3(Biz):
 
 if __name__ == '__main__':
 
-    t = Biz1('11a', '73653106500', frame=True)
+    oszt, uid = '7a', '72818368589'
+
+    t = Biz1(oszt, uid, frame=True)
     t.genPDF('1.pdf')
     print t.filename
 
-    t = Biz2('7b', '78309168192', frame=True)
+    t = Biz2(oszt, uid, frame=True)
     t.genPDF('2.pdf')
     print t.filename
 
-    t = Biz3('13b', '73106255979', frame=True)
+    t = Biz3(oszt, uid, frame=True)
     t.genPDF('3.pdf')
     print t.filename
+
