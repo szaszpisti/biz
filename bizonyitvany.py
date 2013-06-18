@@ -177,9 +177,9 @@ class Biz2(Biz):
 
         datumY = baseY+11*baseM-1
         c.setFont(self.fontBase, self.fSize['large'])
-        c.drawRightString(46 *mm, datumY*mm, data['hely'] + '  ' + str(data['ev'])+'.')
-        c.drawCentredString(64 *mm, datumY*mm, data['ho'])
-        c.drawRightString(86 *mm, datumY*mm, data['nap'])
+        c.drawRightString(46 *mm, datumY*mm, data['hely'] + '  ' + str(data['kev'])+'.')
+        c.drawCentredString(64 *mm, datumY*mm, data['kho'])
+        c.drawRightString(86 *mm, datumY*mm, data['knap'])
 
         c.showPage()
 
