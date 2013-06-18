@@ -24,6 +24,7 @@ table.jegy tr td+td+td { width: 36mm; text-align: center; padding-left: 0; }
 table.diff tr { margin: 0; padding: 0; }
 table.bal tr, table.bal td { margin: 0; padding: 0; text-align: center; }
 #nevsor option { padding: 0 .5em; }
+#oszt { width: 6em; }
 
 div.bal-gomb { float: left; text-align: center; }
 

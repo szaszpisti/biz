@@ -159,6 +159,8 @@ class Biz2(Biz):
 
         # Az oldal eltolása x ill. y irányba, valamint az alapértelmezett mezőmagasság
         baseX, baseY, baseM = 1, 6, 13
+#        baseX, baseY, baseM = 10, 16, 13
+#        i, d = 5, 13
         c.setFont('LinBiolinum-SC', self.fSize['Large'])
         c.drawString(baseX*mm, (baseY+1*baseM)*mm, data['nev'])
         c.setFont(self.fontBase, self.fSize['large'])
@@ -177,7 +179,7 @@ class Biz2(Biz):
 
         datumY = baseY+11*baseM-1
         c.setFont(self.fontBase, self.fSize['large'])
-        c.drawRightString(46 *mm, datumY*mm, data['hely'] + '  ' + str(data['kev'])+'.')
+        c.drawRightString(46 *mm, datumY*mm, data['hely'] + '       ' + str(data['kev'])+'.')
         c.drawCentredString(64 *mm, datumY*mm, data['kho'])
         c.drawRightString(86 *mm, datumY*mm, data['knap'])
 
@@ -217,9 +219,9 @@ class Biz3(Biz):
 
         self.fontBase = 'LinBiolinum'
         c.setFont(self.fontBase, self.fSize['large'])
-        c.drawCentredString(54*mm, 6*mm, data['om']) # "029752")
-        c.drawCentredString(80*mm, 6*mm, data['tsz'])
-        c.drawCentredString(17.5*mm, 45.5*mm, data['tanev'])
+        c.drawCentredString(54*mm, 5*mm, data['om']) # "029752")
+        c.drawCentredString(80*mm, 5*mm, data['tsz'])
+        c.drawCentredString(17.5*mm, 44.5*mm, data['tanev'])
 
         c.setFont(self.fontBase, self.fSize['Large'])
         c.drawString(3*mm, 17*mm, data['nev'])
