@@ -128,7 +128,7 @@ class Biz1(Biz):
         if data['frame']: self.drawFrame(c)
 
         c.setFont('LinBiolinum-SC', self.fSize['Large'])
-        c.drawCentredString(47*mm, (74)*mm, data['nev'])
+        c.drawCentredString(47*mm, (69)*mm, data['nev'])
 
         c.showPage()
 
@@ -157,28 +157,29 @@ class Biz2(Biz):
 
         if data['frame']: self.drawFrame(c)
 
-        i, d = 5, 13
+        # Az oldal eltolása x ill. y irányba, valamint az alapértelmezett mezőmagasság
+        baseX, baseY, baseM = 1, 6, 13
         c.setFont('LinBiolinum-SC', self.fSize['Large'])
-        c.drawString(3*mm, (i+1*d)*mm, data['nev'])
+        c.drawString(baseX*mm, (baseY+1*baseM)*mm, data['nev'])
         c.setFont(self.fontBase, self.fSize['large'])
-        c.drawString(3*mm, (i+2*d)*mm, data['uid'])
-        c.drawString(3*mm, (i+3*d)*mm, data['szulhely'])
-        c.drawString(3*mm, (i+4*d)*mm, data['szulido'])
-        c.drawString(3*mm, (i+5*d)*mm, data['pnev'])
-        c.drawString(3*mm, (i+6*d)*mm, data['mnev'])
+        c.drawString(baseX*mm, (baseY+2*baseM)*mm, data['uid'])
+        c.drawString(baseX*mm, (baseY+3*baseM)*mm, data['szulhely'])
+        c.drawString(baseX*mm, (baseY+4*baseM)*mm, data['szulido'])
+        c.drawString(baseX*mm, (baseY+5*baseM)*mm, data['pnev'])
+        c.drawString(baseX*mm, (baseY+6*baseM)*mm, data['mnev'])
 
         c.setFont(self.fontBase, self.fSize['normal'])
-        c.drawCentredString(47*mm, (i+7*d)*mm, data['isk1'])
-        c.drawCentredString(47*mm, (i+8*d)*mm, data['isk2'])
+        c.drawCentredString((baseX+44)*mm, (baseY+7*baseM)*mm, data['isk1'])
+        c.drawCentredString((baseX+44)*mm, (baseY+8*baseM)*mm, data['isk2'])
 
-        c.drawString(3*mm, (i+9*d)*mm, data['megj1'])
-        c.drawString(3*mm, (i+10*d)*mm, data['megj2'])
+        c.drawString(baseX*mm, (baseY+9*baseM)*mm, data['megj1'])
+        c.drawString(baseX*mm, (baseY+10*baseM)*mm, data['megj2'])
 
-        datumY = i+11*d-1
+        datumY = baseY+11*baseM-1
         c.setFont(self.fontBase, self.fSize['large'])
         c.drawRightString(46 *mm, datumY*mm, data['hely'] + '  ' + str(data['ev'])+'.')
         c.drawCentredString(64 *mm, datumY*mm, data['ho'])
-        c.drawRightString(88 *mm, datumY*mm, data['nap'])
+        c.drawRightString(86 *mm, datumY*mm, data['nap'])
 
         c.showPage()
 
@@ -216,9 +217,9 @@ class Biz3(Biz):
 
         self.fontBase = 'LinBiolinum'
         c.setFont(self.fontBase, self.fSize['large'])
-        c.drawCentredString(54*mm, 5*mm, data['om']) # "029752")
-        c.drawCentredString(80*mm, 5*mm, data['tsz'])
-        c.drawCentredString(17*mm, 45*mm, data['tanev'])
+        c.drawCentredString(54*mm, 6*mm, data['om']) # "029752")
+        c.drawCentredString(80*mm, 6*mm, data['tsz'])
+        c.drawCentredString(17.5*mm, 45.5*mm, data['tanev'])
 
         c.setFont(self.fontBase, self.fSize['Large'])
         c.drawString(3*mm, 17*mm, data['nev'])
@@ -229,7 +230,7 @@ class Biz3(Biz):
 
         c.setFont('DejaVu', 9)
         for i in range(1, 21):
-            self.targySor(c, 52+i*5, i)
+            self.targySor(c, 51.5+i*5, i)
 
         c.restoreState()
 
@@ -243,15 +244,15 @@ class Biz3(Biz):
         if data['frame']: self.drawFrame(c)
 
         c.setFont('DejaVu', 9)
-        t = [9, 14, 19, 24, 29, 35, 40, 45, 50] # a bejegyzések helye a jobb oldalon (nem egyenletes!)
+        t = [8.0, 13.0, 18.0, 23.0, 29.0, 34.0, 39.0, 44.0, 49.5] # a bejegyzések helye a jobb oldalon (nem egyenletes!)
         for i in range(9):
             self.targySor(c, t[i]+1.5, i+21, 2)
 
         c.setFont(self.fontBase, self.fSize['normal'])
 
-        datumY = 75
+        datumY = 75.5
         c.setFont(self.fontBase, self.fSize['large'])
-        c.drawRightString(46 *mm, datumY*mm, data['hely'] + '  ' + str(data['ev'])+'.')
+        c.drawRightString(46 *mm, datumY*mm, data['hely'] + '   ' + str(data['ev'])+'.')
         c.drawCentredString(64 *mm, datumY*mm, data['ho'])
         c.drawRightString(88 *mm, datumY*mm, data['nap'])
 
@@ -280,7 +281,7 @@ class Biz3(Biz):
         p.wrap(width, 0)
         # HACK: azért van itt, mert különben nem jól pozícionál. Miert???
         p.breakLines(width)
-        p.drawOn(c, pad*mm, 116*mm + 2*style.fontSize)
+        p.drawOn(c, pad*mm, 118*mm + 2*style.fontSize)
 
         c.restoreState()
         c.showPage()
