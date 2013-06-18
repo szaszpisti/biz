@@ -238,7 +238,7 @@ class Bizonyitvany():
         config['felso'] = True
         if evfolyam < 9: config['felso'] = False
 
-        config['kev'], config['kho'], config['knap'] = re.compile("[\. ]*").split(configAll['kezdDate'])
+        config['kev'], config['kho'], config['knap'] = re.compile("[\. ]*").split(configAll['beiratkozasDate'])
         if evfolyam >= 12:
             bizDate = configAll['vegzosDate']
         else:
