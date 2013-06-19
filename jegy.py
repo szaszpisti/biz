@@ -135,11 +135,16 @@ class Bizonyitvany():
             for i in range (1, osztalyFile.nrows):
                 sor = osztalyFile.row_values(i)
 
+                # A végéről leszedjük az üres mezőket (pl. különböző sorhosszúság)
+                while 1:
+                    if sor[-1] != '': break
+                    sor.pop()
+
                 # egyelőre csak a személyes adatok lesznek benne; diak: {'nev': 'Sámli Samu', 'uid': '1234567890', ...}
                 diak = dict(zip(head, sor[:9]))
                 del(diak[''])
 
-                if sor[-2] != u'Igazolatlan':
+                if not 'Szorgalom' in sor:
                     print u'\n   *** %s (%s): hiányos a bizonyítványa, átugrom.' % (diak['nev'], oszt)
                     continue
 
