@@ -160,7 +160,10 @@ class Bizonyitvany():
                 for t in range(0, len(sor)-8, 3):
                     if sor[t] == '': continue
                     targy, jegy, oraszam = sor[t].lower(), sor[t+1], sor[t+2]
-                    hely = targySorrend[targy]
+                    try:
+                        hely = targySorrend[targy]
+                    except:
+                        print 'Nincs ilyen tárgy a listában:', targy
 
                     if hely == 'f': # szabad helyre kerülő tárgy (pl. fakultáció)
                         E[szabad.pop(0)] = [targy.capitalize(), oraszam, jegy]
