@@ -18,3 +18,5 @@ posX: -1
 posY:  4
 fent:  5
 
+plugin: teszi.py
+
