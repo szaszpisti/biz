@@ -101,7 +101,6 @@ class Bizonyitvany():
         self.oszt = oszt
         self.bizOsztaly = {}
 
-        BASE = os.path.dirname(__file__)
         config = self.getConfig(BASE + '/biz.yaml', oszt)
 
         self.xlsFile = BASE + '/forras/%s.xls' % oszt
@@ -225,10 +224,8 @@ class Bizonyitvany():
 
         @return a konfigurációs fájlból vett és a számított beállítások szótára
         '''
-        global BASE
         from yaml import load
-        BASE = os.path.dirname(__file__)
-        configAll = load(open(iniFile))
+        self.configAll = load(open(iniFile))
 
         ''' "10b" => (10, "10. B") '''
         import re
@@ -241,13 +238,13 @@ class Bizonyitvany():
         config['felso'] = True
         if evfolyam < 9: config['felso'] = False
 
-        config['kev'], config['kho'], config['knap'] = re.compile("[\. ]*").split(configAll['beiratkozasDate'])
+        config['kev'], config['kho'], config['knap'] = re.compile("[\. ]*").split(self.configAll['beiratkozasDate'])
         if evfolyam >= 12:
-            bizDate = configAll['vegzosDate']
+            bizDate = self.configAll['vegzosDate']
         else:
-            bizDate = configAll['bizDate']
+            bizDate = self.configAll['bizDate']
         config['ev'], config['ho'], config['nap'] = re.compile("[\. ]*").split(bizDate)
-        config['om'], config['hely'], config['khely'] = configAll['om'], configAll['hely'], configAll['hely']
+        config['om'], config['hely'], config['khely'] = self.configAll['om'], self.configAll['hely'], self.configAll['hely']
         config['tanev'] = '%s  %s' % (int(config['ev'])-1,  config['ev'])
 
         return config
