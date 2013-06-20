@@ -109,7 +109,7 @@ class Bizonyitvany():
         # Ha nincs még csv vagy régebbi az xls-nél, akkor generálni kell
         if not os.path.isfile(self.csvFile) or os.path.getmtime(self.csvFile) < os.path.getmtime(self.xlsFile):
 
-            print u'\n   Nincs csv, elkészítem: %s' % self.csvFile,
+            print u'\n   Nincs csv, elkészítem: %s' % self.csvFile
 
             try:
                 # A taninformos xls-hez hozzá van csapva egy HTML dokumentum, ezt levágjuk
@@ -167,7 +167,7 @@ class Bizonyitvany():
                     try:
                         hely = targySorrend[targy]
                     except:
-                        print 'Nincs ilyen tárgy a listában:', targy
+                        print 'Nincs ilyen tárgy a listában: %s (%s %s)' % (targy, diak['nev'], diak['osztaly'])
 
                     if hely == 'f': # szabad helyre kerülő tárgy (pl. fakultáció)
                         E[szabad.pop(0)] = [targy.capitalize(), oraszam, jegy]

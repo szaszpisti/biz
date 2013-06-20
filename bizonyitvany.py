@@ -158,7 +158,7 @@ class Biz2(Biz):
         if data['frame']: self.drawFrame(c)
 
         # Az oldal eltolása x ill. y irányba, valamint az alapértelmezett mezőmagasság
-        baseX, baseY, baseM = 1, 6, 13
+        baseX, baseY, baseM = 1, 5, 13
 #        baseX, baseY, baseM = 10, 16, 13
 #        i, d = 5, 13
         c.setFont('LinBiolinum-SC', self.fSize['Large'])
@@ -221,7 +221,7 @@ class Biz3(Biz):
         c.setFont(self.fontBase, self.fSize['large'])
         c.drawCentredString(54*mm, 5*mm, data['om']) # "029752")
         c.drawCentredString(80*mm, 5*mm, data['tsz'])
-        c.drawCentredString(17.5*mm, 44.5*mm, data['tanev'])
+        c.drawCentredString(17.5*mm, 45.1*mm, data['tanev'])
 
         c.setFont(self.fontBase, self.fSize['Large'])
         c.drawString(3*mm, 17*mm, data['nev'])
@@ -279,6 +279,7 @@ class Biz3(Biz):
         style.fontSize = self.fSize['small']
 
         ######### jegyzet ########
+        style.leading = 1.4 * style.fontSize
         p = Paragraph(data['jegyzet'], style)
         p.wrap(width, 0)
         # HACK: azért van itt, mert különben nem jól pozícionál. Miert???
