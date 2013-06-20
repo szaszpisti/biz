@@ -6,6 +6,7 @@
 *.csv
 c:
 forras
+plugin
 tmp
 jquery*.js
 shortcut.js
