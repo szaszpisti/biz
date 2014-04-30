@@ -335,6 +335,10 @@ class Bizonyitvany():
             for targyNev in sor[2:]:
                 targySorrend[targyNev.strip().decode('utf8')] = sor[int(felso)]
 
+                # Ha van extra módosítási igény, azt az "config['pluginTantargy']" fájlba tesszük
+                if self.configAll.has_key('pluginTantargy'):
+                    exec open(BASE + '/plugin/' + self.configAll['pluginTantargy']).read()
+
         return targySorrend
 
     def makeNevsor(self):
@@ -366,9 +370,9 @@ class Bizonyitvany():
         for nev, uid in self.nevsorById:
             diak = self.bizOsztaly[uid]
 
-            # Ha van extra módosítási igény, azt az "config['plugin']" fájlba tesszük
-            if self.configAll.has_key('plugin'):
-                exec open(BASE + '/plugin/' + self.configAll['plugin']).read()
+            # Ha van extra módosítási igény, azt az "config['pluginDiak']" fájlba tesszük
+            if self.configAll.has_key('pluginDiak'):
+                exec open(BASE + '/plugin/' + self.configAll['pluginDiak']).read()
 
             # A csv_writer listát vár, megcsináljuk neki.
             sor = [ diak[key] for key in fejlec ]
