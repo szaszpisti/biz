@@ -3,7 +3,6 @@
 *.[0-9]
 *.xls
 *.pyc
-*.csv
 c:
 forras
 plugin

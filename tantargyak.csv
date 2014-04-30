@@ -1,0 +1,41 @@
+;forras;7-8;9-12; jegy tablazat--bizonyitvany-hely osszerendeles
+;
+1;1; magyar nyelv és irodalom
+1;1; magyar irodalom; irodalom
+2;2; magyar nyelv
+3;3; történelem
+f;9; filozófia
+n;n; angol nyelv
+n;n; latin nyelv
+n;n; német nyelv
+n;n; olasz nyelv
+6;7; matematika
+9;10; fizika
+11;12; kémia
+10;11; biológia
+12;13; földrajz
+13;14; ének-zene
+14;15; rajz és vizuális kultúra
+16;16; testnevelés és sport
+7;8; informatika
+f;f; magyar irodalom fakultáció
+f;f; rajz fakultáció
+f;f; földrajz fakultáció
+f;f; történelem fakultáció
+f;f; matematika fakultáció
+f;f; fizika fakultáció
+f;f; kémia fakultáció
+f;f; biológia fakultáció
+f;f; ének-zene fakultáció
+f;f; informatika fakultáció
+f;f; testnevelés fakultáció
+f;f; gyógytestnevelés
+f;f; tanulásmódszertan
+f;f; hittan fakultáció
+21;17; társadalmi ismeretek
+22;20; művészeti nevelés. médiaismeretek, dráma;művészeti nevelés
+17;21; hittan
+28;28; igazolt; osszes
+29;29; igazolatlan
+26;26; magatartás
+27;27; szorgalom
