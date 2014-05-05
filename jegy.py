@@ -40,7 +40,7 @@ class getOsztalyLista():
         '''
         BASE = os.path.dirname(__file__)
         from yaml import load  
-        config = load(open(BASE + '/biz.yaml')) 
+        config = load(open(os.path.join(BASE, 'biz.yaml'))) 
 
         ## az osztályok listája a következő formában:
         #           osztályID, osztályNév, évfolyam, felső-e
@@ -49,11 +49,11 @@ class getOsztalyLista():
 
         # vesszük a forrás könyvtárban található összes xls-t
         import glob
-        xlsFiles = glob.glob(BASE + '/forras/*.xls')
+        xlsFiles = glob.glob(os.path.join(BASE, 'forras', '*.xls'))
 
         for xlsFile in xlsFiles:
-            f = xlsFile.split('/')[-1] # basename
-            oszt = f[:f.rfind('.')]    # levágjuk a kiterjesztést
+            f = os.path.basename(xlsFile) # basename
+            oszt = f[:f.rfind('.')]       # levágjuk a kiterjesztést
             self.lista.append(self.Osztaly(oszt))
 
         # rendezzük az osztálylistát évfolyam(2), majd név(1) alapján
@@ -101,10 +101,10 @@ class Bizonyitvany():
         self.oszt = oszt
         self.bizOsztaly = {}
 
-        config = self.getConfig(BASE + '/biz.yaml', oszt)
+        config = self.getConfig(os.path.join(BASE, 'biz.yaml'), oszt)
 
-        self.xlsFile = BASE + '/forras/%s.xls' % oszt
-        self.csvFile = BASE + '/forras/%s.csv' % oszt
+        self.xlsFile = os.path.join(BASE, 'forras', '%s.xls' % oszt)
+        self.csvFile = os.path.join(BASE, 'forras', '%s.csv' % oszt)
 
         # Ha nincs még csv vagy régebbi az xls-nél, akkor generálni kell
         if not os.path.isfile(self.csvFile) or os.path.getmtime(self.csvFile) < os.path.getmtime(self.xlsFile):
@@ -325,7 +325,7 @@ class Bizonyitvany():
         @return <tt>{'irodalom': 1, 'matematika': 6, ...}</tt>
         '''
         import csv
-        targy_reader = csv.reader(open(BASE + '/' + "tantargyak.csv", "rb"), delimiter=';', quoting=csv.QUOTE_MINIMAL)
+        targy_reader = csv.reader(open(os.path.join(BASE, 'tantargyak.csv'), 'rb'), delimiter=';', quoting=csv.QUOTE_MINIMAL)
         targy_reader.next()
 
         targySorrend = {}
@@ -372,7 +372,7 @@ class Bizonyitvany():
 
             # Ha van extra módosítási igény, azt az "config['pluginDiak']" fájlba tesszük
             if self.configAll.has_key('pluginDiak'):
-                exec open(BASE + '/plugin/' + self.configAll['pluginDiak']).read()
+                exec open(os.path.join(BASE, 'plugin', self.configAll['pluginDiak'])).read()
 
             # A csv_writer listát vár, megcsináljuk neki.
             sor = [ diak[key] for key in fejlec ]
