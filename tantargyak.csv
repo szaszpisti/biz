@@ -1,41 +1,41 @@
-;forras;7-8;9-12; jegy tablazat--bizonyitvany-hely osszerendeles
+;forras;7-8;9-12;jegy tablazat--bizonyitvany-hely osszerendeles
 ;
-1;1; magyar nyelv és irodalom
-1;1; magyar irodalom; irodalom
-2;2; magyar nyelv
-3;3; történelem
-f;9; filozófia
-n;n; angol nyelv
-n;n; latin nyelv
-n;n; német nyelv
-n;n; olasz nyelv
-6;7; matematika
-9;10; fizika
-11;12; kémia
-10;11; biológia
-12;13; földrajz
-13;14; ének-zene
-14;15; rajz és vizuális kultúra
-16;16; testnevelés és sport
-7;8; informatika
-f;f; magyar irodalom emelt szint
-f;f; rajz emelt szint
-f;f; földrajz emelt szint
-f;f; történelem emelt szint
-f;f; matematika emelt szint
-f;f; fizika emelt szint
-f;f; kémia emelt szint
-f;f; biológia emelt szint
-f;f; ének-zene emelt szint
-f;f; informatika emelt szint
-f;f; testnevelés emelt szint
-f;f; gyógytestnevelés
-f;f; tanulásmódszertan
-f;f; hittan emelt szint
-21;17; társadalmi ismeretek
-22;20; művészeti nevelés. médiaismeretek, dráma;művészeti nevelés
-17;21; hittan
-28;28; igazolt; osszes
-29;29; igazolatlan
-26;26; magatartás
-27;27; szorgalom
+1;1;magyar nyelv és irodalom
+1;1;magyar irodalom;irodalom
+2;2;magyar nyelv
+3;3;történelem
+f;9;filozófia
+n;n;angol nyelv
+n;n;latin nyelv
+n;n;német nyelv
+n;n;olasz nyelv
+6;7;matematika
+9;10;fizika
+11;12;kémia
+10;11;biológia
+12;13;földrajz
+13;14;ének-zene
+14;15;rajz és vizuális kultúra
+16;16;testnevelés és sport
+7;8;informatika
+f;f;magyar irodalom emelt szint;magyar irodalom fakultáció;magyar irodalom - emelt szint;magyar - emelt szint
+f;f;rajz emelt szint;rajz fakultáció;rajz - emelt szint
+f;f;földrajz emelt szint;földrajz fakultáció;földrajz - emelt szint
+f;f;történelem emelt szint;történelem fakultáció;történelem - emelt szint
+f;f;matematika emelt szint;matematika fakultáció;matematika - emelt szint
+f;f;fizika emelt szint;fizika fakultáció;fizika - emelt szint
+f;f;kémia emelt szint;kémia fakultáció;kémia - emelt szint
+f;f;biológia emelt szint;biológia fakultáció;biológia - emelt szint
+f;f;ének-zene emelt szint;ének-zene fakultáció;ének-zene - emelt szint
+f;f;informatika emelt szint;informatika fakultáció;informatika - emelt szint
+f;f;testnevelés emelt szint;testnevelés fakultáció;testnevelés - emelt szint;testenevelés - emelt szint
+f;f;hittan emelt szint;hittan fakultáció;hittan - emelt szint
+f;f;gyógytestnevelés
+f;f;tanulásmódszertan
+21;17;társadalmi ismeretek
+22;20;művészeti nevelés. médiaismeretek, dráma;művészeti nevelés
+17;21;hittan
+28;28;osszes;igazolt
+29;29;igazolatlan
+26;26;magatartás
+27;27;szorgalom
