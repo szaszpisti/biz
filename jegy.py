@@ -127,7 +127,7 @@ class Bizonyitvany():
             import xlrd
             osztalyFile = xlrd.open_workbook(self.xlsFile).sheet_by_index(0)
 
-            targySorrend = self.getTargySorrend(config['felso'])
+            targySorrend, targyValodiNev = self.getTargySorrend(config['felso'])
 
             # az "Évvégi eredmények" táblázatban ezek az oszlopok vannak elöl - a szükségtelen mezőket később töröljük
             head = ['nev', 'uid', '', 'tsz', 'szulhely', 'szulido', '', 'mnev', 'pnev']
@@ -164,6 +164,7 @@ class Bizonyitvany():
                 for t in range(0, len(sor)-8, 3):
                     if sor[t] == '': continue
                     targy, jegy, oraszam = sor[t].lower(), sor[t+1], sor[t+2]
+                    targy = targyValodiNev[targy]
                     try:
                         hely = targySorrend[targy]
                     except:
@@ -323,23 +324,25 @@ class Bizonyitvany():
             1. oszlop: alsó
             2. oszlop: felső
         @return <tt>{'irodalom': 1, 'matematika': 6, ...}</tt>
+                <tt>{'matek': 'matematika', ...}</tt>
         '''
         import csv
         targy_reader = csv.reader(open(os.path.join(BASE, 'tantargyak.csv'), 'rb'), delimiter=';', quoting=csv.QUOTE_MINIMAL)
         targy_reader.next()
 
-        targySorrend = {}
+        targySorrend, targyValodiNev = {}, {}
         for sor in targy_reader:
-            if len(sor) < 3 or sor[0] == '': continue # ha kevés a mező vagy ';'-vel kezdődik
-            # egy mezőhöz tartozhat több tárgynév is, ezeket vesszük sorra
-            for targyNev in sor[2:]:
-                targySorrend[targyNev.strip().decode('utf8')] = sor[int(felso)]
+            if len(sor) < 3 or sor[0] == '': continue # ha kevés a mező vagy ';'-vel kezdődik: ugorjunk
+            # egy tárgyhoz tartozhat több név is, ezeket vesszük sorra
+            # közülük az elsőt írjuk a bizonyítványba: targyValodiNev[targy álnév] -> tárgy valódi neve
+            targyNev = sor[2].decode('utf8')
+            targySorrend[targyNev] = sor[int(felso)]
+            targyValodiNev[targyNev] = targyNev
+            for targyAlnev in sor[3:]:
+                targyAlnev = targyAlnev.decode('utf8')
+                targyValodiNev[targyAlnev] = targyNev
 
-                # Ha van extra módosítási igény, azt az "config['pluginTantargy']" fájlba tesszük
-                if self.configAll.has_key('pluginTantargy'):
-                    exec open(BASE + '/plugin/' + self.configAll['pluginTantargy']).read()
-
-        return targySorrend
+        return targySorrend, targyValodiNev
 
     def makeNevsor(self):
         '''A bizOsztaly-ból névsort készít
