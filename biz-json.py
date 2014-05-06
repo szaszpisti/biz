@@ -8,6 +8,7 @@ Osztálylistát, névsorokat szolgáltat.
 '''
 
 import csv, sys, os.path, simplejson as json
+import tempfile
 from yaml import load
 
 # A wsgi miatt kell tudnunk az aktuális könyvtár nevét
@@ -77,7 +78,7 @@ def application(environ, start_response):
         arg = ''
         for key in query:
             arg += '%s=%s ' % (key, query[key])
-        log = open('/tmp/BIZ.txt', 'a')
+        log = open(os.path.join(tempfile.gettempdir(), 'BIZ.txt'), 'a')
         log.write(arg + '\n')
 
         if query.has_key('frame'): frame=True
