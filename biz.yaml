@@ -9,14 +9,16 @@ hely: Szeged
 isk1: ''
 isk2: ''
 
-bizDate:    2013. június 14
-vegzosDate: 2013. május 2
-beiratkozasDate:   2012. június 28
+bizDate:    2014. június 13
+vegzosDate: 2014. április 29
+beiratkozasDate:   2013. június 28
+   # 2014. június 25.
 
 # a nyomtatott oldal pontosabb pozícionálása (eltérés a mért értékektől)
 posX: -1
 posY:  5
 fent:  5
 
-plugin: teszi.py
+pluginDiak:     pluginDiak.py
+# pluginTantargy: pluginTantargy.py
 
