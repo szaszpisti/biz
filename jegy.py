@@ -145,7 +145,7 @@ class Bizonyitvany():
                 del(diak[''])
 
                 if not 'Szorgalom' in sor:
-                    print u'\n   *** %s (%s): hiányos a bizonyítványa, átugrom.' % (diak['nev'], oszt)
+                    print u'   *** %s (%s): hiányos a bizonyítványa, átugrom.' % (diak['nev'], oszt)
                     continue
 
                 diak.update(config)
@@ -185,8 +185,8 @@ class Bizonyitvany():
                     if E[2][1] != '---': # Ha a nyelvtan óraszám nem üres
                         E[1][0] = '--------'
                         E[2][0] = 'Magyar nyelv'
-                    if jegy == 'elégtelen': Bukott.append(targy)
-                    if jegy == 'kitűnő':  Dicseret.append(targy)
+                    if jegy == 'elégtelen': Bukott.append(targyValodiNev[targy])
+                    if jegy == 'kitűnő':  Dicseret.append(targyValodiNev[targy])
 
                 # A sor vége mindig: ... magatartás, szorgalom, igazolt, igazolatlan
                 E[int(targySorrend[u'magatartás'])][2] = sor[-7]
