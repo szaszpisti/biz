@@ -21,7 +21,7 @@ class Biz:
         import jegy
         from yaml import load
         self.data = jegy.Bizonyitvany(oszt).bizOsztaly[uid]
-        self.data.update(load(open(os.path.join(BASE, 'biz.yaml'))))
+        self.data.update(load(open(os.path.join(BASE, 'biz.ini'))))
 
         self.data.update({'bal': bal, 'gerinc': gerinc, 'fent': fent, 'diff': diff, 'frame': frame })
 

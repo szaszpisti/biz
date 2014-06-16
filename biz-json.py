@@ -16,7 +16,7 @@ BASE = os.path.dirname(__file__)
 sys.path.append(BASE)
 
 ## a konfigurációs fájlból vett adatok
-config = load(open(os.path.join(BASE, 'biz.yaml')))
+config = load(open(os.path.join(BASE, 'biz.ini')))
 
 ## a bizonyítvány-dátumból kigyűjtjük az aktuális évet
 ev = config['bizDate'].split('.')[0]
