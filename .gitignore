@@ -3,7 +3,6 @@
 *.[0-9]
 *.xls
 *.pyc
-c:
 forras
 plugin
 tmp
@@ -11,3 +10,4 @@ jquery*.js
 shortcut.js
 pdf
 html
+old
