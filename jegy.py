@@ -92,7 +92,7 @@ class Bizonyitvany():
         '''Egy osztályhoz tartozó bizonyítványok
 
         @param oszt osztályazonosító
-        @param quiet ne kérdezze meg a bukásokat -> 3 bukásra automatikusan évismétlést ír be
+        @param quiet ne kérdezze meg a bukásokat -> 4 bukásra automatikusan évismétlést ír be
         '''
 
         global BASE
@@ -272,7 +272,7 @@ class Bizonyitvany():
         @param nev A diák neve
         @param Bukott <tt>['Tárgy', ...]</tt>
         @param Dicseret <tt>['Tárgy', ...]</tt>
-        @param quiet ha True, akkor nem áll meg a legalább 3 tárgyból bukottaknál
+        @param quiet ha True, akkor nem áll meg a legalább 4 tárgyból bukottaknál
         
         @return <tt>{'tovabb': a tanuló továbbhaladása, 'jegyzet': dicséret stb. }</tt>
         '''
@@ -281,15 +281,17 @@ class Bizonyitvany():
             if evfolyam >= 12:  tovabb = 'Érettségi vizsgát tehet.'
             else:              tovabb = 'Tanulmányait a %s évfolyamon folytathatja.' % SZAMNEV[evfolyam+1]
         elif len(Bukott) <= 1: tovabb = 'Javítóvizsgát tehet %s tantárgyból.' % Bukott[0]
-        elif len(Bukott) <= 3: tovabb = 'Javítóvizsgát tehet %s valamint %s tantárgyakból.' % (', '.join(Bukott[:-1]), Bukott[-1])
-        else:                # tovabb = 'Évismétlés' ########  TODO  #######
+        elif len(Bukott) <= self.configAll['maxBukott']:
+                                tovabb = 'Javítóvizsgát tehet %s valamint %s tantárgyakból.' % (', '.join(Bukott[:-1]), Bukott[-1])
+        else:  # tovabb = 'Évismétlés' ########  TODO  #######
             tovabb = "A %s évfolyam követelményeit nem teljesítette, az évfolyamot megismételheti." % SZAMNEV[evfolyam]
             uzenet = ("FIGYELEM!!!! Több tárgyból bukott: %s, a beírt szöveg: \n%s\n" % (nev, tovabb))
             if not quiet: raw_input (uzenet)
 
         if   len(Dicseret) == 0: jegyzet = ''
         elif len(Dicseret) <= 1: jegyzet = 'Dicséretben részesült %s tantárgyból.' % Dicseret[0]
-        elif len(Dicseret) <= 3: jegyzet = 'Dicséretben részesült %s valamint %s tantárgyakból.' % (', '.join(Dicseret[:-1]), Dicseret[-1])
+        elif len(Dicseret) <= self.configAll['maxDicseret']:
+                                 jegyzet = 'Dicséretben részesült %s valamint %s tantárgyakból.' % (', '.join(Dicseret[:-1]), Dicseret[-1])
         else:                    jegyzet = 'Kiváló tanulmányi munkájáért általános dicséretben részesült.'
 
         return {'tovabb': tovabb, 'jegyzet': jegyzet}
