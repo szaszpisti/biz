@@ -40,7 +40,7 @@ class getOsztalyLista():
         '''
         BASE = os.path.dirname(__file__)
         from yaml import load  
-        config = load(open(os.path.join(BASE, 'biz.yaml'))) 
+        config = load(open(os.path.join(BASE, 'biz.ini'))) 
 
         ## az osztályok listája a következő formában:
         #           osztályID, osztályNév, évfolyam, felső-e
@@ -101,7 +101,7 @@ class Bizonyitvany():
         self.oszt = oszt
         self.bizOsztaly = {}
 
-        config = self.getConfig(os.path.join(BASE, 'biz.yaml'), oszt)
+        config = self.getConfig(os.path.join(BASE, 'biz.ini'), oszt)
 
         self.xlsFile = os.path.join(BASE, 'forras', '%s.xls' % oszt)
         self.csvFile = os.path.join(BASE, 'forras', '%s.csv' % oszt)
@@ -223,9 +223,9 @@ class Bizonyitvany():
             self.nevsor, self.nevsorById = self.makeNevsor()
 
     def getConfig(self, iniFile, oszt):
-        '''Beolvassa a config fájlt (biz.yaml)
+        '''Beolvassa a config fájlt (biz.ini)
 
-        @param iniFile az ini fájl neve (biz.yaml)
+        @param iniFile az ini fájl neve (biz.ini)
         @param oszt osztály azonosító
 
         @return a konfigurációs fájlból vett és a számított beállítások szótára
@@ -272,7 +272,7 @@ class Bizonyitvany():
         @param nev A diák neve
         @param Bukott <tt>['Tárgy', ...]</tt>
         @param Dicseret <tt>['Tárgy', ...]</tt>
-        @param quiet ha True, akkor nem áll meg a legalább 4 tárgyból bukottaknál
+        @param quiet ha True, akkor nem áll meg a legalább "maxBukott" tárgyból bukottaknál
         
         @return <tt>{'tovabb': a tanuló továbbhaladása, 'jegyzet': dicséret stb. }</tt>
         '''
