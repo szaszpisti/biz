@@ -1,42 +1,102 @@
-;forras;7-8;9-12;jegy tablazat--bizonyitvany-hely osszerendeles
-;
-1;1;magyar nyelv és irodalom
-1;1;magyar irodalom;irodalom
-2;2;magyar nyelv
-3;3;történelem
-f;9;filozófia
-n;n;angol nyelv;angol
-n;n;latin nyelv;latin
-n;n;német nyelv;német
-n;n;olasz nyelv;olasz
-6;7;matematika
-9;10;fizika
-11;12;kémia
-10;11;biológia
-12;13;földrajz
-13;14;ének-zene
-14;15;rajz és vizuális kultúra
-16;16;testnevelés és sport
-7;8;informatika
-f;f;magyar emelt szint;magyar irodalom fakultáció;magyar irodalom - emelt szint;magyar - emelt szint
-f;f;rajz emelt szint;rajz fakultáció;rajz - emelt szint
-f;f;földrajz emelt szint;földrajz fakultáció;földrajz - emelt szint
-f;f;történelem emelt szint;történelem fakultáció;történelem - emelt szint
-f;f;matematika emelt szint;matematika fakultáció;matematika - emelt szint
-f;f;fizika emelt szint;fizika fakultáció;fizika - emelt szint
-f;f;kémia emelt szint;kémia fakultáció;kémia - emelt szint
-f;f;biológia emelt szint;biológia fakultáció;biológia - emelt szint
-f;f;ének-zene emelt szint;ének-zene fakultáció;ének-zene - emelt szint
-f;f;informatika emelt szint;informatika fakultáció;informatika - emelt szint
-f;f;testnevelés emelt szint;testnevelés fakultáció;testnevelés - emelt szint;testenevelés - emelt szint
-f;f;hittan emelt szint;hittan fakultáció;hittan - emelt szint
-f;f;gyógytestnevelés
-f;f;sportelmélet
-f;f;tanulásmódszertan
-21;17;társadalmi ismeretek
-22;20;művészeti nevelés. médiaismeretek, dráma;művészeti nevelés;média
-17;21;hittan
-28;28;osszes;igazolt
-29;29;igazolatlan
-26;26;magatartás
-27;27;szorgalom
+
+also:
+ nyelv: [4, 5]
+ szabad: [23, 24, 25]
+ oszt:
+
+felso:
+ nyelv: [5, 6]
+ szabad: [21, 22, 23, 24, 25]
+ oszt:
+
+4oszt:
+ nyelv: [3, 4]
+ szabad: [18, 19, 20, 21, 22, 23, 24, 25]
+ oszt: 9c
+
+#forras;7-8;9-12;4oszt;jegy tablazat--bizonyitvany-hely osszerendeles
+#
+
+helyOszlop: [also, felso, 4oszt]
+targy: 
+ - nevek: [magyar nyelv és irodalom]
+   hely:  [1, 1, 1]
+ - nevek: [magyar irodalom, irodalom]
+   hely:  [1, 1, 1]
+ - nevek: [magyar nyelv]
+   hely:  [2, 2, 2]
+ - nevek: [történelem]
+   hely:  [3, 3, 6]
+ - nevek: [filozófia]
+   hely:  [f, 9, f]
+ - nevek: [angol nyelv, angol]
+   hely:  [n, n, n]
+ - nevek: [latin nyelv, latin]
+   hely:  [n, n, n]
+ - nevek: [német nyelv, német]
+   hely:  [n, n, n]
+ - nevek: [olasz nyelv, olasz]
+   hely:  [n, n, n]
+ - nevek: [matematika]
+   hely:  [6, 7, 5]
+ - nevek: [fizika]
+   hely:  [9, 10, 9]
+ - nevek: [kémia]
+   hely:  [11, 12, 10]
+ - nevek: [biológia]
+   hely:  [10, 11, 8]
+ - nevek: [földrajz]
+   hely:  [12, 13, 11]
+ - nevek: [ének-zene]
+   hely:  [13, 14, 12]
+ - nevek: [rajz és vizuális kultúra]
+   hely:  [14, 15, 14]
+ - nevek: [testnevelés és sport]
+   hely:  [16, 16, 17]
+ - nevek: [informatika]
+   hely:  [7, 8, 15]
+ - nevek: [magyar emelt szint, magyar irodalom fakultáció, magyar irodalom - emelt szint, magyar - emelt szint]
+   hely:  [f, f, f]
+ - nevek: [rajz emelt szint, rajz fakultáció, rajz - emelt szint]
+   hely:  [f, f, f]
+ - nevek: [földrajz emelt szint, földrajz fakultáció, földrajz - emelt szint]
+   hely:  [f, f, f]
+ - nevek: [történelem emelt szint, történelem fakultáció, történelem - emelt szint]
+   hely:  [f, f, f]
+ - nevek: [matematika emelt szint, matematika fakultáció, matematika - emelt szint]
+   hely:  [f, f, f]
+ - nevek: [fizika emelt szint, fizika fakultáció, fizika - emelt szint]
+   hely:  [f, f, f]
+ - nevek: [kémia emelt szint, kémia fakultáció, kémia - emelt szint]
+   hely:  [f, f, f]
+ - nevek: [biológia emelt szint, biológia fakultáció, biológia - emelt szint]
+   hely:  [f, f, f]
+ - nevek: [ének-zene emelt szint, ének-zene fakultáció, ének-zene - emelt szint]
+   hely:  [f, f, f]
+ - nevek: [informatika emelt szint, informatika fakultáció, informatika - emelt szint]
+   hely:  [f, f, f]
+ - nevek: [testnevelés emelt szint, testnevelés fakultáció, testnevelés - emelt szint, testenevelés - emelt szint]
+   hely:  [f, f, f]
+ - nevek: [hittan emelt szint, hittan fakultáció, hittan - emelt szint]
+   hely:  [f, f, f]
+ - nevek: [gyógytestnevelés]
+   hely:  [f, f, f]
+ - nevek: [sportelmélet]
+   hely:  [f, f, f]
+ - nevek: [tanulásmódszertan]
+   hely:  [f, f, f]
+ - nevek: [társadalmi ismeretek]
+   hely:  [21, 17, 6]
+ - nevek: ["művészeti nevelés, médiaismeretek, dráma", művészeti nevelés, média]
+   hely:  [22, 20, 14]
+ - nevek: [hittan]
+   hely:  [17, 21, 18]
+ - nevek: [osszes, igazolt]
+   hely:  [28, 28, 28]
+ - nevek: [igazolatlan]
+   hely:  [29, 29, 29]
+ - nevek: [magatartás]
+   hely:  [26, 26, 26]
+ - nevek: [szorgalom]
+   hely:  [27, 27, 27]
+
