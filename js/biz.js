@@ -79,6 +79,10 @@ if (typeof(jQuery) == 'undefined') {
                 result['nev1'] = result['nev'];
                 result['nev2'] = result['nev'];
                 result['nev3'] = result['nev'];
+                for(i=1; i<=3; i++){
+                    hatter = 'url(image/biz-' + i + '-' + result['sablon'] + '.png)';
+                    $('#page' + i).css("background-image", hatter);
+                }
                 // a kapott key/val párokat bepakolja a megfelelő id-ekbe
                 $.each(result, function(name, value){
                     $("#" + name).html(value);
@@ -99,8 +103,6 @@ if (typeof(jQuery) == 'undefined') {
             // felsőbb évfolyam más oldalra kerül, más háttér kell neki
             onev = $('#oszt option:selected').text();
             evf = parseInt(onev.substring(0, onev.indexOf('.')));
-            hatter = "url(image/biz-3-" + (evf>8?"felso":"also") + ".png)";
-            $('#page3').css("background-image", hatter);
             getNevsor();
             $('#nevsor').focus();
             getData();
