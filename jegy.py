@@ -22,7 +22,7 @@ locale.setlocale(locale.LC_ALL, 'hu_HU.UTF-8')
 
 def main():
     '''Főprogram'''
-#    print Bizonyitvany('7a', True).bizOsztaly['77642413171']
+#    print Bizonyitvany('9c', True).bizOsztaly['79536523141']
 #    print getOsztalyLista().lista
     for oszt, osztaly, tmp, tmp in getOsztalyLista().lista:
         print oszt,
@@ -35,12 +35,12 @@ class getOsztalyLista():
     '''
     def __init__(self):
         '''
-                  osztályID, osztályNév, évfolyam, felső-e
-        lista: [ ['10b',     '10. B',    10,       True],   ...]
+                  osztályID, osztályNév, évfolyam, sablon
+        lista: [ ['10b',     '10. B',    10,       'felso'],   ...]
         '''
         BASE = os.path.dirname(__file__)
         from yaml import load  
-        config = load(open(os.path.join(BASE, 'biz.ini'))) 
+        self.config = load(open(os.path.join(BASE, 'biz.ini'))) 
 
         ## az osztályok listája a következő formában:
         #           osztályID, osztályNév, évfolyam, felső-e
@@ -70,22 +70,18 @@ class getOsztalyLista():
         @return <tt>['10b', '10. B', 10, True]</tt>
         '''
         import re
+        for reOszt, sablon in self.config['tip'].iteritems():
+            if re.match(reOszt+'$', oszt):
+                break
+
         m = re.match(r'^(\d+)[^a-zA-Z]*([a-zA-Z]*)', oszt).groups()
         osztaly = '%s. %s' % (m[0], m[1].upper())
         evfolyam = int(m[0])
 
-        felso = False
-        if evfolyam > 8: felso = True
+        return [oszt, osztaly, evfolyam, sablon]
 
-        return [oszt, osztaly, evfolyam, felso]
-
-#    t = Bizonyitvany('10b')
-#    print t.bizOsztaly['73946433164']
-#    print t.ki('73946433164')
-#    print t.nevsor
-#    print t.ki('Török András')
-#    print t.ki(5)
-#    print '\n'.join(t.getNevsor())
+#t = getOsztalyLista()
+#print(t.lista)
 
 class Bizonyitvany():
     def __init__(self, oszt, quiet=False):
@@ -96,12 +92,19 @@ class Bizonyitvany():
         '''
 
         global BASE
+        self.BASE = BASE
 
         ## osztályazonosító
         self.oszt = oszt
         self.bizOsztaly = {}
 
-        config = self.getConfig(os.path.join(BASE, 'biz.ini'), oszt)
+        self.config = self.getConfig(oszt)
+
+#        from yaml import load
+#        with open(os.path.join(BASE, 'tantargyak.ini')) as f:
+#            self.tantargyak = load(f)
+
+        targyHely, targyValodiNev = self.getTargySorrend(self.config['sablon'])
 
         self.xlsFile = os.path.join(BASE, 'forras', '%s.xls' % oszt)
         self.csvFile = os.path.join(BASE, 'forras', '%s.csv' % oszt)
@@ -127,8 +130,6 @@ class Bizonyitvany():
             import xlrd
             osztalyFile = xlrd.open_workbook(self.xlsFile).sheet_by_index(0)
 
-            targySorrend, targyValodiNev = self.getTargySorrend(config['felso'])
-
             # az "Évvégi eredmények" táblázatban ezek az oszlopok vannak elöl - a szükségtelen mezőket később töröljük
             head = ['nev', 'uid', '', 'tsz', 'szulhely', 'szulido', '', 'mnev', 'pnev']
 
@@ -144,21 +145,28 @@ class Bizonyitvany():
                 diak = dict(zip(head, sor[:9]))
                 del(diak[''])
 
+                if diak['tsz'] == '':
+                    print('Nincs tsz: %s %5s %s' % (diak['uid'], self.config['osztaly'], diak['nev']))
                 if not 'Szorgalom' in sor:
                     print u'   *** %s (%s): hiányos a bizonyítványa, átugrom.' % (diak['nev'], oszt)
                     continue
 
-                diak.update(config)
+                diak.update(self.config)
                 # a születési időt hosszú alakúra írjuk át
                 diak['szulido'] = self.getDatum(diak['szulido']) + '.'
 
                 # üres bizonyítvány
-                E, nyelv, szabad = self.newBiz(config['felso'])
+                E, nyelv, szabad = self.newBiz()
                 # ide gyűjtjük a bukásokat és a dicséreteket
                 Bukott, Dicseret = [], []
 
                 # a 9. oszloptól kezdődnek a jegyek, addig személyes adatok vannak, az már fel van dolgozva
                 sor = sor[9:]
+                # Ha valami extra tantárgyas dolog van, az ide jöhet:
+                # Ha van extra tantárgy módosítási igény, azt az "config['pluginTantargy']" fájlba tesszük
+                if self.configAll.has_key('pluginTantargy'):
+                    exec open(os.path.join(BASE, 'plugin', self.configAll['pluginTantargy'])).read()
+
                 # a végén 4 db "tárgy" 2-2, összesen 8 helyet foglal (mag-szorg, mulasztások)
                 # egy tárgyhoz 3 mező tartozik: tárgynév, jegy, óraszám
                 for t in range(0, len(sor)-8, 3):
@@ -166,9 +174,9 @@ class Bizonyitvany():
                     targy, jegy, oraszam = sor[t].lower(), sor[t+1], sor[t+2]
                     targy = targyValodiNev[targy]
                     try:
-                        hely = targySorrend[targy]
+                        hely = targyHely[targy]
                     except:
-                        print 'Nincs ilyen tárgy a listában: %s (%s %s)' % (targy, diak['nev'], diak['osztaly'])
+                        print u'Nincs ilyen tárgy a listában: %s (%s %s)' % (targy, diak['nev'], diak['osztaly'])
 
                     if hely == 'f': # szabad helyre kerülő tárgy (pl. fakultáció)
                         E[szabad.pop(0)] = [targy.capitalize(), oraszam, jegy]
@@ -181,30 +189,29 @@ class Bizonyitvany():
                         hely = int(hely)
                         E[hely][1], E[hely][2] = oraszam, jegy
 
-                    # Ha külön van az irodalom és nyelvtan:
-                    if E[2][1] != '---': # Ha a nyelvtan óraszám nem üres
-                        E[1][0] = '--------'
-                        E[2][0] = 'Magyar nyelv'
                     if jegy == 'elégtelen': Bukott.append(targyValodiNev[targy])
                     if jegy == 'kitűnő':  Dicseret.append(targyValodiNev[targy])
 
+                # Ha külön van az irodalom és nyelvtan:
+                if E[2][1] != '---': # Ha a nyelvtan óraszám nem üres
+                    E[1][0] = '--------'
+                    E[2][0] = 'Magyar nyelv'
+
                 # A sor vége mindig: ... magatartás, szorgalom, igazolt, igazolatlan
-                E[int(targySorrend[u'magatartás'])][2] = sor[-7]
-                E[int(targySorrend[u'szorgalom'])][2]  = sor[-5]
-                E[int(targySorrend[u'igazolatlan'])][1]  = sor[-1]
-                E[int(targySorrend[u'osszes'])][1]  = '%d' % (int(sor[-3]) + int(sor[-1]))
+                E[int(targyHely[u'magatartás'])][2] = sor[-7]
+                E[int(targyHely[u'szorgalom'])][2]  = sor[-5]
+                E[int(targyHely[u'igazolatlan'])][1]  = sor[-1]
+                E[int(targyHely[u'osszes'])][1]  = '%d' % (int(sor[-3]) + int(sor[-1]))
 
                 # A diák adatait feltöltjük a feldolgozott bizonyítvány-értékekkel
                 for i in range(1, len(E)):
                     t, o, j = E[i]
                     # a "kitűnő" értékelésű tárgyakat visszaírjuk "jeles"-re
                     if j == 'kitűnő': j = 'jeles'
-                    diak['t%02d' % i] = t
-                    diak['o%02d' % i] = o
-                    diak['j%02d' % i] = j
+                    diak.update({'t%02d'%i: t, 'o%02d'%i: o, 'j%02d'%i: j})
 
                 # Hozzáadjuk a továbbhaladást és a záradékot
-                diak.update(self.getZaradek(config['evfolyam'], diak['nev'], Bukott, Dicseret, quiet))
+                diak.update(self.getZaradek(self.config['evfolyam'], diak['nev'], Bukott, Dicseret, quiet))
 
                 self.bizOsztaly[diak['uid']] = diak
 
@@ -218,11 +225,12 @@ class Bizonyitvany():
             head = biz_reader.next()
 
             for sor in biz_reader:
-                self.bizOsztaly[sor[0]] = dict(zip(head, sor))
+                diak = dict(zip(head, sor))
+                self.bizOsztaly[diak['uid']] = diak
 
             self.nevsor, self.nevsorById = self.makeNevsor()
 
-    def getConfig(self, iniFile, oszt):
+    def getConfig(self, oszt):
         '''Beolvassa a config fájlt (biz.ini)
 
         @param iniFile az ini fájl neve (biz.ini)
@@ -230,25 +238,20 @@ class Bizonyitvany():
 
         @return a konfigurációs fájlból vett és a számított beállítások szótára
         '''
+        from os.path import join
         from yaml import load
-        self.configAll = load(open(iniFile))
 
-        ''' "10b" => (10, "10. B") '''
-        import re
-        evfolyam = re.compile(r'[^0-9]').sub('', oszt) # '10b' => '10'
+        self.configAll = load(open(join(self.BASE, 'biz.ini')))
 
-        osztaly = evfolyam + '. ' + oszt[len(evfolyam):].upper()
-        evfolyam = int(evfolyam)
-        config = { 'osztaly': osztaly, 'evfolyam': evfolyam }
-
-        config['felso'] = True
-        if evfolyam < 9: config['felso'] = False
+        oszt, osztaly, evfolyam, sablon = getOsztalyLista().Osztaly(oszt)
+        config = { 'osztaly': osztaly, 'evfolyam': evfolyam, 'sablon': sablon }
 
         config['kev'], config['kho'], config['knap'] = re.compile("[\. ]*").split(self.configAll['beiratkozasDate'])
         if evfolyam >= 12:
             bizDate = self.configAll['vegzosDate']
         else:
             bizDate = self.configAll['bizDate']
+
         config['ev'], config['ho'], config['nap'] = re.compile("[\. ]*").split(bizDate)
         config['om'], config['hely'], config['khely'] = self.configAll['om'], self.configAll['hely'], self.configAll['hely']
         config['tanev'] = '%s  %s' % (int(config['ev'])-1,  config['ev'])
@@ -279,8 +282,8 @@ class Bizonyitvany():
         SZAMNEV = { 7:'hetedik', 8:'nyolcadik', 9:'kilencedik', 10:'tizedik', 11:'tizenegyedik', 12:'tizenkettedik', 13:'tizenharmadik' }
         if   len(Bukott) == 0:
             if evfolyam >= 12:  tovabb = 'Érettségi vizsgát tehet.'
-            else:              tovabb = 'Tanulmányait a %s évfolyamon folytathatja.' % SZAMNEV[evfolyam+1]
-        elif len(Bukott) <= 1: tovabb = 'Javítóvizsgát tehet %s tantárgyból.' % Bukott[0]
+            else:               tovabb = 'Tanulmányait a %s évfolyamon folytathatja.' % SZAMNEV[evfolyam+1]
+        elif len(Bukott) <= 1:  tovabb = 'Javítóvizsgát tehet %s tantárgyból.' % Bukott[0]
         elif len(Bukott) <= self.configAll['maxBukott']:
                                 tovabb = 'Javítóvizsgát tehet %s valamint %s tantárgyakból.' % (', '.join(Bukott[:-1]), Bukott[-1])
         else:  # tovabb = 'Évismétlés' ########  TODO  #######
@@ -296,10 +299,10 @@ class Bizonyitvany():
 
         return {'tovabb': tovabb, 'jegyzet': jegyzet}
 
-    def newBiz(self, felso):
+    def newBiz(self):
         '''Egy diák bizonyítványátak sablonja, majd ezt fogjuk töltögetni az aktuális jegyekkel
 
-        @param felso felsős-e (9-12)? - ott más bizonyítvány van
+        @param sablon milyen bizonyítvány-sablont használjon?
 
         @return <tt>[['', '---', '-------------' ], ...], [5, 6], [24, 25]</tt>
             - E: az üres bizonyítvány
@@ -309,42 +312,42 @@ class Bizonyitvany():
         E = [ ['', '---', '-------------' ] for i in range(30) ] # az összes sor sémája, ez lesz feltöltve a jegyekkel
         E[0] = ['','','']                                        # csak a helyes számozás végett, a végén törölhető
         E[26][1], E[27][1], E[28][2], E[29][2] = ['']*4          # mag-szorg-nál nem kell évi óraszám, hiányzásnál jegy
-        if felso:                                                # a felsősöknek másképp néz ki a bizonyítványa
-            E[21][0] = 'Hittan'
-            nyelv = [5, 6]                                       # ide kerül a két nyelv
-            szabad = [22, 23, 24, 25]                            # a hittanon kivuli szabad bizonyitvany-sorok
-        else:
-            E[17][0] = 'Hittan'
-            nyelv = [4, 5]
-            szabad = [24, 25]
+
+        nyelv  = self.sablon['nyelv'][:]
+        szabad = self.sablon['szabad'][:]
+
+        # Az első szabad hely le van foglalva a hittannak.
+        E[szabad.pop(0)][0] = 'Hittan'
+
         return E, nyelv, szabad
 
-    def getTargySorrend(self, felso):
-        '''A "tantargyak.csv"-ből beolvassa a tárgyakhoz tartozó helyeket
+    def getTargySorrend(self, sablon):
+        '''A "tantargyak.ini"-ből beolvassa a tárgyakhoz tartozó helyeket
 
-        @param felso felsős-e (9-12)? - az egyes tárgyakhoz másik oszlopban van a szám
-            1. oszlop: alsó
-            2. oszlop: felső
         @return <tt>{'irodalom': 1, 'matematika': 6, ...}</tt>
                 <tt>{'matek': 'matematika', ...}</tt>
         '''
-        import csv
-        targy_reader = csv.reader(open(os.path.join(BASE, 'tantargyak.csv'), 'rb'), delimiter=';', quoting=csv.QUOTE_MINIMAL)
-        targy_reader.next()
 
-        targySorrend, targyValodiNev = {}, {}
-        for sor in targy_reader:
-            if len(sor) < 3 or sor[0] == '': continue # ha kevés a mező vagy ';'-vel kezdődik: ugorjunk
+        from yaml import load
+        with open(os.path.join(BASE, 'tantargyak.ini')) as f:
+            self.tantargyak = load(f)
+
+        self.sablon = self.tantargyak['sablonok'][sablon]
+
+        oszlop = self.sablon['index']
+        targyHely, targyValodiNev = {}, {}
+        for t in self.tantargyak['targyak']:
+            nevek, hely = t['nevek'], t['hely'][oszlop]
             # egy tárgyhoz tartozhat több név is, ezeket vesszük sorra
             # közülük az elsőt írjuk a bizonyítványba: targyValodiNev[targy álnév] -> tárgy valódi neve
-            targyNev = sor[2].decode('utf8')
-            targySorrend[targyNev] = sor[int(felso)]
+            targyNev = nevek[0].decode('utf8')
+            targyHely[targyNev] = hely
             targyValodiNev[targyNev] = targyNev
-            for targyAlnev in sor[3:]:
+            for targyAlnev in nevek[1:]:
                 targyAlnev = targyAlnev.decode('utf8')
                 targyValodiNev[targyAlnev] = targyNev
 
-        return targySorrend, targyValodiNev
+        return targyHely, targyValodiNev
 
     def makeNevsor(self):
         '''A bizOsztaly-ból névsort készít
@@ -390,7 +393,7 @@ class Bizonyitvany():
         @return fejlec
             - fejlec: ['uid', 'osztaly', ... 't15', 'o15', 'j15', ... 'tovabb', 'jegyzet', ...]
         '''
-        fejlec = ['uid', 'osztaly', 'nev', 'szulhely', 'szulido', 'pnev', 'mnev', 'khely', 'kev', 'kho', 'knap', 'om', 'tsz', 'tanev']
+        fejlec = ['sablon', 'uid', 'osztaly', 'nev', 'szulhely', 'szulido', 'pnev', 'mnev', 'khely', 'kev', 'kho', 'knap', 'om', 'tsz', 'tanev']
         for i in range(1, 30):
             fejlec.extend([ 't%02d' % i, 'o%02d' % i, 'j%02d' % i ])
         fejlec.extend(['tovabb', 'jegyzet', 'hely', 'ev', 'ho', 'nap'])
