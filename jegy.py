@@ -1,5 +1,4 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
+#!/usr/bin/python3
 
 '''@package jegy
 Feldolgozza az "Évvégi eredményeket"
@@ -14,20 +13,18 @@ import sys, string, locale, csv, re, os.path
 BASE = os.path.dirname(__file__)
 sys.path.append(BASE)
 
-reload(sys)
-sys.setdefaultencoding( "utf-8" )
-
-import locale
-locale.setlocale(locale.LC_ALL, 'hu_HU.UTF-8')
+from locale import setlocale, LC_ALL
+setlocale(LC_ALL, 'hu_HU.UTF-8')
 
 def main():
     '''Főprogram'''
 #    print Bizonyitvany('9c', True).bizOsztaly['79536523141']
 #    print getOsztalyLista().lista
     for oszt, osztaly, tmp, tmp in getOsztalyLista().lista:
-        print oszt,
+        print(oszt, end=' ')
         t = Bizonyitvany(oszt, quiet=True)
 #        t.csvOut()
+    print()
 
 class getOsztalyLista():
     '''A forrás könyvtárban található összes xls-t végigveszi,
@@ -57,10 +54,8 @@ class getOsztalyLista():
             self.lista.append(self.Osztaly(oszt))
 
         # rendezzük az osztálylistát évfolyam(2), majd név(1) alapján
-        def sortOszt(x, y):
-            if cmp(x[2], y[2]) == 0: return cmp(x[1], y[1])
-            else: return cmp(x[2], y[2])
-        self.lista.sort(cmp=sortOszt)
+        from operator import itemgetter
+        self.lista = sorted(self.lista, key=itemgetter(2, 1))
 
     def Osztaly(self, oszt):
         '''A paraméterként kapott osztálynevet dolgozza fel
@@ -70,8 +65,8 @@ class getOsztalyLista():
         @return <tt>['10b', '10. B', 10, True]</tt>
         '''
         import re
-        for reOszt, sablon in self.config['tip'].iteritems():
-            if re.match(reOszt+'$', oszt):
+        for reOszt, sablon in self.config['tip'].items():
+            if re.match(reOszt, oszt):
                 break
 
         m = re.match(r'^(\d+)[^a-zA-Z]*([a-zA-Z]*)', oszt).groups()
@@ -109,7 +104,7 @@ class Bizonyitvany():
         # Ha nincs még csv vagy régebbi az xls-nél, akkor generálni kell
         if not os.path.isfile(self.csvFile) or os.path.getmtime(self.csvFile) < os.path.getmtime(self.xlsFile):
 
-            print u'\n   Nincs csv, elkészítem: %s' % self.csvFile
+            print('\n   Nincs csv, elkészítem: %s' % self.csvFile)
 
             try:
                 # A taninformos xls-hez hozzá van csapva egy HTML dokumentum, ezt levágjuk
@@ -118,7 +113,7 @@ class Bizonyitvany():
                 xlsStat = os.stat(self.xlsFile)
                 xlsContent = open(self.xlsFile, 'rb').read()
 
-                i = xlsContent.index('\r<!DOCTYPE')
+                i = xlsContent.index(b'\r<!DOCTYPE')
                 open(self.xlsFile, 'wb').write(xlsContent[:i])
                 os.utime(self.xlsFile, (xlsStat.st_atime, xlsStat.st_mtime))
             except ValueError:
@@ -139,13 +134,13 @@ class Bizonyitvany():
                     sor.pop()
 
                 # egyelőre csak a személyes adatok lesznek benne; diak: {'nev': 'Sámli Samu', 'uid': '1234567890', ...}
-                diak = dict(zip(head, sor[:9]))
+                diak = dict(list(zip(head, sor[:9])))
                 del(diak[''])
 
                 if diak['tsz'] == '':
                     print('Nincs tsz: %s %5s %s' % (diak['uid'], self.config['osztaly'], diak['nev']))
                 if not 'Szorgalom' in sor:
-                    print u'   *** %s (%s): hiányos a bizonyítványa, átugrom.' % (diak['nev'], oszt)
+                    print('   *** %s (%s): hiányos a bizonyítványa, átugrom.' % (diak['nev'], oszt))
                     continue
 
                 diak.update(self.config)
@@ -161,8 +156,8 @@ class Bizonyitvany():
                 sor = sor[9:]
                 # Ha valami extra tantárgyas dolog van, az ide jöhet:
                 # Ha van extra tantárgy módosítási igény, azt az "config['pluginTantargy']" fájlba tesszük
-                if self.configAll.has_key('pluginTantargy'):
-                    exec open(os.path.join(BASE, 'plugin', self.configAll['pluginTantargy'])).read()
+                if 'pluginTantargy' in self.configAll:
+                    exec(open(os.path.join(BASE, 'plugin', self.configAll['pluginTantargy'])).read())
 
                 # a végén 4 db "tárgy" 2-2, összesen 8 helyet foglal (mag-szorg, mulasztások)
                 # egy tárgyhoz 3 mező tartozik: tárgynév, jegy, óraszám
@@ -173,7 +168,7 @@ class Bizonyitvany():
                     try:
                         hely = targyHely[targy]
                     except:
-                        print u'Nincs ilyen tárgy a listában: %s (%s %s)' % (targy, diak['nev'], diak['osztaly'])
+                        print('Nincs ilyen tárgy a listában: %s (%s %s)' % (targy, diak['nev'], diak['osztaly']))
 
                     if hely == 'f': # szabad helyre kerülő tárgy (pl. fakultáció)
                         E[szabad.pop(0)] = [targy.capitalize(), oraszam, jegy]
@@ -198,10 +193,10 @@ class Bizonyitvany():
                     E[2][0] = 'Magyar nyelv'
 
                 # A sor vége mindig: ... magatartás, szorgalom, igazolt, igazolatlan
-                E[int(targyHely[u'magatartás'])][2] = sor[-7]
-                E[int(targyHely[u'szorgalom'])][2]  = sor[-5]
-                E[int(targyHely[u'igazolatlan'])][1]  = sor[-1]
-                E[int(targyHely[u'osszes'])][1]  = '%d' % (int(sor[-3]) + int(sor[-1]))
+                E[int(targyHely['magatartás'])][2] = sor[-7]
+                E[int(targyHely['szorgalom'])][2]  = sor[-5]
+                E[int(targyHely['igazolatlan'])][1]  = sor[-1]
+                E[int(targyHely['osszes'])][1]  = '%d' % (int(sor[-3]) + int(sor[-1]))
 
                 # A diák adatait feltöltjük a feldolgozott bizonyítvány-értékekkel
                 for i in range(1, len(E)):
@@ -220,12 +215,12 @@ class Bizonyitvany():
 
         else:
             # Már megvan a csv, lehet beolvasni.
-            biz_reader = csv.reader(open(self.csvFile, "rb"), delimiter='\t', quoting=csv.QUOTE_MINIMAL)
+            biz_reader = csv.reader(open(self.csvFile), delimiter='\t', quoting=csv.QUOTE_MINIMAL)
 
-            head = biz_reader.next()
+            head = next(biz_reader)
 
             for sor in biz_reader:
-                diak = dict(zip(head, sor))
+                diak = dict(list(zip(head, sor)))
                 self.bizOsztaly[diak['uid']] = diak
 
             self.nevsor, self.nevsorById = self.makeNevsor()
@@ -264,7 +259,7 @@ class Bizonyitvany():
         @param datum a dátum "2007.03.08" formában
         '''
         import datetime
-        ev, ho, nap = map(int, re.compile("[\. ]*").split(datum)[:3])
+        ev, ho, nap = list(map(int, re.compile("[\. ]*").split(datum)[:3]))
         d = datetime.date(ev, ho, nap).strftime("%Y. %B ") + '%s'%nap # azért így, hogy ne legyen bevezető '0' ill. ' '
         return d
 
@@ -289,7 +284,7 @@ class Bizonyitvany():
         else:  # tovabb = 'Évismétlés' ########  TODO  #######
             tovabb = "A %s évfolyam követelményeit nem teljesítette, az évfolyamot megismételheti." % SZAMNEV[evfolyam]
             uzenet = ("FIGYELEM!!!! Több tárgyból bukott: %s, a beírt szöveg: \n%s\n" % (nev, tovabb))
-            if not quiet: raw_input (uzenet)
+            if not quiet: input (uzenet)
 
         if   len(Dicseret) == 0: jegyzet = ''
         elif len(Dicseret) <= 1: jegyzet = 'Dicséretben részesült %s tantárgyból.' % Dicseret[0]
@@ -340,11 +335,10 @@ class Bizonyitvany():
             nevek, hely = t['nevek'], t['hely'][oszlop]
             # egy tárgyhoz tartozhat több név is, ezeket vesszük sorra
             # közülük az elsőt írjuk a bizonyítványba: targyValodiNev[targy álnév] -> tárgy valódi neve
-            targyNev = nevek[0].decode('utf8')
+            targyNev = nevek[0]
             targyHely[targyNev] = hely
             targyValodiNev[targyNev] = targyNev
             for targyAlnev in nevek[1:]:
-                targyAlnev = targyAlnev.decode('utf8')
                 targyValodiNev[targyAlnev] = targyNev
 
         return targyHely, targyValodiNev
@@ -357,11 +351,12 @@ class Bizonyitvany():
            - nevsorById: <tt>[['Alma Attila', '123456789'], ['Baka Béla', '987654321'], ...]</tt>
         '''
         nevsorById = []
-        for uid in self.bizOsztaly.keys():
+        for uid in list(self.bizOsztaly.keys()):
             nevsorById.append ([self.bizOsztaly[uid]['nev'], uid])
 
-        sort = lambda x, y: locale.strcoll(x[0], y[0])
-        nevsorById.sort(cmp=sort)
+        # sort = lambda x, y: locale.strcoll(x[0], y[0])
+        # nevsorById.sort(cmp=sort)
+        nevsorById.sort(key=lambda x: locale.strxfrm(x[0]))
 
         nevsor = [ nev[0] for nev in nevsorById ]
         return nevsor, nevsorById
@@ -369,7 +364,7 @@ class Bizonyitvany():
     def csvOut(self):
         '''Fájlba írja a csv-t
         '''
-        jegy_writer = csv.writer(open(self.csvFile, 'wb'), delimiter='\t')
+        jegy_writer = csv.writer(open(self.csvFile, 'w'), delimiter='\t')
 
         fejlec = self.getFejlec()
 
@@ -379,8 +374,8 @@ class Bizonyitvany():
             diak = self.bizOsztaly[uid]
 
             # Ha van extra módosítási igény, azt az "config['pluginDiak']" fájlba tesszük
-            if self.configAll.has_key('pluginDiak'):
-                exec open(os.path.join(BASE, 'plugin', self.configAll['pluginDiak'])).read()
+            if 'pluginDiak' in self.configAll:
+                exec(open(os.path.join(BASE, 'plugin', self.configAll['pluginDiak'])).read())
 
             # A csv_writer listát vár, megcsináljuk neki.
             sor = [ diak[key] for key in fejlec ]

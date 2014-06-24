@@ -1,10 +1,12 @@
-#!/usr/bin/python
-# coding: utf-8
+#!/usr/bin/python3
 
 import sys, os.path
 
 BASE = os.path.dirname(__file__)
 sys.path.append(BASE)
+
+from locale import setlocale, LC_ALL
+setlocale(LC_ALL, 'hu_HU.UTF-8')
 
 class Biz:
     global BASE
@@ -285,17 +287,17 @@ class Biz3(Biz):
 
 if __name__ == '__main__':
 
-    oszt, uid = '7a', '72818368589'
+    oszt, uid = '9c', '79009318453'
 
     t = Biz1(oszt, uid, frame=True)
     t.genPDF('1.pdf')
-    print t.filename
+    print(t.filename)
 
     t = Biz2(oszt, uid, frame=True)
     t.genPDF('2.pdf')
-    print t.filename
+    print(t.filename)
 
     t = Biz3(oszt, uid, frame=True)
     t.genPDF('3.pdf')
-    print t.filename
+    print(t.filename)
 

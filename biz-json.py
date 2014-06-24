@@ -1,5 +1,4 @@
-#!/usr/bin/python
-# coding: utf-8
+#!/usr/bin/python3
 
 '''@file "biz-json.py"
 
@@ -15,6 +14,9 @@ from yaml import load
 BASE = os.path.dirname(__file__)
 sys.path.append(BASE)
 
+from locale import setlocale, LC_ALL
+setlocale(LC_ALL, 'hu_HU.UTF-8')
+
 ## a konfigurációs fájlból vett adatok
 config = load(open(os.path.join(BASE, 'biz.ini')))
 
@@ -26,10 +28,10 @@ def application(environ, start_response):
     '''A kérés típusa alapján (tip) ad vissza eredményt
     '''
     from jegy import Bizonyitvany
-    from urlparse import parse_qsl
+    from urllib.parse import parse_qsl
     query = dict(parse_qsl(environ['QUERY_STRING']))
 
-    if query.has_key('tip'): tip = query['tip']
+    if 'tip' in query: tip = query['tip']
     else: tip = 'oszt'
 
     start_response('200 OK', [('Content-type', 'text/plain')])
@@ -81,7 +83,7 @@ def application(environ, start_response):
         log = open(os.path.join(tempfile.gettempdir(), 'BIZ.txt'), 'a')
         log.write(arg + '\n')
 
-        if query.has_key('frame'): frame=True
+        if 'frame' in query: frame=True
         else: frame=False
 
         biz = 'Biz3'
@@ -95,7 +97,7 @@ def application(environ, start_response):
                  diff=float(query['diff']),
                  frame=frame,
                )
-        if query.has_key('debug'):
+        if 'debug' in query:
             from tempfile import mkstemp
             NULL, filename = mkstemp('.pdf', 'biz-%s-%s-' % (oszt, uid))
 
@@ -122,6 +124,6 @@ def printPDF(filename):
 
 
 if __name__ == '__main__':
-    print "Content-type: text/plain\n"
+    print("Content-type: text/plain\n")
 #    print application()
 
