@@ -27,6 +27,9 @@ class Biz:
 
         self.data['tukor'] = 93     # a tükör szélessége
 
+        # A törzslap mezőinek koordinátái a tantargyak.ini-ben vannak.
+        self.torzslap = load(open(os.path.join(BASE, 'tantargyak.ini')))['sablonok'][self.data['sablon']]['torzslap']
+
     def drawFrame(self, c):
         from reportlab.lib.units import mm
         p = c.beginPath()
@@ -133,16 +136,18 @@ class Biz1(Biz):
         c.showPage()
 
 ##############################################################################################
-
+# Törzslap
 class Biz2(Biz):
     def __init__(self, oszt, uid, bal=7, gerinc=12, fent=5, diff=0, frame=False, megj1='', megj2=''):
         Biz.__init__(self, oszt, uid, bal, gerinc, fent, diff, frame)
 
-        self.data.update({'megj1': megj1, 'megj2': megj2})
+#        self.data.update({'megj1': megj1, 'megj2': megj2})
 
     def drawPDF(self, c):
 
         data = self.data
+        torzs = self.torzslap
+
         if data['frame'] == 'on': data['frame'] = True
 
         from reportlab.lib.units import mm
@@ -157,31 +162,18 @@ class Biz2(Biz):
 
         if data['frame']: self.drawFrame(c)
 
-        # Az oldal eltolása x ill. y irányba, valamint az alapértelmezett mezőmagasság
-        baseX, baseY, baseM = 1, 5, 13
-#        baseX, baseY, baseM = 10, 16, 13
-#        i, d = 5, 13
         c.setFont('LinBiolinum-SC', self.fSize['Large'])
-        c.drawString(baseX*mm, (baseY+1*baseM)*mm, data['nev'])
+        c.drawString(torzs['nev'][0]*mm, torzs['nev'][1]*mm, data['nev'])
+
         c.setFont(self.fontBase, self.fSize['large'])
-        c.drawString(baseX*mm, (baseY+2*baseM)*mm, data['uid'])
-        c.drawString(baseX*mm, (baseY+3*baseM)*mm, data['szulhely'])
-        c.drawString(baseX*mm, (baseY+4*baseM)*mm, data['szulido'])
-        c.drawString(baseX*mm, (baseY+5*baseM)*mm, data['pnev'])
-        c.drawString(baseX*mm, (baseY+6*baseM)*mm, data['mnev'])
+        for key in ['uid', 'szulhely', 'szulido', 'pnev', 'mnev']:
+            c.drawString(torzs[key][0]*mm, torzs[key][1]*mm, data[key])
 
         c.setFont(self.fontBase, self.fSize['normal'])
-        c.drawCentredString((baseX+44)*mm, (baseY+7*baseM)*mm, data['isk1'])
-        c.drawCentredString((baseX+44)*mm, (baseY+8*baseM)*mm, data['isk2'])
 
-        c.drawString(baseX*mm, (baseY+9*baseM)*mm, data['megj1'])
-        c.drawString(baseX*mm, (baseY+10*baseM)*mm, data['megj2'])
-
-        datumY = baseY+11*baseM-1
         c.setFont(self.fontBase, self.fSize['large'])
-        c.drawRightString(46 *mm, datumY*mm, data['hely'] + '       ' + str(data['kev'])+'.')
-        c.drawCentredString(64 *mm, datumY*mm, data['kho'])
-        c.drawRightString(86 *mm, datumY*mm, data['knap'])
+        for key in ['hely', 'kev', 'kho', 'knap']:
+            c.drawCentredString(torzs[key][0]*mm, torzs[key][1]*mm, data[key])
 
         c.showPage()
 
@@ -280,6 +272,8 @@ class Biz3(Biz):
 
         ######### jegyzet ########
         style.leading = 1.4 * style.fontSize
+        style.spaceBefore = 20
+        style.spaceAfter = 20
         p = Paragraph(data['jegyzet'], style)
         p.wrap(width, 0)
         # HACK: azért van itt, mert különben nem jól pozícionál. Miert???
