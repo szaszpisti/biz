@@ -80,9 +80,6 @@ class getOsztalyLista():
 
         return [oszt, osztaly, evfolyam, sablon]
 
-#t = getOsztalyLista()
-#print(t.lista)
-
 class Bizonyitvany():
     def __init__(self, oszt, quiet=False):
         '''Egy osztályhoz tartozó bizonyítványok
@@ -182,8 +179,11 @@ class Bizonyitvany():
                         E[szabad.pop(0)] = [targy.capitalize(), oraszam, jegy]
 
                     elif hely == 'n': # ez egy nyelvi tárgy
-                        targy = targy.split()[0]
-                        E[nyelv.pop(0)] = [targy.capitalize(), oraszam, jegy]
+                        try:
+                            targy = targy.split()[0]
+                            E[nyelv.pop(0)] = [targy.capitalize(), oraszam, jegy]
+                        except IndexError: # Elfogyott a nyelvi hely, mehet a rendes faktoshoz
+                            E[szabad.pop(0)] = [targy.capitalize(), oraszam, jegy]
 
                     else:
                         hely = int(hely)
