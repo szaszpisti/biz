@@ -20,6 +20,8 @@ if (typeof(jQuery) == 'undefined') {
          */
         $('.page').hide();
         $('#page'+n).show();
+        $('#page3-bal').show();
+        $('#page3-jobb').show();
 
         $('.p').removeClass('pselect');
         $('#p'+n).addClass('pselect');
@@ -68,6 +70,98 @@ if (typeof(jQuery) == 'undefined') {
         $('#divBalGomb').append('<div style="clear: both"></div>');
         $('#divBalGomb').append('<p style="text-align: center; border-top: 1px solid;"><span class="alahuzott">b</span>al margó (mm)</p>');
         $('input[name="bal"][value="'+balDefault+'"]').attr('checked', 'checked');
+
+        var putField = function(parentDiv, key, field){
+            switch(field[3]){
+                case "small": tag="p"; break;
+                case "normal": tag="h4"; break;
+                case "large": tag="h3"; break;
+                case "Large": tag="h2"; break;
+                case "LARGE": tag="h1"; break;
+            }
+            switch(field[4]){
+                case "L": align="left"; break;
+                case "R": align="right"; break;
+                case "C": align="center"; break;
+            }
+            $(parentDiv).append('<'+tag+' id="' + key + '">.oOo.</'+tag+'>')
+
+            /* Az elem méretét úgy állítjuk be, hogy a padding méretével csökkentjük. */
+            padding = 2;
+            $("#" + key).css({
+                position: 'absolute',
+                left: field[0] + 'mm',
+                top: getY(key, field[1]),
+                width: (field[2]-2*padding)+"mm",
+                'padding': '0 ' + padding+'mm',
+                'text-align': align,
+            });
+        }
+        var Dim = 100/($('#page3-jobb').height()); // A mm és a px közti váltószám (a #page3-jobb éppen 100mm).
+        var getY = function(id, x){
+            /* A mező bal alsó koordinátája adott mm-ben.
+             * Ebből kell kiszámolni a "top"-ot, a mm-be átszámolt elemmagasságot levonva.
+             */
+            h = $('#'+id).height();
+            return((x-h*Dim)+"mm");
+        }
+        // egy diák adatainak betöltése
+        var getSablon = function() {
+            var send = $('#biz').serialize();
+            send += '&tip=sablon';
+            if (verbose) $('#message').html(send); else $('#message').html('');
+            $.getJSON(jsonFile, send, function(result){
+
+                /* 3. lap bal oldala */
+                var side = 'bal';
+                var pID = '#page3-' + side;
+                $.each(['om', 'tsz', 'nev', 'osztaly', 'tanev'], function(i, key){
+                    putField(pID, key, result['P3'][key]);
+                });
+                nTargy = 0;
+                x = result['P3'][side]['x'];
+                $.each(result['P3'][side]['y'], function(i, y){
+                    nTargy += 1;
+                    si = ("0"+nTargy).slice(-2);
+                    putField(pID, 't'+si, [x[0], y, x[1]-x[0], 'small', 'L']);
+                    putField(pID, 'o'+si, [x[1], y, x[2]-x[1], 'small', 'R']);
+                    putField(pID, 'j'+si, [x[2], y, x[3]-x[2], 'small', 'C']);
+                });
+
+                /* 3. lap jobb oldala */
+                var side = 'jobb';
+                var pID = '#page3-' + side;
+                $.each(['hely', 'ev', 'ho', 'nap', 'tovabb', 'jegyzet'], function(i, key){
+                    putField(pID, key, result['P3'][key]);
+                });
+                $.each(result['P3'][side]['y'], function(i, y){
+                    nTargy += 1;
+                    si = ("0"+nTargy).slice(-2);
+                    putField(pID, 't'+si, [x[0], y, x[1]-x[0], 'small', 'L']);
+                    putField(pID, 'o'+si, [x[1], y, x[2]-x[1], 'small', 'R']);
+                    putField(pID, 'j'+si, [x[2], y, x[3]-x[2], 'small', 'C']);
+                });
+
+
+                result['nev1'] = result['nev'];
+                result['nev2'] = result['nev'];
+                result['nev3'] = result['nev'];
+                for(i=1; i<=3; i++){
+                    hatter = 'url(image/biz-' + i + '-' + result['sablon'] + '.png)';
+                    $('#page' + i).css("background-image", hatter);
+                }
+                // a kapott key/val párokat bepakolja a megfelelő id-ekbe
+                $.each(result, function(name, value){
+                    $("#" + name).html(value);
+                });
+                $("#uid").val(result['uid']);
+                // a "nyelv és" kihúzása, ha szükséges
+                s = $('#t01').html();
+                if (s.substr(-3, 3) == '---') $('#t01').html('<span style="padding-left: 10mm;">' + s + '</span>');
+                //
+                // Taninform link: az aktuális link "=" előtti részéhez hozzárakjuk az om azonosítót
+            });
+        };
 
         // egy diák adatainak betöltése
         var getData = function() {
@@ -190,6 +284,7 @@ if (typeof(jQuery) == 'undefined') {
         }
 
         changeOsztaly();
+        getSablon();
 
     });
 }
