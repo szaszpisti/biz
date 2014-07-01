@@ -51,8 +51,9 @@ class getOsztalyLista():
             self.lista.append(self.Osztaly(oszt))
 
         # rendezzük az osztálylistát évfolyam(2), majd név(1) alapján
-        from operator import itemgetter
-        self.lista = sorted(self.lista, key=itemgetter(2, 1))
+        self.lista.sort(key=lambda x: 10*x[2] + ord(x[3]))
+#        from operator import itemgetter
+#        self.lista = sorted(self.lista, key=itemgetter(2, 1))
 
     def Osztaly(self, oszt):
         '''A paraméterként kapott osztálynevet dolgozza fel
