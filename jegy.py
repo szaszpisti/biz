@@ -8,13 +8,13 @@ mindegyikhez elkészíti az oszt.csv-t, ami a bizonyítvány input formátumába
 '''
 # python-yaml python-xlrd
 
-import sys, string, locale, csv, re, os.path
+import sys, csv, os.path, yaml, locale, re, glob
 
+locale.setlocale(locale.LC_ALL, 'hu_HU.UTF-8')
+
+global BASE
 BASE = os.path.dirname(__file__)
 sys.path.append(BASE)
-
-from locale import setlocale, LC_ALL
-setlocale(LC_ALL, 'hu_HU.UTF-8')
 
 def main():
     '''Főprogram'''
@@ -35,9 +35,7 @@ class getOsztalyLista():
                   osztályID, osztályNév, évfolyam, sablon
         lista: [ ['10b',     '10. B',    10,       'felso'],   ...]
         '''
-        BASE = os.path.dirname(__file__)
-        from yaml import load  
-        self.config = load(open(os.path.join(BASE, 'biz.ini'))) 
+        self.config = yaml.load(open(os.path.join(BASE, 'biz.ini'))) 
 
         ## az osztályok listája a következő formában:
         #           osztályID, osztályNév, évfolyam, felső-e
@@ -45,7 +43,6 @@ class getOsztalyLista():
         self.lista = []
 
         # vesszük a forrás könyvtárban található összes xls-t
-        import glob
         xlsFiles = glob.glob(os.path.join(BASE, 'forras', '*.xls'))
 
         for xlsFile in xlsFiles:
@@ -91,10 +88,10 @@ class Bizonyitvany():
         self.bizOsztaly = {}
 
         self.config = self.getConfig(oszt)
+        self.sablon = yaml.load(open(os.path.join(BASE, 'sablon', self.config['sablon']+'.ini')))
 
-#        from yaml import load
 #        with open(os.path.join(BASE, 'tantargyak.ini')) as f:
-#            self.tantargyak = load(f)
+#            self.tantargyak = yaml.load(f)
 
         targyHely, targyValodiNev = self.getTargySorrend(self.config['sablon'])
 
@@ -234,11 +231,10 @@ class Bizonyitvany():
         @return a konfigurációs fájlból vett és a számított beállítások szótára
         '''
         from os.path import join
-        from yaml import load
 
-        self.configAll = load(open(join(self.BASE, 'biz.ini')))
+        self.configAll = yaml.load(open(join(self.BASE, 'biz.ini')))
 
-        oszt, osztaly, evfolyam, sablon = getOsztalyLista().Osztaly(oszt)
+        oszt, osztaly, evfolyam, ab, sablon = getOsztalyLista().Osztaly(oszt)
         config = { 'osztaly': osztaly, 'evfolyam': evfolyam, 'sablon': sablon }
 
         config['kev'], config['kho'], config['knap'] = re.compile("[\. ]*").split(self.configAll['beiratkozasDate'])
@@ -323,9 +319,11 @@ class Bizonyitvany():
                 <tt>{'matek': 'matematika', ...}</tt>
         '''
 
-        from yaml import load
         with open(os.path.join(BASE, 'tantargyak.ini')) as f:
-            self.tantargyak = load(f)
+            self.tantargyak = yaml.load(f)
+
+#        self.sablon = self.tantargyak['sablonok'][sablon]
+        self.sablon = yaml.load(open(os.path.join(BASE, 'sablon', self.config['sablon']+'.ini')))
 
         self.sablon = self.tantargyak['sablonok'][sablon]
 
