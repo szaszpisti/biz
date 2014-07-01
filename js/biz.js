@@ -107,28 +107,27 @@ if (typeof(jQuery) == 'undefined') {
             return((x-h*Dim)+"mm");
         }
 
-        var getSablon = function() {
-            sablon = $('#sablon').html();
-            send = 'tip=sablon&sablon=' + sablon;
+        var getSablon = function(sablontip) {
+            send = 'tip=sablon&sablon=' + sablontip;
             $.ajax({
                 url: jsonFile,
                 dataType: 'json',
                 async: false,
                 data: send,
-                success: function(result){
+                success: function(sablon){
 
                     $.each(['#page1', '#page2', '#page3-bal', '#page3-jobb'], function(i, id){
                         $(id).empty();
                     });
 
                     /* 1. lap */
-                    putField('#page1', 'nev1', result['P1']['nev']);
+                    putField('#page1', 'nev1', sablon['P1']['nev']);
 
                     /* 2. lap */
-                    putField('#page2', 'nev2', result['P2']['nev']);
-                    putField('#page2', 'hely2', result['P2']['hely']);
+                    putField('#page2', 'nev2', sablon['P2']['nev']);
+                    putField('#page2', 'hely2', sablon['P2']['hely']);
                     $.each(['uid', 'szulhely', 'szulido', 'pnev', 'mnev', 'kev', 'kho', 'knap'], function(i, key){
-                        putField('#page2', key, result['P2'][key]);
+                        putField('#page2', key, sablon['P2'][key]);
                     });
 
     //                alert($('#knap').val());
@@ -136,13 +135,13 @@ if (typeof(jQuery) == 'undefined') {
                     /* 3. lap bal oldala */
                     var side = 'bal';
                     var pID = '#page3-' + side;
-                    putField(pID, 'nev3', result['P3']['nev']);
+                    putField(pID, 'nev3', sablon['P3']['nev']);
                     $.each(['om', 'tsz', 'osztaly', 'tanev'], function(i, key){
-                        putField(pID, key, result['P3'][key]);
+                        putField(pID, key, sablon['P3'][key]);
                     });
                     nTargy = 0;
-                    x = result['P3'][side]['x'];
-                    $.each(result['P3'][side]['y'], function(i, y){
+                    x = sablon['P3'][side]['x'];
+                    $.each(sablon['P3'][side]['y'], function(i, y){
                         nTargy += 1;
                         si = ("0"+nTargy).slice(-2);
                         putField(pID, 't'+si, [x[0], y, x[1]-x[0], 'small', 'L']);
@@ -154,15 +153,19 @@ if (typeof(jQuery) == 'undefined') {
                     var side = 'jobb';
                     var pID = '#page3-' + side;
                     $.each(['hely', 'ev', 'ho', 'nap', 'tovabb', 'jegyzet'], function(i, key){
-                        putField(pID, key, result['P3'][key]);
+                        putField(pID, key, sablon['P3'][key]);
                     });
-                    $.each(result['P3'][side]['y'], function(i, y){
+                    $.each(sablon['P3'][side]['y'], function(i, y){
                         nTargy += 1;
                         si = ("0"+nTargy).slice(-2);
                         putField(pID, 't'+si, [x[0], y, x[1]-x[0], 'small', 'L']);
                         putField(pID, 'o'+si, [x[1], y, x[2]-x[1], 'small', 'R']);
                         putField(pID, 'j'+si, [x[2], y, x[3]-x[2], 'small', 'C']);
                     });
+                    for(i=1; i<=3; i++){
+                        hatter = 'url(sablon/' + sablon['P'+i]['hatter']+')';
+                        $('#page' + i).css("background-image", hatter);
+                    }
 
                 }
             });
@@ -175,20 +178,12 @@ if (typeof(jQuery) == 'undefined') {
             if (verbose) $('#message').html(send); else $('#message').html('');
             $.getJSON(jsonFile, send, function(data){
                 // 3 név van összesen, ezeket megkülönböztetjük
-//                alert('BEFORE');
                 $('#sablon').html(data['sablon']);
-                getSablon();
-//                getSablon(data['sablon']);
-//                alert('AFTER ' + data['sablon']);
-//                alert('AFTER ' + $('#sablon').html());
+                getSablon(data['sablon']);
 
                 data['nev1'] = data['nev'];
                 data['nev2'] = data['nev'];
                 data['nev3'] = data['nev'];
-                for(i=1; i<=3; i++){
-                    hatter = 'url(image/biz-' + i + '-' + data['sablon'] + '.png)';
-                    $('#page' + i).css("background-image", hatter);
-                }
                 // a kapott key/val párokat bepakolja a megfelelő id-ekbe
 //                alert('1: ' + $('#t02').html());
                 $.each(data, function(name, value){
