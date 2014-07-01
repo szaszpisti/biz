@@ -26,6 +26,10 @@ document.getElementById("jsTest").style.display = 'none';
 <div style="padding: 1em; margin-left: 2em; float: left;"><!-- bal oldal -->
 <form name="biz" id="biz">
 
+ <div id="hidden" style="visibility: hidden;">
+   <p id="sablon" name="sablon"></p>
+</div>
+
  <div id="divDb" style="text-align: left; padding-bottom: 1em;"><!-- db -->
    <span id="spanOsztaly"></span>
    <span><button id="nyomtat" style="float: right;">Nyomtat (Ctrl+P)</button></span>
@@ -78,83 +82,19 @@ document.getElementById("jsTest").style.display = 'none';
 </div><!-- /bal oldal -->
 
 <div id="page1" class="page" style="width: 102mm; background-image: url('image/biz-1.png'); background-size: 102mm 190mm">
-  <div id="nev1" class="tmezo center" style="position:absolute; left:8mm; top:63mm; width: 80mm; font-size: 7mm;">Pumpa Pál Péter</div>
 </div><!-- page1 -->
 
 
 <div id="page2" class="page" style="width: 102mm; background-image: url('image/biz-2.png'); background-size: 102mm 190mm">
-  <div style="height: 12mm;"><!-- spacer --></div>
-  <div id="nev2"     class="tmezo">Pumpa Pál Péter</div>
-  <div id="uid"      class="tmezo">98876543210</div>
-  <div id="szulhely" class="tmezo">Hej, a Baranya szélen</div>
-  <div id="szulido"  class="tmezo">1848. március 15.</div>
-  <div id="pnev"     class="tmezo">Édesapám</div>
-  <div id="mnev"     class="tmezo">Anyám, kedves édesanyám</div>
-  <div id="isk1"     class="tmezo center">Dugonics András Piarista Gimnázium</div>
-  <div id="isk2"     class="tmezo center">Szakközépiskola és Kollégium</div>
-  <div class="tmezo" style="margin-top: 6mm;"><input type="text" id="megj1" name="megj1" class="ttext" style="text-align: left;"></div>
-  <div class="tmezo" style="margin-top: 6mm;"><input type="text" id="megj2" name="megj2" class="ttext" style="text-align: left;"></div>
-
-  <h4 id="khely"     style="position:absolute; left:20mm; top:140mm;">Szeged</h4>
-  <h4 id="kev"       style="position:absolute; left:41mm; top:140mm;">2012</h4>
-  <h4 id="kho"       style="position:absolute; left:63mm; top:140mm;">június</h4>
-  <h4 id="knap"      style="position:absolute; left:86mm; top:140mm;">12</h4>
 </div><!-- page2 -->
 
 
-<div id="page3" class="page" style="width: 205mm; background-image: url('image/biz-3-also.png'); background-size: 205mm 190mm">
-
-  <h3 id="om"      style="position:absolute; left:52mm;  top:2mm;">029752</h3>
-  <h3 id="tsz"     style="position:absolute; left:84mm;  top:2mm;">32</h3>
-
-  <h2 id="nev3"    style="position:absolute; left:8mm;   top:11mm;">Pumpa Pál Péter</h2>
-  <h2 id="osztaly" style="position:absolute; left:56mm;  top:30mm;">10. B</h2>
-  <h3 id="tanev"   style="position:absolute; left:10mm;  top:40mm;">2011 2012</h3>
-
-  <p  id="tovabb"  style="position:absolute; left:112mm; top:66mm; font-size: 85%;">Tizennyolcadik osztályba léphet.</p>
-  <h3 id="hely"    style="position:absolute; left:122mm; top:71mm;">Szeged</h3>
-  <h3 id="ev"      style="position:absolute; left:143mm; top:71mm;">2012</h3>
-  <h3 id="ho"      style="position:absolute; left:165mm; top:71mm;">június</h3>
-  <h3 id="nap"     style="position:absolute; left:188mm; top:71mm;">12</h3>
-
-  <p id="jegyzet"  style="position:absolute; left:112mm; top:121mm; font-weight: bold; width: 83mm;">Dicséretben részesült fizika, matematika, történelem és állampolgári ismeretek valamint magyar nyelv és irodalom tantárgyakból</p>
-
-  <table class="jegy" style="position: absolute; left:7mm; top:57.2mm; height: 100mm;">
-    <tr><td id="t01"></td><td id="o01"></td><td id="j01"></td></tr>
-    <tr><td id="t02"></td><td id="o02"></td><td id="j02"></td></tr>
-    <tr><td id="t03"></td><td id="o03"></td><td id="j03"></td></tr>
-    <tr><td id="t04"></td><td id="o04"></td><td id="j04"></td></tr>
-    <tr><td id="t05"></td><td id="o05"></td><td id="j05"></td></tr>
-    <tr><td id="t06"></td><td id="o06"></td><td id="j06"></td></tr>
-    <tr><td id="t07"></td><td id="o07"></td><td id="j07"></td></tr>
-    <tr><td id="t08"></td><td id="o08"></td><td id="j08"></td></tr>
-    <tr><td id="t09"></td><td id="o09"></td><td id="j09"></td></tr>
-    <tr><td id="t10"></td><td id="o10"></td><td id="j10"></td></tr>
-    <tr><td id="t11"></td><td id="o11"></td><td id="j11"></td></tr>
-    <tr><td id="t12"></td><td id="o12"></td><td id="j12"></td></tr>
-    <tr><td id="t13"></td><td id="o13"></td><td id="j13"></td></tr>
-    <tr><td id="t14"></td><td id="o14"></td><td id="j14"></td></tr>
-    <tr><td id="t15"></td><td id="o15"></td><td id="j15"></td></tr>
-    <tr><td id="t16"></td><td id="o16"></td><td id="j16"></td></tr>
-    <tr><td id="t17"></td><td id="o17"></td><td id="j17"></td></tr>
-    <tr><td id="t18"></td><td id="o18"></td><td id="j18"></td></tr>
-    <tr><td id="t19"></td><td id="o19"></td><td id="j19"></td></tr>
-    <tr><td id="t20"></td><td id="o20"></td><td id="j20"></td></tr>
-  </table>
-
-  <table class="jegy" style="position: absolute; left:109mm; top:11mm; height: 46mm;">
-    <tr><td id="t21"></td><td id="o21"></td><td id="j21"></td></tr>
-    <tr><td id="t22"></td><td id="o22"></td><td id="j22"></td></tr>
-    <tr><td id="t23"></td><td id="o23"></td><td id="j23"></td></tr>
-    <tr><td id="t24"></td><td id="o24"></td><td id="j24"></td></tr>
-    <tr><td id="t25"></td><td id="o25"></td><td id="j25"></td></tr>
-    <tr><td id="t26"></td><td id="o26"></td><td id="j26"></td></tr>
-    <tr><td id="t27"></td><td id="o27"></td><td id="j27"></td></tr>
-    <tr><td id="t28"></td><td id="o28"></td><td id="j28"></td></tr>
-    <tr><td id="t29"></td><td id="o29"></td><td id="j29"></td></tr>
-  </table>
+<div id="page3" class="page" style="width: 215mm; background-image: url('image/biz-3-also.png'); background-size: 208mm 191mm; background-repeat: no-repeat;">
+  <div class="x1" style="position: relative; float: left; width: 6.5mm; height: 100mm;"></div>
+  <div class="x2" id="page3-bal" style="position: relative; float: left; width: 93mm; height: 151.5mm; margin-top: 5.5mm;"></div>
+  <div class="x1" style="position: relative; float: left; width: 10.5mm; height: 120mm;"></div>
+  <div class="x3" id="page3-jobb" style="position: relative; float: left; width: 100mm; height: 100mm; margin-top: 5.5mm;"></div>
 </div><!-- page3 -->
-
 
 <div style="clear: both"></div>
 
