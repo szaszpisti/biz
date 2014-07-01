@@ -107,57 +107,64 @@ if (typeof(jQuery) == 'undefined') {
             return((x-h*Dim)+"mm");
         }
 
-        var getSablon = function(sablon) {
+        var getSablon = function() {
+            sablon = $('#sablon').html();
             send = 'tip=sablon&sablon=' + sablon;
-            $.getJSON(jsonFile, send, function(result){
+            $.ajax({
+                url: jsonFile,
+                dataType: 'json',
+                async: false,
+                data: send,
+                success: function(result){
 
-                $.each(['#page1', '#page2', '#page3-bal', '#page3-jobb'], function(i, id){
-                    $(id).empty();
-                });
+                    $.each(['#page1', '#page2', '#page3-bal', '#page3-jobb'], function(i, id){
+                        $(id).empty();
+                    });
 
-                /* 1. lap */
-                putField('#page1', 'nev1', result['P1']['nev']);
+                    /* 1. lap */
+                    putField('#page1', 'nev1', result['P1']['nev']);
 
-                /* 2. lap */
-                putField('#page2', 'nev2', result['P2']['nev']);
-                putField('#page2', 'hely2', result['P2']['hely']);
-                $.each(['uid', 'szulhely', 'szulido', 'pnev', 'mnev', 'kev', 'kho', 'knap'], function(i, key){
-                    putField('#page2', key, result['P2'][key]);
-                });
+                    /* 2. lap */
+                    putField('#page2', 'nev2', result['P2']['nev']);
+                    putField('#page2', 'hely2', result['P2']['hely']);
+                    $.each(['uid', 'szulhely', 'szulido', 'pnev', 'mnev', 'kev', 'kho', 'knap'], function(i, key){
+                        putField('#page2', key, result['P2'][key]);
+                    });
 
-//                alert($('#knap').val());
+    //                alert($('#knap').val());
 
-                /* 3. lap bal oldala */
-                var side = 'bal';
-                var pID = '#page3-' + side;
-                putField(pID, 'nev3', result['P3']['nev']);
-                $.each(['om', 'tsz', 'osztaly', 'tanev'], function(i, key){
-                    putField(pID, key, result['P3'][key]);
-                });
-                nTargy = 0;
-                x = result['P3'][side]['x'];
-                $.each(result['P3'][side]['y'], function(i, y){
-                    nTargy += 1;
-                    si = ("0"+nTargy).slice(-2);
-                    putField(pID, 't'+si, [x[0], y, x[1]-x[0], 'small', 'L']);
-                    putField(pID, 'o'+si, [x[1], y, x[2]-x[1], 'small', 'R']);
-                    putField(pID, 'j'+si, [x[2], y, x[3]-x[2], 'small', 'C']);
-                });
+                    /* 3. lap bal oldala */
+                    var side = 'bal';
+                    var pID = '#page3-' + side;
+                    putField(pID, 'nev3', result['P3']['nev']);
+                    $.each(['om', 'tsz', 'osztaly', 'tanev'], function(i, key){
+                        putField(pID, key, result['P3'][key]);
+                    });
+                    nTargy = 0;
+                    x = result['P3'][side]['x'];
+                    $.each(result['P3'][side]['y'], function(i, y){
+                        nTargy += 1;
+                        si = ("0"+nTargy).slice(-2);
+                        putField(pID, 't'+si, [x[0], y, x[1]-x[0], 'small', 'L']);
+                        putField(pID, 'o'+si, [x[1], y, x[2]-x[1], 'small', 'R']);
+                        putField(pID, 'j'+si, [x[2], y, x[3]-x[2], 'small', 'C']);
+                    });
 
-                /* 3. lap jobb oldala */
-                var side = 'jobb';
-                var pID = '#page3-' + side;
-                $.each(['hely', 'ev', 'ho', 'nap', 'tovabb', 'jegyzet'], function(i, key){
-                    putField(pID, key, result['P3'][key]);
-                });
-                $.each(result['P3'][side]['y'], function(i, y){
-                    nTargy += 1;
-                    si = ("0"+nTargy).slice(-2);
-                    putField(pID, 't'+si, [x[0], y, x[1]-x[0], 'small', 'L']);
-                    putField(pID, 'o'+si, [x[1], y, x[2]-x[1], 'small', 'R']);
-                    putField(pID, 'j'+si, [x[2], y, x[3]-x[2], 'small', 'C']);
-                });
+                    /* 3. lap jobb oldala */
+                    var side = 'jobb';
+                    var pID = '#page3-' + side;
+                    $.each(['hely', 'ev', 'ho', 'nap', 'tovabb', 'jegyzet'], function(i, key){
+                        putField(pID, key, result['P3'][key]);
+                    });
+                    $.each(result['P3'][side]['y'], function(i, y){
+                        nTargy += 1;
+                        si = ("0"+nTargy).slice(-2);
+                        putField(pID, 't'+si, [x[0], y, x[1]-x[0], 'small', 'L']);
+                        putField(pID, 'o'+si, [x[1], y, x[2]-x[1], 'small', 'R']);
+                        putField(pID, 'j'+si, [x[2], y, x[3]-x[2], 'small', 'C']);
+                    });
 
+                }
             });
         };
 
@@ -165,16 +172,15 @@ if (typeof(jQuery) == 'undefined') {
         var getData = function() {
             var send = $('#biz').serialize();
             send += '&tip=uid';
-            var data;
             if (verbose) $('#message').html(send); else $('#message').html('');
-            var getDataJSON = $.getJSON(jsonFile, send, function(result){
-                data = result;
-            });
-            getDataJSON.complete(function(){
+            $.getJSON(jsonFile, send, function(data){
                 // 3 név van összesen, ezeket megkülönböztetjük
 //                alert('BEFORE');
-                getSablon(data['sablon']);
-                alert('AFTER');
+                $('#sablon').html(data['sablon']);
+                getSablon();
+//                getSablon(data['sablon']);
+//                alert('AFTER ' + data['sablon']);
+//                alert('AFTER ' + $('#sablon').html());
 
                 data['nev1'] = data['nev'];
                 data['nev2'] = data['nev'];
