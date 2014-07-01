@@ -20,7 +20,7 @@ def main():
     '''Főprogram'''
 #    print Bizonyitvany('9c', True).bizOsztaly['79536523141']
 #    print getOsztalyLista().lista
-    for oszt, osztaly, tmp, tmp in getOsztalyLista().lista:
+    for oszt, osztaly, tmp, tmp, tmp in getOsztalyLista().lista:
         print(oszt, end=' ')
         t = Bizonyitvany(oszt, quiet=True)
 #        t.csvOut()
@@ -28,7 +28,7 @@ def main():
 
 class getOsztalyLista():
     '''A forrás könyvtárban található összes xls-t végigveszi,
-    a fájlnevek alapján elkészíti belőle az osztálylistát
+    a fájlnevek alapján elkészíti belőle az osztálylistát, a hozzá tartozó sablonnevekkel
     '''
     def __init__(self):
         '''
@@ -59,18 +59,19 @@ class getOsztalyLista():
 
         @param oszt: a feldolgozandó osztályazonosító ("10b")
 
-        @return <tt>['10b', '10. B', 10, True]</tt>
+        @return <tt>['10b', '10. B', 10, 'B', '4oszt']</tt>
         '''
         import re
-        for reOszt, sablon in self.config['tip'].items():
+        for reOszt, sablon in self.config['tip']:
             if re.match(reOszt, oszt):
                 break
 
         m = re.match(r'^(\d+)[^a-zA-Z]*([a-zA-Z]*)', oszt).groups()
-        osztaly = '%s. %s' % (m[0], m[1].upper())
         evfolyam = int(m[0])
+        ab = m[1].upper()
+        osztaly = '%d. %s' % (evfolyam, ab)
 
-        return [oszt, osztaly, evfolyam, sablon]
+        return [oszt, osztaly, evfolyam, ab, sablon]
 
 class Bizonyitvany():
     def __init__(self, oszt, quiet=False):
@@ -125,7 +126,7 @@ class Bizonyitvany():
             for i in range (1, osztalyFile.nrows):
                 sor = osztalyFile.row_values(i)
 
-                # A végéről leszedjük az üres mezőket (pl. különböző sorhosszúság)
+                # A végéről leszedjük az üres mezőket (különböző sorhosszúság)
                 while 1:
                     if sor[-1] != '': break
                     sor.pop()
@@ -135,7 +136,7 @@ class Bizonyitvany():
                 del(diak[''])
 
                 if diak['tsz'] == '':
-                    print('Nincs tsz: %s %5s %s' % (diak['uid'], self.config['osztaly'], diak['nev']))
+                    print('Nincs törzslapszám: %s %5s %s' % (diak['uid'], self.config['osztaly'], diak['nev']))
                 if not 'Szorgalom' in sor:
                     print('   *** %s (%s): hiányos a bizonyítványa, átugrom.' % (diak['nev'], oszt))
                     continue
@@ -325,9 +326,10 @@ class Bizonyitvany():
 #        self.sablon = self.tantargyak['sablonok'][sablon]
         self.sablon = yaml.load(open(os.path.join(BASE, 'sablon', self.config['sablon']+'.ini')))
 
-        self.sablon = self.tantargyak['sablonok'][sablon]
+#=========================================================================
+#        oszlop = self.sablon['index']
+        oszlop = 2
 
-        oszlop = self.sablon['index']
         targyHely, targyValodiNev = {}, {}
         for t in self.tantargyak['targyak']:
             nevek, hely = t['nevek'], t['hely'][oszlop]
@@ -384,7 +386,7 @@ class Bizonyitvany():
         '''A fejléc mezők neveit generálja
 
         @return fejlec
-            - fejlec: ['uid', 'osztaly', ... 't15', 'o15', 'j15', ... 'tovabb', 'jegyzet', ...]
+            - fejlec: ['sablon', 'uid', 'osztaly', ... 't15', 'o15', 'j15', ... 'tovabb', 'jegyzet', ...]
         '''
         fejlec = ['sablon', 'uid', 'osztaly', 'nev', 'szulhely', 'szulido', 'pnev', 'mnev', 'khely', 'kev', 'kho', 'knap', 'om', 'tsz', 'tanev']
         for i in range(1, 30):
