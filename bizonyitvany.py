@@ -16,11 +16,16 @@ sys.path.append(BASE)
 from locale import setlocale, LC_ALL
 setlocale(LC_ALL, 'hu_HU.UTF-8')
 
+# Az alapvonal koordinátához képest ennyivel följebb, ill vízszintesen ennyi margóval írjuk ki a szöveget.
+padX, padY = 2, 2
+
 class Biz:
     global BASE
     def __init__(self, oszt, uid, bal, gerinc, fent, diff, frame):
 
         '''
+        Egy ember (uid) bizonyítványát készíti el.
+
         # Alapértelmezett oldalbeállítások:
         bal = 7        # bal margó (mindennel együtt)
         gerinc = 12    # a két tükör közötti távolság
@@ -32,10 +37,10 @@ class Biz:
 
         self.data.update({'bal': bal, 'gerinc': gerinc, 'fent': fent, 'diff': diff, 'frame': frame })
 
-        self.data['tukor'] = 93     # a tükör szélessége
+        # A mezők koordinátái a sablonban vannak.
+        self.sablon = yaml.load(open(os.path.join(BASE, 'sablon', self.data['sablon'] + '.ini')))
 
-        # A törzslap mezőinek koordinátái a tantargyak.ini-ben vannak.
-        self.torzslap = load(open(os.path.join(BASE, 'tantargyak.ini')))['sablonok'][self.data['sablon']]['torzslap']
+        self.data['tukor'] = self.sablon['tukor']
 
     def drawFrame(self, c):
         p = c.beginPath()
@@ -53,8 +58,6 @@ class Biz:
         self.fSize = {}
         for i in range(len(fontNames)):
             self.fSize[fontNames[i]] = base*(1.2**i)
-
-#        self.fontSize1, self.fontSize2, self.fontSize3, self.fontSizeJegyzet = 9, 14, 16, 11
 
     def initPDF(self, pdf=None):
 
@@ -112,24 +115,21 @@ class Biz1(Biz):
 
     def drawPDF(self, c):
 
+        sablon = self.sablon
         data = self.data
         if data['frame'] == 'on': data['frame'] = True
 
-        from reportlab.lib.units import mm
 
         ##############################################################################################
         # JOBB OLDAL
 
-        from reportlab.pdfbase import pdfmetrics
-        from reportlab.pdfbase.ttfonts import TTFont
-
         # jobb oldal eltolása
-        c.translate((data['bal']+data['tukor']+data['gerinc']+data['posX'])*mm, (data['fent']-data['diff']+data['posY'])*mm)
+        c.translate((data['bal']+self.sablon['tukor']+data['gerinc']+self.sablon['posX'])*mm, (self.sablon['fent']-data['diff']+self.sablon['posY'])*mm)
 
         if data['frame']: self.drawFrame(c)
 
-        c.setFont('LinBiolinum-SC', self.fSize['Large'])
-        c.drawCentredString(47*mm, (69)*mm, data['nev'])
+        self.fontBase = 'LinBiolinum-SC'
+        self.outText(c, 'P1', 'nev')
 
         c.showPage()
 
@@ -139,25 +139,13 @@ class Biz2(Biz):
     def __init__(self, oszt, uid, bal=7, gerinc=12, fent=5, diff=0, frame=False, megj1='', megj2=''):
         Biz.__init__(self, oszt, uid, bal, gerinc, fent, diff, frame)
 
-#        self.data.update({'megj1': megj1, 'megj2': megj2})
-
     def drawPDF(self, c):
-
         data = self.data
-        torzs = self.torzslap
-
-        if data['frame'] == 'on': data['frame'] = True
-
-        from reportlab.lib.units import mm
-
-        ##############################################################################################
-        # JOBB OLDAL
-
-        self.fontBase = 'LinBiolinum' # "DejaVu" # "Vera" # "Helvetica"
 
         # jobb oldal eltolása
-        c.translate((data['bal']+data['tukor']+data['gerinc']+data['posX'])*mm, (data['fent']-data['diff']+data['posY'])*mm)
+        c.translate((data['bal']+self.sablon['tukor']+data['gerinc']+self.sablon['posX'])*mm, (self.sablon['fent']-data['diff']+self.sablon['posY'])*mm)
 
+        if data['frame'] == 'on': data['frame'] = True
         if data['frame']: self.drawFrame(c)
 
         c.setFont('LinBiolinum-SC', self.fSize['Large'])
@@ -173,7 +161,9 @@ class Biz2(Biz):
         for key in ['hely', 'kev', 'kho', 'knap']:
             c.drawCentredString(torzs[key][0]*mm, torzs[key][1]*mm, data[key])
 
-        c.showPage()
+        self.fontBase = 'LinBiolinum' # "DejaVu" # "Vera" # "Helvetica"
+        for key in ['uid', 'szulhely', 'szulido', 'pnev', 'mnev', 'hely', 'kev', 'kho', 'knap']:
+            self.outText(c, 'P2', key)
 
 ##############################################################################################
 
@@ -181,14 +171,19 @@ class Biz3(Biz):
     def __init__(self, oszt, uid, bal=7, gerinc=12, fent=5, diff=0, frame=False):
         Biz.__init__(self, oszt, uid, bal, gerinc, fent, diff, frame)
 
-    def targySor(self, c, y, i, diff=0):
-        # diff: a jobb oldali táblázatban szélesebb a tárgy mező!
-        from reportlab.lib.units import mm
+    def targySor(self, c, i, x, y):
+        '''Az adott helyre kiír egy bizonyítvány sor adatot'''
         s = '%02d' % i
+        '''
         d = int(i in [4, 5, 6])/2.0 # A nyelveket a vonal miatt kicsit följebb kell rakni
-        c.drawString(3*mm, (y-d)*mm, self.data['t'+s])
-        c.drawRightString((52+diff)*mm, y*mm, self.data['o'+s])
-        c.drawCentredString((73+diff)*mm, y*mm, self.data['j'+s])
+        c.drawString(x[0]*mm, (y-d)*mm, self.data['t'+s])
+        c.drawRightString(x[1]*mm, y*mm, self.data['o'+s])
+        c.drawCentredString(x[2]*mm, y*mm, self.data['j'+s])
+        '''
+        y = y-padY
+        c.drawString((x[0]+padX)*mm, y*mm, self.data['t'+s])
+        c.drawRightString((x[2]-padX)*mm, y*mm, self.data['o'+s])
+        c.drawCentredString((x[2]+x[3])/2*mm, y*mm, self.data['j'+s])
 
     def drawPDF(self, c):
 
@@ -196,14 +191,13 @@ class Biz3(Biz):
         if data['t01'][-3:] == '---': data['t01'] = '           ----------'
         if data['frame'] == 'on': data['frame'] = True
 
-        from reportlab.lib.units import mm
 
         ##############################################################################################
         # BAL OLDAL
         c.saveState()
 
         # bal oldal eltolása
-        c.translate((data['bal']+data['posX'])*mm, (data['fent']+data['posY'])*mm)
+        c.translate((data['bal']+self.sablon['posX'])*mm, (self.sablon['fent']+self.sablon['posY'])*mm)
 
         if data['frame']: self.drawFrame(c)
 
@@ -221,8 +215,10 @@ class Biz3(Biz):
         c.setFont(self.fontBase, self.fSize['small'])
 
         c.setFont('DejaVu', 9)
-        for i in range(1, 21):
-            self.targySor(c, 51.5+i*5, i)
+        jegyCount = 0
+        for y in self.sablon['P3']['bal']['y']:
+            jegyCount += 1
+            self.targySor(c, jegyCount, self.sablon['P3']['bal']['x'], y)
 
         c.restoreState()
 
@@ -231,14 +227,14 @@ class Biz3(Biz):
         c.saveState()
 
         # jobb oldal eltolása
-        c.translate((data['bal']+data['tukor']+data['gerinc']+data['posX'])*mm, (data['fent']-data['diff']+data['posY'])*mm)
+        c.translate((data['bal']+self.sablon['tukor']+data['gerinc']+self.sablon['posX'])*mm, (self.sablon['fent']-data['diff']+self.sablon['posY'])*mm)
 
         if data['frame']: self.drawFrame(c)
 
         c.setFont('DejaVu', 9)
-        t = [8.0, 13.0, 18.0, 23.0, 29.0, 34.0, 39.0, 44.0, 49.5] # a bejegyzések helye a jobb oldalon (nem egyenletes!)
-        for i in range(9):
-            self.targySor(c, t[i]+1.5, i+21, 2)
+        for y in self.sablon['P3']['jobb']['y']:
+            jegyCount += 1
+            self.targySor(c, jegyCount, self.sablon['P3']['jobb']['x'], y)
 
         c.setFont(self.fontBase, self.fSize['normal'])
 
@@ -283,6 +279,7 @@ if __name__ == '__main__':
 
     oszt, uid = '9c', '79009318453'
 
+    '''
     t = Biz1(oszt, uid, frame=True)
     t.genPDF('1.pdf')
     print(t.filename)
@@ -290,8 +287,13 @@ if __name__ == '__main__':
     t = Biz2(oszt, uid, frame=True)
     t.genPDF('2.pdf')
     print(t.filename)
+    #'''
 
     t = Biz3(oszt, uid, frame=True)
     t.genPDF('3.pdf')
+    print(t.filename)
+
+    t = Biz3('11b', '79088302529', frame=True)
+    t.genPDF('3r.pdf')
     print(t.filename)
 
