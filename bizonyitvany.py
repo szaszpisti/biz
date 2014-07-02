@@ -1,6 +1,14 @@
 #!/usr/bin/python3
 
-import sys, os.path
+import sys, os.path, yaml, jegy
+
+from reportlab.pdfgen import canvas
+from reportlab.lib.units import mm
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfbase import pdfmetrics
+from reportlab.platypus import Paragraph
+from reportlab.lib.enums import TA_JUSTIFY
 
 BASE = os.path.dirname(__file__)
 sys.path.append(BASE)
@@ -19,11 +27,8 @@ class Biz:
         fent = 5       # bal oldal fölső margója
         diff = 0       # a jobb oldal mennyivel van fentebb mint a bal
         '''
-
-        import jegy
-        from yaml import load
         self.data = jegy.Bizonyitvany(oszt).bizOsztaly[uid]
-        self.data.update(load(open(os.path.join(BASE, 'biz.ini'))))
+        self.data.update(yaml.load(open(os.path.join(BASE, 'biz.ini'))))
 
         self.data.update({'bal': bal, 'gerinc': gerinc, 'fent': fent, 'diff': diff, 'frame': frame })
 
@@ -33,7 +38,6 @@ class Biz:
         self.torzslap = load(open(os.path.join(BASE, 'tantargyak.ini')))['sablonok'][self.data['sablon']]['torzslap']
 
     def drawFrame(self, c):
-        from reportlab.lib.units import mm
         p = c.beginPath()
         p.moveTo(0, 100*mm)
         p.lineTo(0, 0)
@@ -64,12 +68,6 @@ class Biz:
 
         ###########################################################################################
 
-        from reportlab.pdfgen import canvas
-        from reportlab.lib.enums import TA_JUSTIFY
-        from reportlab.lib.units import mm
-        from reportlab.pdfbase import pdfmetrics
-        from reportlab.pdfbase.ttfonts import TTFont
-
         self.setFontSize(10)
         self.fontBase = "DejaVu" # "Vera" # "Helvetica"
 
@@ -94,8 +92,6 @@ class Biz:
         self.savePDF(c)
 
     def drawPara(self, c, posX, posY, width, text, fontName, fontSize):
-        from reportlab.lib.styles import getSampleStyleSheet
-        from reportlab.platypus import Paragraph
         style = getSampleStyleSheet()["Normal"]
         style.fontSize = fontSize
         style.leading = 1.1 * fontSize
@@ -252,8 +248,6 @@ class Biz3(Biz):
         c.drawCentredString(64 *mm, datumY*mm, data['ho'])
         c.drawRightString(88 *mm, datumY*mm, data['nap'])
 
-        from reportlab.lib.styles import getSampleStyleSheet
-        from reportlab.platypus import Paragraph
         pad = 3 # a hosszabb szövegek jobb/bal margója
 
         style = getSampleStyleSheet()["Normal"]
