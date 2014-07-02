@@ -104,11 +104,32 @@ def application(environ, start_response):
                  diff=float(query['diff']),
                  frame=frame,
                )
+        '''
+        if 'debug' in query:
+            filename = '/tmp/mouse.png'
+            b.genPDF()
+            blksize=8192
+            response_headers = [
+                ('Content-Type', 'image/png'),
+                ('Content-Disposition', 'attachment; filename=valami.png')
+            ]
+            from os import unlink
+            unlink(b.filename)
+            wsgi_write = start_response('200 OK', response_headers)
+            # return(iter(lambda: filelike.read(blocksize), '')
+
+            while 1:
+                chunk = open(filename, 'rb').read(100000)
+                if not chunk: break
+            wsgi_write (chunk)
+
+            '''
         if 'debug' in query:
             from tempfile import mkstemp
             NULL, filename = mkstemp('.pdf', 'biz-%s-%s-' % (oszt, uid))
 
             b.genPDF(filename)
+            #'''
         else:
             from os import unlink
             b.genPDF()
