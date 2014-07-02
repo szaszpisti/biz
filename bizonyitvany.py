@@ -116,6 +116,22 @@ class Biz:
         p.drawOn(c, posX, posY + 2*style.fontSize)
         return len(a.lines)
 
+    def outText(self, c, page, tid):
+        '''Print text entry to canvas c'''
+        x, y, width, size, align = self.sablon[page][tid]
+        if align == 'C':
+            draw = c.drawCentredString
+            x = x + width/2
+        elif align == 'R':
+            draw = c.drawRightString
+            x = x + width - padX
+        else:
+            draw = c.drawString
+            x = x + padX
+
+        c.setFont(self.fontBase, self.fSize[size])
+        draw(x*mm, (y-padY)*mm, self.data[tid])
+
 ##############################################################################################
 
 class Biz1(Biz):
@@ -157,18 +173,8 @@ class Biz2(Biz):
         if data['frame'] == 'on': data['frame'] = True
         if data['frame']: self.drawFrame(c)
 
-        c.setFont('LinBiolinum-SC', self.fSize['Large'])
-        c.drawString(torzs['nev'][0]*mm, torzs['nev'][1]*mm, data['nev'])
-
-        c.setFont(self.fontBase, self.fSize['large'])
-        for key in ['uid', 'szulhely', 'szulido', 'pnev', 'mnev']:
-            c.drawString(torzs[key][0]*mm, torzs[key][1]*mm, data[key])
-
-        c.setFont(self.fontBase, self.fSize['normal'])
-
-        c.setFont(self.fontBase, self.fSize['large'])
-        for key in ['hely', 'kev', 'kho', 'knap']:
-            c.drawCentredString(torzs[key][0]*mm, torzs[key][1]*mm, data[key])
+        self.fontBase = 'LinBiolinum-SC'
+        self.outText(c, 'P2', 'nev')
 
         self.fontBase = 'LinBiolinum' # "DejaVu" # "Vera" # "Helvetica"
         for key in ['uid', 'szulhely', 'szulido', 'pnev', 'mnev', 'hely', 'kev', 'kho', 'knap']:
@@ -211,17 +217,10 @@ class Biz3(Biz):
         if data['frame']: self.drawFrame(c)
 
         self.fontBase = 'LinBiolinum'
-        c.setFont(self.fontBase, self.fSize['large'])
-        c.drawCentredString(54*mm, 5*mm, data['om']) # "029752")
-        c.drawCentredString(80*mm, 5*mm, data['tsz'])
-        c.drawCentredString(17.5*mm, 45.1*mm, data['tanev'])
-
-        c.setFont(self.fontBase, self.fSize['Large'])
-        c.drawString(3*mm, 17*mm, data['nev'])
-        c.drawRightString(65*mm, 37*mm, data['osztaly'])
+        for key in ['om', 'tsz', 'nev', 'osztaly', 'tanev']:
+            self.outText(c, 'P3', key)
 
         self.fontBase = 'DejaVu'
-        c.setFont(self.fontBase, self.fSize['small'])
 
         c.setFont('DejaVu', 9)
         jegyCount = 0
@@ -247,11 +246,9 @@ class Biz3(Biz):
 
         c.setFont(self.fontBase, self.fSize['normal'])
 
-        datumY = 75.5
-        c.setFont(self.fontBase, self.fSize['large'])
-        c.drawRightString(46 *mm, datumY*mm, data['hely'] + '   ' + str(data['ev'])+'.')
-        c.drawCentredString(64 *mm, datumY*mm, data['ho'])
-        c.drawRightString(88 *mm, datumY*mm, data['nap'])
+        data['ev'] += '.'
+        for key in ['hely', 'ev', 'ho', 'nap']:
+            self.outText(c, 'P3', key)
 
         pad = 3 # a hosszabb szövegek jobb/bal margója
 
