@@ -184,6 +184,7 @@ if (typeof(jQuery) == 'undefined') {
                 data['nev1'] = data['nev'];
                 data['nev2'] = data['nev'];
                 data['nev3'] = data['nev'];
+                data['hely2'] = data['hely'];
                 // a kapott key/val párokat bepakolja a megfelelő id-ekbe
 //                alert('1: ' + $('#t02').html());
                 $.each(data, function(name, value){
@@ -238,7 +239,7 @@ if (typeof(jQuery) == 'undefined') {
             bal = parseInt($('input[name=bal]:checked').val());
             balUj = delta>0 ? bal-1 : bal+1;
             if (balMin<=balUj && balUj<=balMax) bal = balUj
-            $('input[name=bal][value='+balUj+']').attr('checked', 'checked');
+            $('input[name=bal][value='+balUj+']').prop('checked', 'checked');
             return false;
         });
 
