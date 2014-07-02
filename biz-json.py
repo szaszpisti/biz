@@ -36,7 +36,14 @@ def application(environ, start_response):
 
     start_response('200 OK', [('Content-type', 'text/plain')])
 
-    if tip == 'oszt':
+    if tip == 'sablon':
+        sablon = query['sablon']
+        '''Az aktuális sablonhoz tartozó adatok (méretek, stb.)'''
+        res = load(open(os.path.join(BASE, 'sablon', sablon+'.ini')))
+#        res = load(open(os.path.join(BASE, 'sablon', '68b-also', 'sablon.ini')))
+        return [json.dumps(res)]
+
+    elif tip == 'oszt':
         ''' beírja az elérhető bizonyítványok osztályait egy HTML SELECT-be '''
 
         from jegy import getOsztalyLista
@@ -125,5 +132,5 @@ def printPDF(filename):
 
 if __name__ == '__main__':
     print("Content-type: text/plain\n")
-#    print application()
+#    print(application())
 
