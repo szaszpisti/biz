@@ -84,6 +84,15 @@ class Biz:
         pdfmetrics.registerFont(TTFont('DejaVu-Bold', 'DejaVuSansCondensed-Bold.ttf'))
 
         c = canvas.Canvas(pdf, bottomup=0)
+
+        '''
+        c.saveState()
+        c.scale(1, -1)
+        c.translate(0, -842)
+        c.drawImage('sablon/4oszt-3.png', -3, 290, 595, 543, [1, 0])
+        c.restoreState()
+        #'''
+
         return c
 
     def savePDF(self, c):
