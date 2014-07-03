@@ -11,6 +11,9 @@
 if (typeof(jQuery) == 'undefined') {
     alert("Kérlek, telepítsd a jQuery-t a js/ könyvtárba!");
 } else {
+    var sablonok = [];
+    var sablonNevek = [];
+    var sablonCurrent = '';
     var page = 3
     // 1-2-3. oldal valamelyikére ugrunk
     var goPage = function(n) {
@@ -19,7 +22,8 @@ if (typeof(jQuery) == 'undefined') {
          * @param n 1, 2, 3 valamelyike
          */
         $('.page').hide();
-        $('#page'+n).show();
+//        $('#page'+n).show();
+        $('#page'+n+'-container').show();
         $('#page3-bal').show();
         $('#page3-jobb').show();
 
@@ -107,68 +111,85 @@ if (typeof(jQuery) == 'undefined') {
             return((x-h*Dim)+"mm");
         }
 
-        var getSablon = function(sablontip) {
-            send = 'tip=sablon&sablon=' + sablontip;
-            $.ajax({
-                url: jsonFile,
-                dataType: 'json',
-                async: false,
-                data: send,
-                success: function(sablon){
+        var getSablon = function(sablonNev) {
+            // alert(sablonNev + ': ' + sablonNevek.indexOf(sablonNev));
+            // Ha nem változott a sablon, nem kell újra létrehozni a mezőket!
+            if(sablonCurrent == sablonNev) { return 0; }
 
-                    $.each(['#page1', '#page2', '#page3-bal', '#page3-jobb'], function(i, id){
-                        $(id).empty();
-                    });
-
-                    /* 1. lap */
-                    putField('#page1', 'nev1', sablon['P1']['nev']);
-
-                    /* 2. lap */
-                    putField('#page2', 'nev2', sablon['P2']['nev']);
-                    putField('#page2', 'hely2', sablon['P2']['hely']);
-                    $.each(['uid', 'szulhely', 'szulido', 'pnev', 'mnev', 'kev', 'kho', 'knap'], function(i, key){
-                        putField('#page2', key, sablon['P2'][key]);
-                    });
-
-    //                alert($('#knap').val());
-
-                    /* 3. lap bal oldala */
-                    var side = 'bal';
-                    var pID = '#page3-' + side;
-                    putField(pID, 'nev3', sablon['P3']['nev']);
-                    $.each(['om', 'tsz', 'osztaly', 'tanev'], function(i, key){
-                        putField(pID, key, sablon['P3'][key]);
-                    });
-                    nTargy = 0;
-                    x = sablon['P3'][side]['x'];
-                    $.each(sablon['P3'][side]['y'], function(i, y){
-                        nTargy += 1;
-                        si = ("0"+nTargy).slice(-2);
-                        putField(pID, 't'+si, [x[0], y, x[1]-x[0], 'small', 'L']);
-                        putField(pID, 'o'+si, [x[1], y, x[2]-x[1], 'small', 'R']);
-                        putField(pID, 'j'+si, [x[2], y, x[3]-x[2], 'small', 'C']);
-                    });
-
-                    /* 3. lap jobb oldala */
-                    var side = 'jobb';
-                    var pID = '#page3-' + side;
-                    $.each(['hely', 'ev', 'ho', 'nap', 'tovabb', 'jegyzet'], function(i, key){
-                        putField(pID, key, sablon['P3'][key]);
-                    });
-                    $.each(sablon['P3'][side]['y'], function(i, y){
-                        nTargy += 1;
-                        si = ("0"+nTargy).slice(-2);
-                        putField(pID, 't'+si, [x[0], y, x[1]-x[0], 'small', 'L']);
-                        putField(pID, 'o'+si, [x[1], y, x[2]-x[1], 'small', 'R']);
-                        putField(pID, 'j'+si, [x[2], y, x[3]-x[2], 'small', 'C']);
-                    });
-                    for(i=1; i<=3; i++){
-                        hatter = 'url(sablon/' + sablon['P'+i]['hatter']+')';
-                        $('#page' + i).css("background-image", hatter);
+            // Ha még nincs eltárolva a sablon, akkor lekérjük.
+            if(sablonNevek.indexOf(sablonNev) == -1){
+                send = 'tip=sablon&sablon=' + sablonNev;
+                $.ajax({
+                    url: jsonFile,
+                    dataType: 'json',
+                    async: false,
+                    data: send,
+                    success: function(sablonData){
+                        sablonok.push(sablonData);
+                        sablonNevek.push(sablonNev);
                     }
+                });
+            }
+            sablonCurrent = sablonNev;
+            n = sablonNevek.indexOf(sablonNev);
+            sablon = sablonok[n];
 
-                }
+            $.each(['#page1', '#page2', '#page3-bal', '#page3-jobb'], function(i, id){
+                $(id).empty();
             });
+
+            /* Minden lapot először láthatóvá teszünk, különben a mező mérete 0 lenne */
+            oldPage = page;
+
+            /* 1. lap */
+            goPage(1);
+            putField('#page1', 'nev1', sablon['P1']['nev']);
+
+            goPage(2);
+            /* 2. lap */
+            putField('#page2', 'nev2', sablon['P2']['nev']);
+            putField('#page2', 'hely2', sablon['P2']['hely']);
+            $.each(['uid', 'szulhely', 'szulido', 'pnev', 'mnev', 'kev', 'kho', 'knap'], function(i, key){
+                putField('#page2', key, sablon['P2'][key]);
+            });
+
+            goPage(3);
+            /* 3. lap bal oldala */
+            var side = 'bal';
+            var pID = '#page3-' + side;
+            putField(pID, 'nev3', sablon['P3']['nev']);
+            $.each(['om', 'tsz', 'osztaly', 'tanev'], function(i, key){
+                putField(pID, key, sablon['P3'][key]);
+            });
+            nTargy = 0;
+            x = sablon['P3'][side]['x'];
+            $.each(sablon['P3'][side]['y'], function(i, y){
+                nTargy += 1;
+                si = ("0"+nTargy).slice(-2);
+                putField(pID, 't'+si, [x[0], y, x[1]-x[0], 'small', 'L']);
+                putField(pID, 'o'+si, [x[1], y, x[2]-x[1], 'small', 'R']);
+                putField(pID, 'j'+si, [x[2], y, x[3]-x[2], 'small', 'C']);
+            });
+
+            /* 3. lap jobb oldala */
+            var side = 'jobb';
+            var pID = '#page3-' + side;
+            $.each(['hely', 'ev', 'ho', 'nap', 'tovabb', 'jegyzet'], function(i, key){
+                putField(pID, key, sablon['P3'][key]);
+            });
+            $.each(sablon['P3'][side]['y'], function(i, y){
+                nTargy += 1;
+                si = ("0"+nTargy).slice(-2);
+                putField(pID, 't'+si, [x[0], y, x[1]-x[0], 'small', 'L']);
+                putField(pID, 'o'+si, [x[1], y, x[2]-x[1], 'small', 'R']);
+                putField(pID, 'j'+si, [x[2], y, x[3]-x[2], 'small', 'C']);
+            });
+            for(i=1; i<=3; i++){
+                hatter = 'url(sablon/' + sablon['P'+i]['hatter']+')';
+                $('#page' + i + '-container').css("background-image", hatter);
+            }
+
+            goPage(oldPage);
         };
 
         // egy diák adatainak betöltése
