@@ -1,4 +1,30 @@
 
+body {
+	background-color: white;
+	padding: .5em;
+	border-left: 10px double #00688b;
+/*	font-family: Verdana, Tahoma, Helvetica, Arial, sans-serif; */
+	font-family: "Liberation";
+	font-size: 95%;
+}
+
+@font-face {
+	font-family: "Liberation";
+/*   src: url("font/LiberationSans-Regular.ttf"); */
+   src: url("font/LiberationSansNarrow-Regular.ttf");
+}
+
+div.body { padding: 0; }
+
+p, h1, h2, h3, h4 { margin: 0; }
+.page p { margin: 0; }
+
+/*
+.bg1 { background-color: rgba(100, 100, 100, .5); }
+.bg2 { background-color: rgba(0, 255, 255, .2); }
+.bg3 { background-color: rgba(255, 0, 255, .2); }
+*/
+
 /* 1-2. lap */
 div.tmezo {
 	height: 7mm;
@@ -15,6 +41,8 @@ input.ttext {
 }
 div.center { text-align: center; padding: 0 3mm; }
 
+p.mezo { position: absolute; font-size: 4.5mm; padding: 0 2mm; }
+
 /* 3. lap */
 table.jegy             { border-collapse: collapse; }
 table.jegy tr          { background-color: inherit; font-size: 8pt; height: 5mm; width: 40mm; margin: 0; padding: 0; }
@@ -30,21 +58,12 @@ div.bal-gomb { float: left; text-align: center; }
 
 /* általános */
 
-div.page { float: left; margin: .5em; margin-left: 2em; position: relative; height: 190mm; }
+div.page { float: left; margin: 2mm; margin-left: 8mm; position: relative; height: 190mm; }
 
 p { margin: 0; }
 input[type='checkbox'] { margin: 0; }
 
 #spanDebug, #spanFrame { cursor: default; }
-
-body {
-	background-color: white;
-	padding: .5em;
-	border-left: 10px double #00688b;
-	font-family: Verdana, Tahoma, Helvetica, Arial, sans-serif;
-}
-
-div.body { padding: 0; }
 
 .menu {
 	font-size: 12pt;
