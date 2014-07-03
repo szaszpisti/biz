@@ -9,6 +9,7 @@ from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfbase import pdfmetrics
 from reportlab.platypus import Paragraph
 from reportlab.lib.enums import TA_JUSTIFY
+from reportlab.lib.pagesizes import A4
 
 BASE = os.path.dirname(__file__)
 sys.path.append(BASE)
@@ -17,11 +18,11 @@ from locale import setlocale, LC_ALL
 setlocale(LC_ALL, 'hu_HU.UTF-8')
 
 # Az alapvonal koordinátához képest ennyivel följebb, ill vízszintesen ennyi margóval írjuk ki a szöveget.
-padX, padY = 2, 2
+padX, padY = 2, 1
 
 class Biz:
     global BASE
-    def __init__(self, oszt, uid, bal, gerinc, fent, diff, frame):
+    def __init__(self, oszt, uid, bal, gerinc, diff, frame):
 
         '''
         Egy ember (uid) bizonyítványát készíti el.
@@ -29,13 +30,12 @@ class Biz:
         # Alapértelmezett oldalbeállítások:
         bal = 7        # bal margó (mindennel együtt)
         gerinc = 12    # a két tükör közötti távolság
-        fent = 5       # bal oldal fölső margója
         diff = 0       # a jobb oldal mennyivel van fentebb mint a bal
         '''
         self.data = jegy.Bizonyitvany(oszt).bizOsztaly[uid]
         self.data.update(yaml.load(open(os.path.join(BASE, 'biz.ini'))))
 
-        self.data.update({'bal': bal, 'gerinc': gerinc, 'fent': fent, 'diff': diff, 'frame': frame })
+        self.data.update({'bal': bal, 'gerinc': gerinc, 'diff': diff, 'frame': frame })
 
         # A mezők koordinátái a sablonban vannak.
         self.sablon = yaml.load(open(os.path.join(BASE, 'sablon', self.data['sablon'] + '.ini')))
@@ -83,7 +83,9 @@ class Biz:
         pdfmetrics.registerFont(TTFont('DejaVu', 'DejaVuSansCondensed.ttf'))
         pdfmetrics.registerFont(TTFont('DejaVu-Bold', 'DejaVuSansCondensed-Bold.ttf'))
 
-        c = canvas.Canvas(pdf, bottomup=0)
+        c = canvas.Canvas(pdf, pagesize=A4, bottomup=0)
+        # Egy picikét meg kell nyújtani, rosszul pozícionál
+        c.scale(1, 140/138)
 
         '''
         c.saveState()
@@ -129,14 +131,22 @@ class Biz:
             draw = c.drawString
             x = x + padX
 
+        if tid in ['om', 'tsz', 'nev']: y -= 1.5
         c.setFont(self.fontBase, self.fSize[size])
         draw(x*mm, (y-padY)*mm, self.data[tid])
+
+        '''
+        p = c.beginPath()
+        p.moveTo(x*mm, y*mm)
+        p.lineTo((x+10)*mm, y*mm)
+        c.drawPath(p)
+        '''
 
 ##############################################################################################
 
 class Biz1(Biz):
-    def __init__(self, oszt, uid, bal=7, gerinc=12, fent=5, diff=0, frame=False):
-        Biz.__init__(self, oszt, uid, bal, gerinc, fent, diff, frame)
+    def __init__(self, oszt, uid, bal=7, gerinc=12, diff=0, frame=False):
+        Biz.__init__(self, oszt, uid, bal, gerinc, diff, frame)
 
     def drawPDF(self, c):
 
@@ -149,7 +159,7 @@ class Biz1(Biz):
         # JOBB OLDAL
 
         # jobb oldal eltolása
-        c.translate((data['bal']+self.sablon['tukor']+data['gerinc']+self.sablon['posX'])*mm, (self.sablon['fent']-data['diff']+self.sablon['posY'])*mm)
+        c.translate((self.sablon['posX']+data['bal']+self.sablon['tukor']+data['gerinc'])*mm, (self.sablon['posY']-data['diff'])*mm)
 
         if data['frame']: self.drawFrame(c)
 
@@ -161,14 +171,14 @@ class Biz1(Biz):
 ##############################################################################################
 # Törzslap
 class Biz2(Biz):
-    def __init__(self, oszt, uid, bal=7, gerinc=12, fent=5, diff=0, frame=False, megj1='', megj2=''):
-        Biz.__init__(self, oszt, uid, bal, gerinc, fent, diff, frame)
+    def __init__(self, oszt, uid, bal=7, gerinc=12, diff=0, frame=False, megj1='', megj2=''):
+        Biz.__init__(self, oszt, uid, bal, gerinc, diff, frame)
 
     def drawPDF(self, c):
         data = self.data
 
         # jobb oldal eltolása
-        c.translate((data['bal']+self.sablon['tukor']+data['gerinc']+self.sablon['posX'])*mm, (self.sablon['fent']-data['diff']+self.sablon['posY'])*mm)
+        c.translate((self.sablon['posX']+data['bal']+self.sablon['tukor']+data['gerinc'])*mm, (self.sablon['posY']-data['diff'])*mm)
 
         if data['frame'] == 'on': data['frame'] = True
         if data['frame']: self.drawFrame(c)
@@ -183,22 +193,25 @@ class Biz2(Biz):
 ##############################################################################################
 
 class Biz3(Biz):
-    def __init__(self, oszt, uid, bal=7, gerinc=12, fent=5, diff=0, frame=False):
-        Biz.__init__(self, oszt, uid, bal, gerinc, fent, diff, frame)
+    def __init__(self, oszt, uid, bal=7, gerinc=12, diff=0, frame=False):
+        Biz.__init__(self, oszt, uid, bal, gerinc, diff, frame)
 
     def targySor(self, c, i, x, y):
         '''Az adott helyre kiír egy bizonyítvány sor adatot'''
         s = '%02d' % i
+#        padY = 0
+#        y = y-padY
+        padX = 2.5
+        c.drawString((x[0]+padX)*mm, (y-padY)*mm, self.data['t'+s])
+        c.drawRightString((x[2]-padX)*mm, (y-padY)*mm, self.data['o'+s])
+        c.drawCentredString((x[2]+x[3])/2*mm, (y-padY)*mm, self.data['j'+s])
+
         '''
-        d = int(i in [4, 5, 6])/2.0 # A nyelveket a vonal miatt kicsit följebb kell rakni
-        c.drawString(x[0]*mm, (y-d)*mm, self.data['t'+s])
-        c.drawRightString(x[1]*mm, y*mm, self.data['o'+s])
-        c.drawCentredString(x[2]*mm, y*mm, self.data['j'+s])
+        p = c.beginPath()
+        p.moveTo(x[0]*mm, y*mm)
+        p.lineTo((x[0]+10)*mm, y*mm)
+        c.drawPath(p)
         '''
-        y = y-padY
-        c.drawString((x[0]+padX)*mm, y*mm, self.data['t'+s])
-        c.drawRightString((x[2]-padX)*mm, y*mm, self.data['o'+s])
-        c.drawCentredString((x[2]+x[3])/2*mm, y*mm, self.data['j'+s])
 
     def drawPDF(self, c):
 
@@ -212,7 +225,7 @@ class Biz3(Biz):
         c.saveState()
 
         # bal oldal eltolása
-        c.translate((data['bal']+self.sablon['posX'])*mm, (self.sablon['fent']+self.sablon['posY'])*mm)
+        c.translate((self.sablon['posX']+data['bal'])*mm, (self.sablon['posY'])*mm)
 
         if data['frame']: self.drawFrame(c)
 
@@ -235,7 +248,7 @@ class Biz3(Biz):
         c.saveState()
 
         # jobb oldal eltolása
-        c.translate((data['bal']+self.sablon['tukor']+data['gerinc']+self.sablon['posX'])*mm, (self.sablon['fent']-data['diff']+self.sablon['posY'])*mm)
+        c.translate((self.sablon['posX']+data['bal']+self.sablon['tukor']+data['gerinc'])*mm, (self.sablon['posY']-data['diff'])*mm)
 
         if data['frame']: self.drawFrame(c)
 
@@ -283,6 +296,7 @@ class Biz3(Biz):
 
 if __name__ == '__main__':
 
+    oszt, uid = '11b', '74134134313'
     oszt, uid = '9c', '79009318453'
 
     '''
