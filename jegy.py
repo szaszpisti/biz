@@ -95,7 +95,7 @@ class Bizonyitvany():
 #        with open(os.path.join(BASE, 'tantargyak.ini')) as f:
 #            self.tantargyak = yaml.load(f)
 
-        targyHely, targyValodiNev = self.getTargySorrend(self.config['sablon'])
+        self.getTargySorrend(self.config['sablon'])
 
         self.xlsFile = os.path.join(BASE, 'forras', '%s.xls' % oszt)
         self.csvFile = os.path.join(BASE, 'forras', '%s.csv' % oszt)
@@ -163,9 +163,9 @@ class Bizonyitvany():
                 for t in range(0, len(sor)-8, 3):
                     if sor[t] == '': continue
                     targy, jegy, oraszam = sor[t].lower(), sor[t+1], sor[t+2]
-                    targy = targyValodiNev[targy]
+                    targy = self.targyValodiNev[targy]
                     try:
-                        hely = targyHely[targy]
+                        hely = self.targyHely[targy]
                     except:
                         print('Nincs ilyen tárgy a listában: %s (%s %s)' % (targy, diak['nev'], diak['osztaly']))
 
@@ -183,8 +183,8 @@ class Bizonyitvany():
                         hely = int(hely)
                         E[hely][1], E[hely][2] = oraszam, jegy
 
-                    if jegy == 'elégtelen': Bukott.append(targyValodiNev[targy])
-                    if jegy == 'kitűnő':  Dicseret.append(targyValodiNev[targy])
+                    if jegy == 'elégtelen': Bukott.append(self.targyValodiNev[targy])
+                    if jegy == 'kitűnő':  Dicseret.append(self.targyValodiNev[targy])
 
                 # Ha külön van az irodalom és nyelvtan:
                 if E[2][1] != '---': # Ha a nyelvtan óraszám nem üres
@@ -192,10 +192,10 @@ class Bizonyitvany():
                     E[2][0] = 'Magyar nyelv'
 
                 # A sor vége mindig: ... magatartás, szorgalom, igazolt, igazolatlan
-                E[int(targyHely['magatartás'])][2] = sor[-7]
-                E[int(targyHely['szorgalom'])][2]  = sor[-5]
-                E[int(targyHely['igazolatlan'])][1]  = sor[-1]
-                E[int(targyHely['osszes'])][1]  = '%d' % (int(sor[-3]) + int(sor[-1]))
+                E[int(self.targyHely['magatartás'])][2] = sor[-7]
+                E[int(self.targyHely['szorgalom'])][2]  = sor[-5]
+                E[int(self.targyHely['igazolatlan'])][1]  = sor[-1]
+                E[int(self.targyHely['osszes'])][1]  = '%d' % (int(sor[-3]) + int(sor[-1]))
 
                 # A diák adatait feltöltjük a feldolgozott bizonyítvány-értékekkel
                 for i in range(1, len(E)):
@@ -326,25 +326,20 @@ class Bizonyitvany():
         with open(os.path.join(BASE, 'tantargyak.ini')) as f:
             self.tantargyak = yaml.load(f)
 
-#        self.sablon = self.tantargyak['sablonok'][sablon]
         self.sablon = yaml.load(open(os.path.join(BASE, 'sablon', self.config['sablon']+'.ini')))
 
-#=========================================================================
-#        oszlop = self.sablon['index']
-        oszlop = 2
+        oszlop = self.tantargyak['helyek'][sablon]
 
-        targyHely, targyValodiNev = {}, {}
+        self.targyHely, self.targyValodiNev = {}, {}
         for t in self.tantargyak['targyak']:
             nevek, hely = t['nevek'], t['hely'][oszlop]
             # egy tárgyhoz tartozhat több név is, ezeket vesszük sorra
             # közülük az elsőt írjuk a bizonyítványba: targyValodiNev[targy álnév] -> tárgy valódi neve
             targyNev = nevek[0]
-            targyHely[targyNev] = hely
-            targyValodiNev[targyNev] = targyNev
+            self.targyHely[targyNev] = hely
+            self.targyValodiNev[targyNev] = targyNev
             for targyAlnev in nevek[1:]:
-                targyValodiNev[targyAlnev] = targyNev
-
-        return targyHely, targyValodiNev
+                self.targyValodiNev[targyAlnev] = targyNev
 
     def makeNevsor(self):
         '''A bizOsztaly-ból névsort készít
