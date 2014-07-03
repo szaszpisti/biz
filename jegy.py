@@ -309,8 +309,10 @@ class Bizonyitvany():
         nyelv  = self.sablon['nyelv'][:]
         szabad = self.sablon['szabad'][:]
 
-        # Az első szabad hely le van foglalva a hittannak.
-        E[szabad.pop(0)][0] = 'Hittan'
+        # Az első szabad hely le van foglalva a hittannak - ha a szabad helyekre van beírva
+        # egyébként van rendes helye (hit- és erkölcstan)
+        if self.targyHely['hittan'] in szabad:
+            E[szabad.pop(0)][0] = 'Hittan'
 
         return E, nyelv, szabad
 
