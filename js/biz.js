@@ -271,7 +271,15 @@ if (typeof(jQuery) == 'undefined') {
             $.getJSON(jsonFile, send, function(result){
                 $('#message').html(result['message']);
             });
-    //    $('#tip').val('n');
+
+            // Ha elment a nyomtatóra, automatikusan a következő névre ugorjon.
+            countOptions = $('#nevsor option').length;
+            selectedOption = $("#nevsor").prop('selectedIndex');
+            if(selectedOption < countOptions){
+                selectedOption+=1;
+            }
+            $("#nevsor").prop('selectedIndex', selectedOption);
+            getData();
         }
 
         var toggleDebug = function(){
