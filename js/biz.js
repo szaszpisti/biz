@@ -41,7 +41,7 @@ if (typeof(jQuery) == 'undefined') {
 
         var balMin = 3;
         var balMax = 9;
-        var balDefault = 7;
+        var balDefault = 5;
 
         // Első az osztálylista betöltése
         $.ajax({
