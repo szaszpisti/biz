@@ -272,7 +272,7 @@ if (typeof(jQuery) == 'undefined') {
             // Ha elment a nyomtatóra, automatikusan a következő névre ugorjon.
             countOptions = $('#nevsor option').length;
             selectedOption = $("#nevsor").prop('selectedIndex');
-            if(selectedOption < countOptions){
+            if(selectedOption < countOptions-1){
                 selectedOption+=1;
             }
             $("#nevsor").prop('selectedIndex', selectedOption);
