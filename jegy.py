@@ -91,9 +91,8 @@ class Bizonyitvany():
 
         self.config = self.getConfig(oszt)
         self.sablon = yaml.load(open(os.path.join(BASE, 'sablon', self.config['sablon']+'.ini')))
-
-#        with open(os.path.join(BASE, 'tantargyak.ini')) as f:
-#            self.tantargyak = yaml.load(f)
+        # Ennyi sor van összesen:
+        self.sablon['nRows'] = len(self.sablon['P3']['bal']['y']) + len(self.sablon['P3']['jobb']['y']) + 1
 
         self.getTargySorrend(self.config['sablon'])
 
@@ -214,7 +213,7 @@ class Bizonyitvany():
 
         else:
             # Már megvan a csv, lehet beolvasni.
-            biz_reader = csv.reader(open(self.csvFile), delimiter='\t', quoting=csv.QUOTE_MINIMAL)
+            biz_reader = csv.reader(open(self.csvFile), delimiter='\t', quoting=csv.QUOTE_MINIMAL, lineterminator=os.linesep)
 
             head = next(biz_reader)
 
@@ -302,9 +301,10 @@ class Bizonyitvany():
             - [5, 6]: a nyelveknek fölhasználható helyek
             - [24, 25]: szabad, tetszőleges tárgynak fölhasználható helyek
         '''
-        E = [ ['', '---', '-------------' ] for i in range(30) ] # az összes sor sémája, ez lesz feltöltve a jegyekkel
-        E[0] = ['','','']                                        # csak a helyes számozás végett, a végén törölhető
-        E[26][1], E[27][1], E[28][2], E[29][2] = ['']*4          # mag-szorg-nál nem kell évi óraszám, hiányzásnál jegy
+        # az összes sor sémája, ez lesz feltöltve a jegyekkel
+        E = [ ['', '---', '-------------' ] for i in range(self.sablon['nRows']) ]
+        E[0] = ['','','']                                         # csak a helyes számozás végett, a végén törölhető
+        E[-4][1], E[-3][1], E[-2][2], E[-1][2] = ['']*4           # mag-szorg-nál nem kell évi óraszám, hiányzásnál jegy
 
         nyelv  = self.sablon['nyelv'][:]
         szabad = self.sablon['szabad'][:]
@@ -325,8 +325,6 @@ class Bizonyitvany():
 
         with open(os.path.join(BASE, 'tantargyak.ini')) as f:
             self.tantargyak = yaml.load(f)
-
-        self.sablon = yaml.load(open(os.path.join(BASE, 'sablon', self.config['sablon']+'.ini')))
 
         oszlop = self.tantargyak['helyek'][sablon]
 
@@ -362,7 +360,7 @@ class Bizonyitvany():
     def csvOut(self):
         '''Fájlba írja a csv-t
         '''
-        jegy_writer = csv.writer(open(self.csvFile, 'w'), delimiter='\t')
+        jegy_writer = csv.writer(open(self.csvFile, 'w'), delimiter='\t', lineterminator=os.linesep)
 
         fejlec = self.getFejlec()
 
@@ -387,7 +385,7 @@ class Bizonyitvany():
             - fejlec: ['sablon', 'uid', 'osztaly', ... 't15', 'o15', 'j15', ... 'tovabb', 'jegyzet', ...]
         '''
         fejlec = ['sablon', 'uid', 'osztaly', 'nev', 'szulhely', 'szulido', 'pnev', 'mnev', 'khely', 'kev', 'kho', 'knap', 'om', 'tsz', 'tanev']
-        for i in range(1, 30):
+        for i in range(1, self.sablon['nRows']):
             fejlec.extend([ 't%02d' % i, 'o%02d' % i, 'j%02d' % i ])
         fejlec.extend(['tovabb', 'jegyzet', 'hely', 'ev', 'ho', 'nap'])
 
