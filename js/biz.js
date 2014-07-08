@@ -288,6 +288,16 @@ if (typeof(jQuery) == 'undefined') {
             $('#frame').prop('checked', !$('#frame').prop('checked'));
         }
 
+        var toggleDownload = function(){
+            if($('#download').prop('checked')) {
+                $('#download').prop('checked', 0);
+                $('#debug').prop('checked', 0);
+            } else {
+                $('#download').prop('checked', 1);
+                $('#debug').prop('checked', 1);
+            }
+        };
+
         $('#spanOsztaly').change ( function(){ changeOsztaly(); });
         $('#nevsor').change( function(){ getData(); });
         $("#nyomtat").click( function(){ nyomtat(); });
@@ -296,6 +306,7 @@ if (typeof(jQuery) == 'undefined') {
         // hogy az egész sor értse a kattintást, ne csak a checkbox
         $("#spanDebug").click(function(){ toggleDebug(); });
         $("#spanFrame").click(function(){ toggleFrame(); });
+        $("#spanDownload").click(function(){ toggleDownload(); });
 
         if(typeof(shortcut) == 'undefined') {
             alert("A gyorsbillentyűkhöz telepítsd a shortcut.js-t a js/ könyvtárba!\nhttp://www.openjs.com/scripts/events/keyboard_shortcuts/");
