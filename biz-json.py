@@ -6,7 +6,7 @@ A HTML lekérdezéseket kiszolgáló háttéralkalmazás.
 Osztálylistát, névsorokat szolgáltat.
 '''
 
-import csv, sys, os.path, simplejson as json
+import sys, os.path, simplejson as json
 import tempfile
 from yaml import load
 
