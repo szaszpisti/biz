@@ -30,6 +30,7 @@ if (typeof(jQuery) == 'undefined') {
         $('.p').removeClass('pselect');
         $('#p'+n).addClass('pselect');
         $('#pp').val(n);
+        document.title = 'Bizonyítvány ' + n + '. oldal';
         page = n;
     }
 
