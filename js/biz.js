@@ -22,7 +22,6 @@ if (typeof(jQuery) == 'undefined') {
          * @param n 1, 2, 3 valamelyike
          */
         $('.page').hide();
-//        $('#page'+n).show();
         $('#page'+n+'-container').show();
         $('#page3-bal').show();
         $('#page3-jobb').show();
@@ -113,7 +112,6 @@ if (typeof(jQuery) == 'undefined') {
         }
 
         var getSablon = function(sablonNev) {
-            // alert(sablonNev + ': ' + sablonNevek.indexOf(sablonNev));
             // Ha nem változott a sablon, nem kell újra létrehozni a mezőket!
             if(sablonCurrent == sablonNev) { return 0; }
 
@@ -199,20 +197,18 @@ if (typeof(jQuery) == 'undefined') {
             send += '&tip=uid';
             if (verbose) $('#message').html(send); else $('#message').html('');
             $.getJSON(jsonFile, send, function(data){
-                // 3 név van összesen, ezeket megkülönböztetjük
                 $('#sablon').html(data['sablon']);
                 getSablon(data['sablon']);
 
+                // 3 név van összesen, ezeket megkülönböztetjük
                 data['nev1'] = data['nev'];
                 data['nev2'] = data['nev'];
                 data['nev3'] = data['nev'];
                 data['hely2'] = data['hely'];
                 // a kapott key/val párokat bepakolja a megfelelő id-ekbe
-//                alert('1: ' + $('#t02').html());
                 $.each(data, function(name, value){
                     $("#" + name).html(value);
                 });
-//                alert('2: ' + $('#t02').html());
                 $("#uid").val(data['uid']);
                 // a "nyelv és" kihúzása, ha szükséges
                 s = $('#t01').html();
