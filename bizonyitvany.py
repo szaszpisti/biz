@@ -85,7 +85,7 @@ class Biz:
 
         c = canvas.Canvas(pdf, pagesize=A4, bottomup=0)
         # Egy picikét meg kell nyújtani, rosszul pozícionál
-        c.scale(1, 140/138)
+        # c.scale(1, 140/139)
 
         '''
         c.saveState()
