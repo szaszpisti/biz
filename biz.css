@@ -63,7 +63,7 @@ div.page { float: left; margin: 2mm; margin-left: 8mm; position: relative; heigh
 p { margin: 0; }
 input[type='checkbox'] { margin: 0; }
 
-#spanDebug, #spanFrame { cursor: default; }
+#spanDebug, #spanFrame, #spanDownload { cursor: default; }
 
 .menu {
 	font-size: 12pt;
