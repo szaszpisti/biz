@@ -59,7 +59,7 @@ class Biz:
         for i in range(len(fontNames)):
             self.fSize[fontNames[i]] = base*(1.2**i)
 
-    def initPDF(self, pdf=None):
+    def initPDF(self, pdf=None, download=False):
 
         data = self.data
         if data['frame'] == 'on': data['frame'] = True
@@ -87,21 +87,20 @@ class Biz:
         # Egy picikét meg kell nyújtani, rosszul pozícionál
         # c.scale(1, 140/139)
 
-        '''
-        c.saveState()
-        c.scale(1, -1)
-        c.translate(0, -842)
-        c.drawImage('sablon/4oszt-3.png', -3, 290, 595, 543, [1, 0])
-        c.restoreState()
-        #'''
+        if download:
+            c.saveState()
+            c.scale(1, -1)
+            c.translate(0, -842-6*mm)
+            c.drawImage(os.path.join(BASE, 'sablon', self.sablon['P3']['hatter']), -3, 290, 595, 543, [1, 0])
+            c.restoreState()
 
         return c
 
     def savePDF(self, c):
         c.save()
 
-    def genPDF(self, fileName=None):
-        c = self.initPDF(fileName)
+    def genPDF(self, fileName=None, download=False):
+        c = self.initPDF(fileName, download)
         self.drawPDF(c)
         self.savePDF(c)
 
