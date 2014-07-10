@@ -263,11 +263,29 @@ if (typeof(jQuery) == 'undefined') {
 
         // ezzel lehet elküldeni a nyomtatóra
         var nyomtat = function(){
-            var send = $('#biz').serialize();
-            send += '&tip=nyomtat';
-            $.getJSON(jsonFile, send, function(result){
-                $('#message').html(result['message']);
-            });
+
+            if($('#download').prop('checked')) {
+                $('#iframe').remove();
+                url = jsonFile + '?' + $('#biz').serialize() + '&tip=nyomtat'
+                    /*
+                $.post(url, null, function(result) {
+                    $("body").append('<iframe id="iframe" src="' + url + '" style="display: none;" ></iframe>');
+                    */
+                $.ajax({
+                    url: url,
+                    success: function(result) {
+                            $("body").append('<iframe id="iframe" src="' + url + '" style="display: none;" ></iframe>');
+                        },
+                    async: false
+                });
+            }
+            else {
+                var send = $('#biz').serialize();
+                send += '&tip=nyomtat';
+                $.getJSON(jsonFile, send, function(result){
+                    $('#message').html(result['message']);
+                });
+            }
 
             // Ha elment a nyomtatóra, automatikusan a következő névre ugorjon.
             countOptions = $('#nevsor option').length;

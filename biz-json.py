@@ -104,32 +104,34 @@ def application(environ, start_response):
                  diff=float(query['diff']),
                  frame=frame,
                )
-        '''
-        if 'debug' in query:
-            filename = '/tmp/mouse.png'
-            b.genPDF()
-            blksize=8192
-            response_headers = [
-                ('Content-Type', 'image/png'),
-                ('Content-Disposition', 'attachment; filename=valami.png')
-            ]
-            from os import unlink
-            unlink(b.filename)
-            wsgi_write = start_response('200 OK', response_headers)
-            # return(iter(lambda: filelike.read(blocksize), '')
 
-            while 1:
-                chunk = open(filename, 'rb').read(100000)
-                if not chunk: break
-            wsgi_write (chunk)
+        if 'download' in query:
 
-            '''
+            from tempfile import mkstemp
+            NULL, filename = mkstemp('.pdf', 'biz-%s-%s-' % (oszt, uid))
+            b.genPDF(filename, download=True)
+            file_path = filename
+            size = os.path.getsize(filename)
+            BLOCK_SIZE = 4096
+            headers = [
+                ('Content-type', 'application/pdf'),
+                ("Content-length", str(size)),
+                ('Content-Disposition', 'attachment; filename=' + filename.split('/')[-1])]
+            start_response('200 OK', headers)
+            def send_file(filename):
+                with open(filename, 'rb') as f:
+                    block = f.read(BLOCK_SIZE)
+                    while block:
+                        yield block
+                        block = f.read(BLOCK_SIZE)
+            return send_file(filename)
+
         if 'debug' in query:
             from tempfile import mkstemp
             NULL, filename = mkstemp('.pdf', 'biz-%s-%s-' % (oszt, uid))
 
             b.genPDF(filename)
-            #'''
+
         else:
             from os import unlink
             b.genPDF()
