@@ -15,16 +15,14 @@ if (typeof(jQuery) == 'undefined') {
     var sablonNevek = [];
     var sablonCurrent = '';
     var page = 3
-    // 1-2-3. oldal valamelyikére ugrunk
+
     var goPage = function(n) {
         /*!
-         * 1-2-3. oldal valamelyikére ugrunk
+         * Az 1-2-3. oldal valamelyikére ugrunk
          * @param n 1, 2, 3 valamelyike
          */
         $('.page').hide();
         $('#page'+n+'-container').show();
-        $('#page3-bal').show();
-        $('#page3-jobb').show();
 
         $('.p').removeClass('pselect');
         $('#p'+n).addClass('pselect');
@@ -75,6 +73,10 @@ if (typeof(jQuery) == 'undefined') {
         $('#divBalGomb').append('<p style="text-align: center; border-top: 1px solid;"><span class="alahuzott">b</span>al margó (mm)</p>');
         $('input[name="bal"][value="'+balDefault+'"]').attr('checked', 'checked');
 
+        /* Kirakunk egy mezőt a field helyre
+         *
+         * field: [xBal, Y, xJobb, betűméret, igazítás]
+         */
         var putField = function(parentDiv, id, field){
             switch(field[3]){
                 case "small": tag="p"; break;
@@ -90,7 +92,8 @@ if (typeof(jQuery) == 'undefined') {
             }
             $(parentDiv).append('<'+tag+' id="' + id + '">.oOo.</'+tag+'>')
 
-            /* Az elem méretét úgy állítjuk be, hogy a padding méretével csökkentjük. */
+            /* Beállítjuk az elem helyét és a "padding"-gal csökkentett méretét
+             */
             padding = 2;
             $("#" + id).css({
                 position: 'absolute',
@@ -104,7 +107,7 @@ if (typeof(jQuery) == 'undefined') {
 
         var Dim = 100/($('#page3-jobb').height()); // A mm és a px közti váltószám (a #page3-jobb éppen 100mm).
         var getY = function(id, x){
-            /* A mező bal alsó koordinátája adott mm-ben.
+            /* A mező bal alsó koordinátája adott föntről számítva mm-ben.
              * Ebből kell kiszámolni a "top"-ot, a mm-be átszámolt elemmagasságot levonva.
              */
             h = $('#'+id).height();
@@ -115,7 +118,7 @@ if (typeof(jQuery) == 'undefined') {
             // Ha nem változott a sablon, nem kell újra létrehozni a mezőket!
             if(sablonCurrent == sablonNev) { return 0; }
 
-            // Ha még nincs eltárolva a sablon, akkor lekérjük.
+            // Ha még nincs eltárolva a sablon, akkor lekérjük és mentjük az adatait.
             if(sablonNevek.indexOf(sablonNev) == -1){
                 send = 'tip=sablon&sablon=' + sablonNev;
                 $.ajax({
@@ -129,10 +132,13 @@ if (typeof(jQuery) == 'undefined') {
                     }
                 });
             }
+
+            // Most már biztosan benne van a listában, fel lehet használni.
             sablonCurrent = sablonNev;
             n = sablonNevek.indexOf(sablonNev);
             sablon = sablonok[n];
 
+            // Az előző mezőket mind kitörölgetjük: lehet, hogy teljesen más lesz.
             $.each(['#page1', '#page2', '#page3-bal', '#page3-jobb'], function(i, id){
                 $(id).empty();
             });
