@@ -90,8 +90,9 @@ class Biz:
         if download:
             c.saveState()
             c.scale(1, -1)
-            c.translate(0, -842-6*mm)
-            c.drawImage(os.path.join(BASE, 'sablon', self.sablon['P3']['hatter']), -3, 290, 595, 543, [1, 0])
+            # c.translate(0, -842+self.sablon['posY']*mm)
+            c.translate(0-2*mm, -842-1*mm)
+            c.drawImage(os.path.join(BASE, 'sablon', self.sablon['P3']['hatter']), -3, 290, 595, 543)
             c.restoreState()
 
         return c
@@ -198,8 +199,6 @@ class Biz3(Biz):
     def targySor(self, c, i, x, y):
         '''Az adott helyre kiír egy bizonyítvány sor adatot'''
         s = '%02d' % i
-#        padY = 0
-#        y = y-padY
         padX = 2.5
         c.drawString((x[0]+padX)*mm, (y-padY)*mm, self.data['t'+s])
         c.drawRightString((x[2]-padX)*mm, (y-padY)*mm, self.data['o'+s])
@@ -312,7 +311,15 @@ if __name__ == '__main__':
     t.genPDF('3.pdf')
     print(t.filename)
 
-    t = Biz3('11b', '79088302529', frame=True)
-    t.genPDF('3r.pdf')
+    #'''
+    t = Biz3('9a', '73589407036')
+    t.genPDF('3r.pdf', download=True)
     print(t.filename)
+    #'''
+
+    '''
+    t = Biz3('11b', '79088302529')
+    t.genPDF('3r.pdf', download=True)
+    print(t.filename)
+    #'''
 
