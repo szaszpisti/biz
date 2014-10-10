@@ -19,10 +19,12 @@ class Taninform
     @osztalyok = nil
 
     @tanev = tanev
-    # Ha nem kaptunk paraméterben tanévet, akkor ki kell számolni az aktuálisat
-    if !(@tanev =~ /^\d{4}\/\d{4}$/)
-      ev = (Date.today-210).year
-      @tanev = "#{ev}/#{ev+1}"
+    ev = (Date.today-210).year
+    @aktualisTanev = "#{ev}/#{ev+1}"
+
+    # Ha nem kaptunk paraméterben rendes tanévet, akkor az aktuálisat használjuk
+    if @tanev !~ /^\d{4}\/\d{4}$/
+      @tanev = @aktualisTanev
     end
 
     if tip == 'chrome'
