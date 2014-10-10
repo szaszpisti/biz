@@ -9,6 +9,7 @@ require 'date'
 require 'pry' # Bárhol a forrásban: "binding.pry" parancssorba vált
 TIMEOUT = 500 # Ennyi ideig fogja figyelni a letöltés könyvtárat, hogy leérkezett-e a kért dokumentum
 DEBUG = false
+ORASZAM = [37, 32] # A normál ill. végzős (12-es) osztályok éves óraszáma
 
 class Taninform
   def initialize(tip='firefox', tanev='')
@@ -108,7 +109,41 @@ class Taninform
     new_filename = File.join(@download_directory, oszt + '.xls')
     osztaly = oszt.sub(/(\d*)(\D*)/,'\1.\2')
 
-    downloads_before = Dir.entries(@download_directory).reject { |f| f =~ /(.part\z|^\.)/ }
+    @osztalyok.each do |oszt|
+      new_filename = File.join(@download_directory, oszt + '.xls')
+      osztaly = oszt.sub(/(\d*)(\D*)/,'\1.\2')
+
+      downloads_before = Dir.entries(@download_directory).reject { |f| f =~ /(.part\z|^\.)/ }
+
+      # űrlap kitöltése
+      @b.select_list(:name => 'tanevField').when_present.select @tanev
+      @b.text_field(:name => 'hetekField').when_present.set ORASZAM[1] if oszt =~ /12/
+      @b.input(:id => 'osztalyFieldLTFITextField').when_present.click
+
+================================
+      # Megnézzük, hogy létező osztály-e
+      osztalyListaTMP = []
+      @b.elements(:xpath => '//table[@id="LTFIResultTable2345"]/tbody/tr/td[1]').each do |td|
+        osztalyListaTMP.push(td.text)
+      end
+      binding.pry
+      p osztalyListaTMP
+      if !osztalyListaTMP.include?(osztaly)
+        puts "A #{@tanev} tanévben nincs #{osztaly} osztály!"
+        next
+      end
+
+      td = @b.td(:text => osztaly).when_present.click
+
+      @b.link(:text => 'Eredmények készítése').when_present.click
+
+      print "#{new_filename} done"
+      old_filename = File.join(@download_directory, waitForDownload(downloads_before))
+      File.rename(old_filename, new_filename)
+      STDOUT.flush
+    end
+    puts
+  end
 
     # űrlap kitöltése
     @b.select_list(:name => 'tanevField').when_present.select tanev
