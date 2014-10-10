@@ -11,13 +11,18 @@ TIMEOUT = 500 # Ennyi ideig fogja figyelni a letöltés könyvtárat, hogy leér
 DEBUG = false
 
 class Taninform
-  def initialize(tip='firefox')
+  def initialize(tip='firefox', tanev='')
     @download_directory = "#{Dir.pwd}/downloads"
+    @download_directory = "."
     @download_directory.gsub!("/", "\\") if Selenium::WebDriver::Platform.windows?
     @osztalyok = nil
 
-    ev = (Date.today-210).year
-    @tanev = "#{ev}/#{ev+1}"
+    @tanev = tanev
+    # Ha nem kaptunk paraméterben tanévet, akkor ki kell számolni az aktuálisat
+    if !(@tanev =~ /^\d{4}\/\d{4}$/)
+      ev = (Date.today-210).year
+      @tanev = "#{ev}/#{ev+1}"
+    end
 
     if tip == 'chrome'
       getBrowserChrome()
@@ -28,6 +33,7 @@ class Taninform
   end
 
   def getBrowserChrome()
+    # !!!!! FIGYELEM! A letöltést nem menti el! !!!!!
     prefs = {
       :download => {
         :default_directory => @download_directory,
