@@ -9,10 +9,8 @@ ORASZAM = [37, 32] # A normál ill. végzős (12-es) osztályok éves óraszáma
 
 class Taninform
   def initialize(tip: 'firefox', tanev: '')
-    @download_directory = "#{Dir.pwd}/downloads"
-    @download_directory.gsub!("/", "\\") if Selenium::WebDriver::Platform.windows?
+    getIni()
     @osztalyLista = []
-
     @tanev = tanev
     ev = (Date.today-210).year
     @aktualisTanev = "#{ev}/#{ev+1}"
@@ -28,6 +26,16 @@ class Taninform
       getBrowserFirefox()
     end
     at_exit { @b.close if @b }
+  end
+
+  def getIni()
+    @ini = Hash[ *File.readlines('taninform.ini').map { |i| i.strip.split(': ') }.flatten ]
+    @download_directory = File.expand_path(@ini['downloads'])
+    @download_directory.gsub!("/", "\\") if Selenium::WebDriver::Platform.windows?
+    unless File.directory? (@download_directory) and File.writable? (@download_directory)
+      puts "#{@download_directory} könyvtárba nem tudok írni! (taninform.ini: downloads)"
+      exit
+    end
   end
 
   def getBrowserChrome()
@@ -66,7 +74,6 @@ class Taninform
   #============ Bejelentkezés ============
   def login()
     puts "LOGIN" if DEBUG
-    @ini = Hash[ *File.readlines('taninform.ini').map { |i| i.strip.split(': ') }.flatten ]
 
     @b.goto 'https://start.taninform.hu/application/start?intezmenyIndex=029752'
 
