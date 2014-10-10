@@ -125,16 +125,15 @@ class Taninform
       @b.text_field(:name => 'hetekField').when_present.set ORASZAM[1] if oszt =~ /12/
       @b.input(:id => 'osztalyFieldLTFITextField').when_present.click
 
-================================
       # Megnézzük, hogy létező osztály-e
       osztalyListaTMP = []
-      @b.elements(:xpath => '//table[@id="LTFIResultTable2345"]/tbody/tr/td[1]').each do |td|
+      # ez azért így van, mert a "LTFIResultTableNNNN" egy véletlen számot tartalmaz
+      @b.element(:id => /LTFIResultTable/).elements(:xpath => 'tbody/tr/td[1]').each do |td|
         osztalyListaTMP.push(td.text)
       end
-      binding.pry
-      p osztalyListaTMP
       if !osztalyListaTMP.include?(osztaly)
         puts "A #{@tanev} tanévben nincs #{osztaly} osztály!"
+        @b.element(:id => /LTFIResultTable/).td(:xpath => 'tbody/tr[1]/td/table/tbody/tr/td[2]').click
         next
       end
 
