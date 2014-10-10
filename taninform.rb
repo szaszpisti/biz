@@ -77,8 +77,7 @@ class Taninform
     begin
       file_name = ""
       TIMEOUT.times do
-        p Dir.entries(@download_directory).reject { |f| f =~ /(.part\z|^\.)/ }
-        difference = Dir.entries(@download_directory).reject { |f| f =~ /.part\z/ } - downloads_before
+        difference = Dir.entries(@download_directory).reject { |f| f =~ /(.part\z|^\.)/ } - downloads_before
         if difference.size == 1
           file_name = difference.first 
           break
@@ -101,8 +100,7 @@ class Taninform
     new_filename = File.join(@download_directory, oszt + '.xls')
     osztaly = oszt.sub(/(\d*)(\D*)/,'\1.\2')
 
-    downloads_before = Dir.entries(@download_directory).reject { |f| f =~ /.part\z/ }
-    p downloads_before
+    downloads_before = Dir.entries(@download_directory).reject { |f| f =~ /(.part\z|^\.)/ }
 
     # űrlap kitöltése
     @b.select_list(:name => 'tanevField').when_present.select tanev
@@ -136,7 +134,7 @@ binding.pry
 
     filename = Time.now.strftime("TanuloAlap1-%Y-%m-%d.xls")
     new_filename = File.join(@download_directory, filename)
-    downloads_before = Dir.entries(@download_directory).reject { |f| f =~ /.part\z/ }
+    downloads_before = Dir.entries(@download_directory).reject { |f| f =~ /(.part\z|^\.)/ }
 
     @b.goto tanuloAlapURL if @b.url != tanuloAlapURL
 
