@@ -15,7 +15,8 @@ class Taninform
   def initialize(tip: 'firefox', tanev: '')
     @download_directory = "#{Dir.pwd}/downloads"
     @download_directory.gsub!("/", "\\") if Selenium::WebDriver::Platform.windows?
-    @osztalyok = Array.new()
+    @osztalyok = []
+    @osztalyLista = []
 
     @tanev = tanev
     ev = (Date.today-210).year
@@ -102,49 +103,55 @@ class Taninform
 
   # ============ Évvégi eredmény letöltése ============
   # Firefoxban meg lehet nézni az URL-t: (jobb klikk) This Frame / View Frame Info / Address
-  def getEvvege(osztalyok: [])
-    # Ha nem kaptunk külön letöltendő osztályt, akkor az összeset kell
-    if osztalyok.empty?
-      getOsztalyLista
-    else
-      @osztalyok = osztalyok
-    end
+  def getEvvege(osztalyok = [])
+
+    osztalyok.map! { |oszt| oszt.sub(/(\d*)[\. ]*(\D*)/,'\1.\2') } # "8.b" legyen mindenből
 
     login() if !@sid
     evvegeURL = 'https://start.taninform.hu/application/app?service=pageNavigator/' + @sid + '&sp=Snaplo&sp=SEvvegiExcel&1412349577710'
     @b.goto evvegeURL if @b.url != evvegeURL
 
-    @osztalyok.each do |oszt|
-      new_filename = File.join(@download_directory, oszt + '.xls')
-      osztaly = oszt.sub(/(\d*)[\. ]*(\D*)/,'\1.\2')
+    @b.select_list(:name => 'tanevField').when_present.select @tanev
 
-      downloads_before = Dir.entries(@download_directory).reject { |f| f =~ /(.part\z|^\.)/ }
-
-      # űrlap kitöltése
-      @b.select_list(:name => 'tanevField').when_present.select @tanev
-      @b.text_field(:name => 'hetekField').when_present.set ORASZAM[1] if oszt =~ /12/
+    if @osztalyLista.empty?
       @b.input(:id => 'osztalyFieldLTFITextField').when_present.click
-
-      # Megnézzük, hogy létező osztály-e
-      osztalyListaTMP = []
       # ez azért így van, mert a "LTFIResultTableNNNN" egy véletlen számot tartalmaz
-      @b.element(:id => /LTFIResultTable/).elements(:xpath => 'tbody/tr/td[1]').each do |td|
-        osztalyListaTMP.push(td.text)
+      @b.element(:id => /LTFIResultTable/).elements(:xpath => 'tbody/tr/td[1]').each do |i|
+        @osztalyLista.push(i.text) if i.text =~ /\A\d/
       end
-      if !osztalyListaTMP.include?(osztaly)
+      @b.element(:id => /LTFIResultTable/).td(:xpath => 'tbody/tr[1]/td/table/tbody/tr/td[2]').click # Bezár
+    end
+
+    p @osztalyLista
+    p osztalyok
+    # Ha nem kaptunk külön letöltendő osztályt, akkor az összeset kell
+    if osztalyok.empty?
+      osztalyok = @osztalyLista
+    end
+
+#binding.pry
+
+    @osztalyok.each do |osztaly|
+      # Az oszt maradjon a "8b", akármi is volt
+      oszt = osztaly.sub('.', '')
+      new_filename = File.join(@download_directory, oszt + '.xls')
+
+      if !osztalyok.include?(osztaly)
         puts "A #{@tanev} tanévben nincs #{osztaly} osztály!"
-        @b.element(:id => /LTFIResultTable/).td(:xpath => 'tbody/tr[1]/td/table/tbody/tr/td[2]').click
         next
       end
+      downloads_before = Dir.entries(@download_directory).reject { |f| f =~ /(.part\z|^\.)/ }
 
-      td = @b.td(:text => osztaly).when_present.click
-
+      # űrlap kitöltése (a tanév már be van írva)
+      @b.input(:id => 'osztalyFieldLTFITextField').when_present.click # osztályválasztás
+      @b.td(:text => osztaly).when_present.click
+      @b.text_field(:name => 'hetekField').when_present.set ORASZAM[1] if oszt =~ /12/
       @b.link(:text => 'Eredmények készítése').when_present.click
 
-      print "done: #{new_filename}"
+      puts "done: #{new_filename}"
       old_filename = File.join(@download_directory, waitForDownload(downloads_before))
       File.rename(old_filename, new_filename)
-      STDOUT.flush
+#      STDOUT.flush
     end
     puts
   end
@@ -214,16 +221,9 @@ class Taninform
 end
 
 #b = Taninform.new()
-b = Taninform.new(tanev='2013/2014')
-b.getOsztalyLista()
+b = Taninform.new(tanev: '2013/2014')
 
-#b.getEvvege('7a')
-
-__END__
-['7a', '8a', '9a', '9b', '9c', '10a', '10b', '11a', '11b', '12a', '12b'].each do |oszt|
-  b.getEvvege(oszt, tanev='2013/2014')
-end
-puts
-
-b.getTanuloAlap()
+b.getEvvege(['7a', '8a'])
+#b.getEvvege()
+#b.getTanuloAlap()
 
