@@ -12,9 +12,8 @@ DEBUG = false
 ORASZAM = [37, 32] # A normál ill. végzős (12-es) osztályok éves óraszáma
 
 class Taninform
-  def initialize(tip='firefox', tanev='')
+  def initialize(tip: 'firefox', tanev: '')
     @download_directory = "#{Dir.pwd}/downloads"
-    @download_directory = "."
     @download_directory.gsub!("/", "\\") if Selenium::WebDriver::Platform.windows?
     @osztalyok = Array.new()
 
@@ -114,8 +113,6 @@ class Taninform
     login() if !@sid
     evvegeURL = 'https://start.taninform.hu/application/app?service=pageNavigator/' + @sid + '&sp=Snaplo&sp=SEvvegiExcel&1412349577710'
     @b.goto evvegeURL if @b.url != evvegeURL
-    new_filename = File.join(@download_directory, oszt + '.xls')
-    osztaly = oszt.sub(/(\d*)(\D*)/,'\1.\2')
 
     @osztalyok.each do |oszt|
       new_filename = File.join(@download_directory, oszt + '.xls')
