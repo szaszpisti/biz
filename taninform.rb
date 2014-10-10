@@ -19,51 +19,41 @@ class Taninform
     ev = (Date.today-210).year
     @tanev = "#{ev}/#{ev+1}"
 
-    getBrowser()
+    if tip == 'chrome'
+      getBrowserChrome()
+    else
+      getBrowserFirefox()
+    end
     at_exit { @b.close if @b }
   end
 
-  def getBrowser()
-    download_directory = "#{Dir.pwd}/downloads"
-    download_directory.gsub!("/", "\\") if  Selenium::WebDriver::Platform.windows?
-
-    profile = Selenium::WebDriver::Chrome::Profile.new
-    profile['download.prompt_for_download'] = false
-    profile['download.default_directory'] = download_directory
-
-    b = Watir::Browser.new :chrome, :profile => profile
+  def getBrowserChrome()
+    prefs = {
+      :download => {
+        :default_directory => @download_directory,
+        :prompt_for_download => false,
+        :directory_upgrade => true,
+        :extensions_to_open => '',
+      },
+    }
+    caps = Selenium::WebDriver::Remote::Capabilities.chrome
+    caps['chromeOptions'] = {'prefs' => prefs}
+    @b = Watir::Browser.new :chrome, :desired_capabilities => caps, :switches => %w[--test-type]
+    @b.driver.manage.timeouts.implicit_wait = TIMEOUT
+    @b.driver.manage.timeouts.script_timeout = TIMEOUT
+    @b.driver.manage.timeouts.page_load = TIMEOUT
   end
 
-  def xgetBrowser()
-    case @tip
-      when 'firefox'
-        profile = Selenium::WebDriver::Firefox::Profile.new
-        profile['browser.download.folderList'] = 2 # custom location
-        profile['browser.download.dir'] = @download_directory
-        profile['browser.helperApps.neverAsk.saveToDisk'] = "application/vnd.ms-excel, application/pdf"
-        profile['app.update.auto'] = false
-        profile['app.update.enabled'] = false
-        profile['pdfjs.disabled'] = true
-        profile['pdfjs.firstRun'] = false
-        @b = Watir::Browser.new :firefox, :profile => profile
-
-      when 'chrome'
-        prefs = {
-          'download' => {
-            'default_directory' => @download_directory,
-            'prompt_for_download' => false,
-            'directory_upgrade' => true,
-            'extensions_to_open' => '',
-          },
-        }
-
-        caps = Selenium::WebDriver::Remote::Capabilities.chrome
-        caps['chromeOptions'] = {'prefs' => prefs}
-        @b = Watir::Browser.new :chrome, :desired_capabilities => caps, :switches => %w[--test-type]
-        @b.driver.manage.timeouts.implicit_wait = TIMEOUT
-        @b.driver.manage.timeouts.script_timeout = TIMEOUT
-        @b.driver.manage.timeouts.page_load = TIMEOUT
-      end
+  def getBrowserFirefox()
+    profile = Selenium::WebDriver::Firefox::Profile.new
+    profile['browser.download.folderList'] = 2 # custom location
+    profile['browser.download.dir'] = @download_directory
+    profile['browser.helperApps.neverAsk.saveToDisk'] = "application/vnd.ms-excel, application/pdf"
+    profile['app.update.auto'] = false
+    profile['app.update.enabled'] = false
+    profile['pdfjs.disabled'] = true
+    profile['pdfjs.firstRun'] = false
+    @b = Watir::Browser.new :firefox, :profile => profile
 
     Watir.default_timeout = TIMEOUT
   end
