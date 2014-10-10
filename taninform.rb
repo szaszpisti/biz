@@ -2,7 +2,7 @@
 
 # browser.driver.save_screenshot("file_name.png")
 
-require 'rubygems'
+#require 'rubygems'
 require 'watir-webdriver'
 require 'timeout'
 require 'date'
@@ -102,7 +102,7 @@ class Taninform
 
   # ============ Évvégi eredmény letöltése ============
   # Firefoxban meg lehet nézni az URL-t: (jobb klikk) This Frame / View Frame Info / Address
-  def getEvvege(osztalyok)
+  def getEvvege(osztalyok: [])
     # Ha nem kaptunk külön letöltendő osztályt, akkor az összeset kell
     if osztalyok.empty?
       getOsztalyLista
@@ -116,7 +116,7 @@ class Taninform
 
     @osztalyok.each do |oszt|
       new_filename = File.join(@download_directory, oszt + '.xls')
-      osztaly = oszt.sub(/(\d*)(\D*)/,'\1.\2')
+      osztaly = oszt.sub(/(\d*)[\. ]*(\D*)/,'\1.\2')
 
       downloads_before = Dir.entries(@download_directory).reject { |f| f =~ /(.part\z|^\.)/ }
 
@@ -142,7 +142,7 @@ class Taninform
 
       @b.link(:text => 'Eredmények készítése').when_present.click
 
-      print "#{new_filename} done"
+      print "done: #{new_filename}"
       old_filename = File.join(@download_directory, waitForDownload(downloads_before))
       File.rename(old_filename, new_filename)
       STDOUT.flush
