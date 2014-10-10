@@ -178,10 +178,13 @@ class Taninform
   end
 end
 
-#b = Taninform.new()
-b = Taninform.new(tanev: '2013/2014')
+b = Taninform.new()
+#b = Taninform.new(tanev: '2013/2014')
 
-b.getEvvege(['7a', '8a'])
-#b.getEvvege()
-#b.getTanuloAlap()
+osztalyok = ARGV.select { |arg| arg =~ /^[0-9]/ }
+
+b.getEvvege(osztalyok) if osztalyok.any?
+b.getEvvege() if ARGV.include?('a')
+
+b.getTanuloAlap() if ARGV.include?('t')
 
