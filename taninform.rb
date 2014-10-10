@@ -6,7 +6,7 @@ require 'rubygems'
 require 'watir-webdriver'
 require 'timeout'
 require 'date'
-# require 'pry' # Bárhol a forrásban: "binding.pry" parancssorba vált
+require 'pry' # Bárhol a forrásban: "binding.pry" parancssorba vált
 TIMEOUT = 500 # Ennyi ideig fogja figyelni a letöltés könyvtárat, hogy leérkezett-e a kért dokumentum
 DEBUG = false
 
@@ -154,9 +154,13 @@ class Taninform
   end
 end
 
-# b = Taninform.new()
-b = Taninform.new('chrome')
+#b = Taninform.new()
+b = Taninform.new(tanev='2013/2014')
+b.getOsztalyLista()
 
+#b.getEvvege('7a')
+
+__END__
 ['7a', '8a', '9a', '9b', '9c', '10a', '10b', '11a', '11b', '12a', '12b'].each do |oszt|
   b.getEvvege(oszt, tanev='2013/2014')
 end
