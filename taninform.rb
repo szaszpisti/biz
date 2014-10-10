@@ -113,12 +113,12 @@ class Taninform
     @b.select_list(:name => 'tanevField').when_present.select @tanev
 
     if @osztalyLista.empty?
-      @b.input(:id => 'osztalyFieldLTFITextField').when_present.click
-      # ez azért így van, mert a "LTFIResultTableNNNN" egy véletlen számot tartalmaz
-      @b.element(:id => /LTFIResultTable/).elements(:xpath => 'tbody/tr/td[1]').each do |i|
-        @osztalyLista.push(i.text) if i.text =~ /\A\d/
+      @b.input(:xpath => '//*[@id="osztalyFieldLTFITextField"]').when_present.click
+      @b.elements(:xpath => '/html/body/table/tbody/tr/td/table/tbody/tr/td/form/table/tbody/tr[4]/td[2]/div/table/tbody/tr/td[1]').each do |i|
+        next if i.text !~ /\A\d/
+        @osztalyLista.push(i.text)
       end
-      @b.element(:id => /LTFIResultTable/).td(:xpath => 'tbody/tr[1]/td/table/tbody/tr/td[2]').click # Bezár
+      @b.element(:xpath => '/html/body/table/tbody/tr/td/table/tbody/tr/td/form/table/tbody/tr[4]/td[2]/div/table/tbody/tr[1]/td/table/tbody/tr/td[2]').click # Bezár
     end
 
     p @osztalyLista
@@ -142,7 +142,7 @@ class Taninform
       downloads_before = Dir.entries(@download_directory).reject { |f| f =~ /(.part\z|^\.)/ }
 
       # űrlap kitöltése (a tanév már be van írva)
-      @b.input(:id => 'osztalyFieldLTFITextField').when_present.click # osztályválasztás
+      @b.input(:xpath => '//*[@id="osztalyFieldLTFITextField"]').when_present.click
       @b.td(:text => osztaly).when_present.click
       @b.text_field(:name => 'hetekField').when_present.set ORASZAM[1] if oszt =~ /12/
       @b.link(:text => 'Eredmények készítése').when_present.click
