@@ -82,6 +82,12 @@ class Taninform
     @b.text_field(:name => 'loginName').set @ini['user']
     @b.text_field(:name => 'password').set @ini['password']
     @b.form(:name => 'Form0').submit
+
+    if @b.td(:class => 'login_err_mess').exists?
+      puts @b.td(:class => 'login_err_mess').text
+      exit
+    end
+
     sleep 2 # Különben azt írja, hogy "A kiválasztott intézmény... nem létezik"
   end
 
