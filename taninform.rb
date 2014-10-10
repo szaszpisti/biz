@@ -6,12 +6,12 @@ require 'rubygems'
 require 'watir-webdriver'
 require 'timeout'
 require 'date'
-require 'pry' # goto irb
+# require 'pry' # Bárhol a forrásban: "binding.pry" parancssorba vált
 TIMEOUT = 500 # Ennyi ideig fogja figyelni a letöltés könyvtárat, hogy leérkezett-e a kért dokumentum
+DEBUG = false
 
 class Taninform
   def initialize(tip='firefox')
-    @tip = tip
     @download_directory = "#{Dir.pwd}/downloads"
     @download_directory.gsub!("/", "\\") if Selenium::WebDriver::Platform.windows?
     @osztalyok = nil
@@ -61,6 +61,7 @@ class Taninform
   #============ Bejelentkezés ============
   def login()
     #b.window.maximize
+    puts "LOGIN" if DEBUG
     @b.goto 'https://start.taninform.hu/application/start?intezmenyIndex=029752'
 
     @sid = @b.hidden(:name => 'service').value.split('/')[-1] # SESSION id
@@ -68,6 +69,7 @@ class Taninform
     @b.text_field(:name => 'loginName').set 'szaszi'
     @b.text_field(:name => 'password').set 'xxxxxxxxx'
     @b.form(:name => 'Form0').submit
+    sleep 2 # Különben azt írja, hogy "A kiválasztott intézmény... nem létezik"
   end
 
   #============ Várunk a letöltésre ============
@@ -108,8 +110,6 @@ class Taninform
     @b.input(:id => 'osztalyFieldLTFITextField').when_present.click
     @b.td(:text => osztaly).when_present.click
 
-    sleep 2
-
     # Ha még üres az "osztályok" tömb, akkor feltöltjük
     # if !@osztalyok
     #   t = @b.elements(:xpath => '//table[@id="LTFIResultTable1"]/tbody/tr/td[1]').when_present
@@ -118,12 +118,12 @@ class Taninform
     #   end
     # end
 
-binding.pry
     @b.link(:text => 'Eredmények készítése').when_present.click
 
     old_filename = File.join(@download_directory, waitForDownload(downloads_before))
     File.rename(old_filename, new_filename)
-    puts oszt
+    print "#{oszt} "
+    STDOUT.flush
   end
 
   #============ TanuloAlap1 ============
@@ -154,12 +154,13 @@ binding.pry
   end
 end
 
+# b = Taninform.new()
 b = Taninform.new('chrome')
 
-# ['7a', '8a', '9a', '9b', '9c', '10a', '10b', '10c', '11a', '11b', '12a', '12b'].each do |oszt|
 ['7a', '8a', '9a', '9b', '9c', '10a', '10b', '11a', '11b', '12a', '12b'].each do |oszt|
   b.getEvvege(oszt, tanev='2013/2014')
 end
+puts
 
 b.getTanuloAlap()
 
