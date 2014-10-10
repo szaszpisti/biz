@@ -189,6 +189,14 @@ class Taninform
   end
 end
 
+if ARGV.empty?
+  puts "Usage: #{$0} ..."
+  puts "  7a 10c ...: az osztályok eredménye"
+  puts "  a: az összes osztály évvégi eredménye"
+  puts "  t: TanuloAlap1.xls"
+  exit
+end
+
 b = Taninform.new()
 #b = Taninform.new(tanev: '2013/2014')
 
