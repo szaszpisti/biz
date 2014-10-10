@@ -1,10 +1,6 @@
 #!/usr/bin/ruby
 
-# browser.driver.save_screenshot("file_name.png")
-
-#require 'rubygems'
 require 'watir-webdriver'
-require 'timeout'
 require 'date'
 require 'pry' # Bárhol a forrásban: "binding.pry" parancssorba vált
 TIMEOUT = 500 # Ennyi ideig fogja figyelni a letöltés könyvtárat, hogy leérkezett-e a kért dokumentum
@@ -129,7 +125,7 @@ class Taninform
     end
 
     osztalyok.each do |osztaly|
-      # Az oszt maradjon a "8b", akármi is volt
+      # Az oszt legyen a "8b" felépítésű, akármi is volt
       oszt = osztaly.sub('.', '')
       new_filename = File.join(@download_directory, oszt + '.xls')
 
