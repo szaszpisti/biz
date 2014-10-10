@@ -15,7 +15,6 @@ class Taninform
   def initialize(tip: 'firefox', tanev: '')
     @download_directory = "#{Dir.pwd}/downloads"
     @download_directory.gsub!("/", "\\") if Selenium::WebDriver::Platform.windows?
-    @osztalyok = []
     @osztalyLista = []
 
     @tanev = tanev
