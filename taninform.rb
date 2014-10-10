@@ -70,12 +70,14 @@ class Taninform
   #============ Bejelentkezés ============
   def login()
     puts "LOGIN" if DEBUG
+    @ini = Hash[ *File.readlines('taninform.ini').map { |i| i.strip.split(': ') }.flatten ]
+
     @b.goto 'https://start.taninform.hu/application/start?intezmenyIndex=029752'
 
     @sid = @b.hidden(:name => 'service').value.split('/')[-1] # SESSION id
 
-    @b.text_field(:name => 'loginName').set 'szaszi'
-    @b.text_field(:name => 'password').set 'xxxxxxxxx'
+    @b.text_field(:name => 'loginName').set @ini['user']
+    @b.text_field(:name => 'password').set @ini['password']
     @b.form(:name => 'Form0').submit
     sleep 2 # Különben azt írja, hogy "A kiválasztott intézmény... nem létezik"
   end
