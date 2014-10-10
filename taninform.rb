@@ -16,7 +16,7 @@ class Taninform
     @download_directory = "#{Dir.pwd}/downloads"
     @download_directory = "."
     @download_directory.gsub!("/", "\\") if Selenium::WebDriver::Platform.windows?
-    @osztalyok = nil
+    @osztalyok = Array.new()
 
     @tanev = tanev
     ev = (Date.today-210).year
@@ -103,10 +103,16 @@ class Taninform
 
   # ============ Évvégi eredmény letöltése ============
   # Firefoxban meg lehet nézni az URL-t: (jobb klikk) This Frame / View Frame Info / Address
-  def getEvvege(oszt, tanev=@tanev)
+  def getEvvege(osztalyok)
+    # Ha nem kaptunk külön letöltendő osztályt, akkor az összeset kell
+    if osztalyok.empty?
+      getOsztalyLista
+    else
+      @osztalyok = osztalyok
+    end
+
     login() if !@sid
     evvegeURL = 'https://start.taninform.hu/application/app?service=pageNavigator/' + @sid + '&sp=Snaplo&sp=SEvvegiExcel&1412349577710'
-
     @b.goto evvegeURL if @b.url != evvegeURL
     new_filename = File.join(@download_directory, oszt + '.xls')
     osztaly = oszt.sub(/(\d*)(\D*)/,'\1.\2')
