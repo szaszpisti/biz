@@ -147,47 +147,10 @@ class Taninform
       @b.text_field(:name => 'hetekField').when_present.set ORASZAM[1] if oszt =~ /12/
       @b.link(:text => 'Eredmények készítése').when_present.click
 
-      puts "done: #{new_filename}"
       old_filename = File.join(@download_directory, waitForDownload(downloads_before))
       File.rename(old_filename, new_filename)
-#      STDOUT.flush
-    end
-    puts
-  end
-
-  #============ Az adott tanév osztálylistája ============
-  def getOsztalyLista()
-    # Csak akkor kell valamit csinálni, ha még üres az "osztályok" tömb
-    if @osztalyok.empty?
-      login() if !@sid
-      if @tanev == @aktualisTanev
-        # A rövid megoldás csak akkor működik, ha az aktuális tanévet akarom nézni
-        osztalyURL = 'https://start.taninform.hu/application/app?service=pageNavigator/' + @sid + '&sp=Soktatasszervezes&sp=SOsztalyEdit&1412659826947'
-        @b.goto osztalyURL if @b.url != osztalyURL
-
-      else
-        # Egyébként végigkattintgatom
-        @b.td(:id => 'mainMenu_fomenu').when_present.click
-        @b.td(:id => 'gwt-uid-244').when_present.hover
-        @b.td(:id => 'gwt-uid-188').when_present.hover
-        @b.td(:id => 'gwt-uid-182').when_present.click
-        sleep 2
-
-        # Keresés menü, itt ki lehet választani a tanévet, hogy megnézzük az osztályokat
-        @b.element(:xpath => '/html/body/table/tbody/tr[1]/td/table/tbody/tr/td[2]/table/tbody/tr/td[1]/img').when_present.click
-        sleep 1
-
-        # A listából kiválasztjuk a tanévet, majd "Mehet"
-        @b.iframe(:index => 1).div(:id => 'listAndEditTableID_filtering').select(:name => 'tanevFilterCombo').when_present.select @tanev
-        @b.iframe(:index => 1).div(:id => 'listAndEditTableID_filtering').input(:value => 'Mehet').click
-        sleep 2
-      end
-
-      @b.elements(:xpath => '//table[@id="listAndEditTableID"]/tbody/tr/td[2]/a').each do |i|
-        @osztalyok.push(i.text) if i.text =~ /\A\d/
-        print "#{i.text} "
-      end
-
+      puts "done: #{new_filename}"
+      STDOUT.flush
     end
   end
 
