@@ -147,26 +147,40 @@ class Taninform
     puts
   end
 
-    # űrlap kitöltése
-    @b.select_list(:name => 'tanevField').when_present.select tanev
-    @b.text_field(:name => 'hetekField').when_present.set '32' if oszt =~ /12/
-    @b.input(:id => 'osztalyFieldLTFITextField').when_present.click
-    @b.td(:text => osztaly).when_present.click
+  #============ Az adott tanév osztálylistája ============
+  def getOsztalyLista()
+    # Csak akkor kell valamit csinálni, ha még üres az "osztályok" tömb
+    if @osztalyok.empty?
+      login() if !@sid
+      if @tanev == @aktualisTanev
+        # A rövid megoldás csak akkor működik, ha az aktuális tanévet akarom nézni
+        osztalyURL = 'https://start.taninform.hu/application/app?service=pageNavigator/' + @sid + '&sp=Soktatasszervezes&sp=SOsztalyEdit&1412659826947'
+        @b.goto osztalyURL if @b.url != osztalyURL
 
-    # Ha még üres az "osztályok" tömb, akkor feltöltjük
-    # if !@osztalyok
-    #   t = @b.elements(:xpath => '//table[@id="LTFIResultTable1"]/tbody/tr/td[1]').when_present
-    #   t.each do |i|
-    #     @osztalyok.push(i.text) if i.text =~ /\A\d/
-    #   end
-    # end
+      else
+        # Egyébként végigkattintgatom
+        @b.td(:id => 'mainMenu_fomenu').when_present.click
+        @b.td(:id => 'gwt-uid-244').when_present.hover
+        @b.td(:id => 'gwt-uid-188').when_present.hover
+        @b.td(:id => 'gwt-uid-182').when_present.click
+        sleep 2
 
-    @b.link(:text => 'Eredmények készítése').when_present.click
+        # Keresés menü, itt ki lehet választani a tanévet, hogy megnézzük az osztályokat
+        @b.element(:xpath => '/html/body/table/tbody/tr[1]/td/table/tbody/tr/td[2]/table/tbody/tr/td[1]/img').when_present.click
+        sleep 1
 
-    old_filename = File.join(@download_directory, waitForDownload(downloads_before))
-    File.rename(old_filename, new_filename)
-    print "#{oszt} "
-    STDOUT.flush
+        # A listából kiválasztjuk a tanévet, majd "Mehet"
+        @b.iframe(:index => 1).div(:id => 'listAndEditTableID_filtering').select(:name => 'tanevFilterCombo').when_present.select @tanev
+        @b.iframe(:index => 1).div(:id => 'listAndEditTableID_filtering').input(:value => 'Mehet').click
+        sleep 2
+      end
+
+      @b.elements(:xpath => '//table[@id="listAndEditTableID"]/tbody/tr/td[2]/a').each do |i|
+        @osztalyok.push(i.text) if i.text =~ /\A\d/
+        print "#{i.text} "
+      end
+
+    end
   end
 
   #============ TanuloAlap1 ============
