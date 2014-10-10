@@ -64,11 +64,11 @@ class Taninform
     @b = Watir::Browser.new :firefox, :profile => profile
 
     Watir.default_timeout = TIMEOUT
+    #b.window.maximize
   end
 
   #============ Bejelentkezés ============
   def login()
-    #b.window.maximize
     puts "LOGIN" if DEBUG
     @b.goto 'https://start.taninform.hu/application/start?intezmenyIndex=029752'
 
@@ -121,21 +121,17 @@ class Taninform
       @b.element(:xpath => '/html/body/table/tbody/tr/td/table/tbody/tr/td/form/table/tbody/tr[4]/td[2]/div/table/tbody/tr[1]/td/table/tbody/tr/td[2]').click # Bezár
     end
 
-    p @osztalyLista
-    p osztalyok
     # Ha nem kaptunk külön letöltendő osztályt, akkor az összeset kell
     if osztalyok.empty?
       osztalyok = @osztalyLista
     end
 
-#binding.pry
-
-    @osztalyok.each do |osztaly|
+    osztalyok.each do |osztaly|
       # Az oszt maradjon a "8b", akármi is volt
       oszt = osztaly.sub('.', '')
       new_filename = File.join(@download_directory, oszt + '.xls')
 
-      if !osztalyok.include?(osztaly)
+      if !@osztalyLista.include?(osztaly)
         puts "A #{@tanev} tanévben nincs #{osztaly} osztály!"
         next
       end
