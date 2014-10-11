@@ -192,10 +192,11 @@ if ARGV.empty?
   exit
 end
 
-b = Taninform.new()
-#b = Taninform.new(tanev: '2013/2014')
+osztalyok = ARGV.select { |arg| arg =~ /^\d+[\. ]*\w+$/ }
+tanev = ARGV.select { |arg| arg =~ /^\d{4}\/\d{4}$/ }
 
-osztalyok = ARGV.select { |arg| arg =~ /^[0-9]/ }
+b = Taninform.new(tanev: tanev[0])
+#b = Taninform.new(tanev: '2013/2014')
 
 b.getEvvege(osztalyok) if osztalyok.any?
 b.getEvvege() if ARGV.include?('a')
