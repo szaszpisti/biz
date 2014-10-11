@@ -95,20 +95,15 @@ class Taninform
   # vár, amíg a download_directory-ba bekerül egy új fájl (max. TIMEOUT másodpercig)
   #
   def waitForDownload(downloads_before)
-    begin
-      file_name = ""
-      TIMEOUT.times do
-        difference = Dir.entries(@download_directory).reject { |f| f =~ /(.part\z|^\.)/ } - downloads_before
-        if difference.size == 1
-          file_name = difference.first 
-          break
-          end 
-        sleep 1
-        end
-      raise "Could not locate a new file in the directory '#{@download_directory}' within " + TIMEOUT + " seconds" if not file_name
-      # puts "Downloaded file: " + file_name
+    sleepTime = 0.1
+    (TIMEOUT/sleepTime).round.times do
+      difference = Dir.entries(@download_directory).reject { |f| f =~ /(.part\z|^\.)/ } - downloads_before
+      if difference.size == 1 && File.size(File.join(@download_directory, difference.first)) > 0
+        return difference.first 
+      end
+      sleep sleepTime
     end
-    return file_name
+    raise "Could not locate a new file in the directory '#{@download_directory}' within " + TIMEOUT + " seconds" if not file_name
   end
 
   # ============ Évvégi eredmény letöltése ============
