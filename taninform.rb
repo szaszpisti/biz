@@ -74,6 +74,8 @@ class Taninform
   #============ Bejelentkezés ============
   def login()
     puts "LOGIN" if DEBUG
+    @b.window.resize_to(1024, 768)
+    @b.window.move_to(0, 0)
 
     @b.goto 'https://start.taninform.hu/application/start?intezmenyIndex=029752'
 
