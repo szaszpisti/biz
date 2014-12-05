@@ -40,6 +40,7 @@ class Taninform
 
   def getBrowserChrome()
     # !!!!! FIGYELEM! A letöltést nem menti el! !!!!!
+    Selenium::WebDriver::Chrome.path = "/usr/bin/chromium"
     prefs = {
       :download => {
         :default_directory => @download_directory,
@@ -178,7 +179,7 @@ class Taninform
     begin
       @b.input(:name => 'export').when_present.click
     rescue Net::ReadTimeout
-      p "TIMEOUT"
+      puts "TIMEOUT"
     end
     old_filename = File.join(@download_directory, waitForDownload(downloads_before))
     File.rename(old_filename, new_filename)
@@ -198,6 +199,7 @@ osztalyok = ARGV.select { |arg| arg =~ /^\d+[\. ]*\w+$/ }
 tanev = ARGV.select { |arg| arg =~ /^\d{4}\/\d{4}$/ }
 
 b = Taninform.new(tanev: tanev[0])
+#b = Taninform.new('chrome', tanev: tanev[0])
 #b = Taninform.new(tanev: '2013/2014')
 
 b.getEvvege(osztalyok) if osztalyok.any?
