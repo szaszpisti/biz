@@ -7,7 +7,11 @@ A diák adataihoz beírja:
 '''
 
 import sys, csv
-filename = sys.argv[0].split('/')[-1][4:]
+import xlrd
+from datetime import datetime, timedelta
+
+year = (datetime.now() - timedelta(days=210)).year
+tanev = '%d-%d' % (year, year-1999)
 
 jegy = {'1': 'elégtelen', '2': 'elégséges', '3': 'közepes', '4': 'jó', '5': 'jeles'}
 
@@ -15,25 +19,41 @@ jegy = {'1': 'elégtelen', '2': 'elégséges', '3': 'közepes', '4': 'jó', '5':
 # zaradek = { '01234567890-11': ['elso záradék', 'második záradék'], ... }
 
 zaradek = {}
-zaradek_reader = csv.reader(open('TanEvvzaradekEdit.csv'), delimiter='\t', quoting=csv.QUOTE_MINIMAL)
-for sor in zaradek_reader:
-    if sor[3] != 'OV': continue  # csak az osztályzóvizsgások érdekelnek
-    try:
-        i = sor[9].index('. évfolyam')
-        evfolyam = sor[9][i-2:i].strip()
-        uid = '%s-%s' % (sor[1], evfolyam)
-        if not uid in zaradek: zaradek[uid] = []
-        zaradek[uid].append(sor[9])
-    except:
-        print(sor[0], sor[9])
+zaradekFile = xlrd.open_workbook('TanEvvzaradekEdit.xls').sheet_by_index(0)
+head = zaradekFile.row_values(0)
 
-teszi_reader = csv.reader(open('teszi.csv'), delimiter='\t', quoting=csv.QUOTE_MINIMAL)
-for sor in teszi_reader:
-    if sor[3] == '' or sor[3] == 'ora': continue
-    evfolyam = sor[1].split('.')[0]
-    uid = '%s-%s' % (sor[0], evfolyam)
+for i in range(1, zaradekFile.nrows):
+    sor = dict(zip(head, zaradekFile.row_values(i)))
+    # csak az OV érdekel
+    if sor['Záradék sorszáma'] != 'OV':
+        continue
+    try:
+        # záradék == '... a 12. évfolyamon ...' => '12'
+        i = sor['Záradék szövege'].index('. évfolyam')
+        evfolyam = sor['Záradék szövege'][i-2:i].strip()
+        uid = '%s-%s' % (sor['Tanuló - Közoktatási azonosító'], evfolyam)
+
+        if not uid in zaradek: zaradek[uid] = []
+        zaradek[uid].append(sor['Záradék szövege'])
+    except:
+        print(sor['Tanuló - Név'], sor['Záradék szövege'])
+
+tesziFile = xlrd.open_workbook('teszi-%s.xls' % tanev).sheet_by_index(0)
+head = tesziFile.row_values(0)
+
+# minden mezőt stringgé alakítunk
+def string(i):
+    if type(i) == str: return i
+    else: return str(int(i))
+
+for i in range(1, tesziFile.nrows):
+    sor = dict(zip(head, [string(i) for i in tesziFile.row_values(i)]))
+    if sor['ora'] in ['', 'ora']:
+        continue
+    evfolyam = sor['osztaly'].split('.')[0]
+    uid = '%s-%s' % (sor['uid'], evfolyam)
     if not uid in zaradek: zaradek[uid] = []
-    zaradek[uid].append(sor[3] + ' óra közösségi szolgálatot teljesített.')
+    zaradek[uid].append(sor['ora'] + ' óra közösségi szolgálatot teljesített.')
 
 out = []
 for uid in sorted(zaradek.keys()):
@@ -52,14 +72,6 @@ if uid in zaradek:
         diak['jegyzet'] = '<br /><br />'.join([diak['jegyzet']] + zaradek[uid])
     else:
         diak['jegyzet'] = '<br /><br />'.join(zaradek[uid])
-
-# a 9. B osztálynak valamiért csak 111 óra van beírva, de 185 kell.
-if diak['osztaly'] == '9. B':
-    diak['o17'] = '185'
-
-# a 9.A osztály 2 órában tanulta az informatikát, de csak 1 van beírva.
-if diak['osztaly'] == '9. A':
-    diak['o08'] = '74'
 ''' % '\n'.join(out)
 
 print(zaradekOut, file=open('pluginDiak.py', 'w'))
