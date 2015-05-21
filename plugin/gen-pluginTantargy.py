@@ -1,34 +1,52 @@
 #!/usr/bin/python3
-# -*- coding: utf8 -*-
 
 import sys, csv
-#filename = sys.argv[0].split('/')[-1][4:]
+import xlrd
+from datetime import datetime, timedelta
 
-jegy = {'1': 'elégtelen', '2': 'elégséges', '3': 'közepes', '4': 'jó', '5': 'jeles'}
+year = (datetime.now() - timedelta(days=210)).year
+tanev = '%d-%d' % (year, year-1999)
+jegy_nev = {'1': 'elégtelen', '2': 'elégséges', '3': 'közepes', '4': 'jó', '5': 'jeles'}
+
+# minden mezőt stringgé alakítunk
+def string(i):
+    if type(i) == str:
+        return i
+    else:
+        return str(int(i))
 
 OV = {}
-OVuid = ['tmp'] # Ez a segédtömb csak a sorrend végett van (dict-ben elvész a sorrend)
+OVuid = [] # Ez a segédtömb csak a sorrend végett van (dict-ben elvész a sorrend)
 OVout = []
-OVjegy_reader = csv.reader(open('TanVizsgaEditPeda.csv'), delimiter='\t', quoting=csv.QUOTE_MINIMAL)
-next(OVjegy_reader) # van fejléc
-for sor in OVjegy_reader:
-    # Ha új uid (az előző nem ez volt):
-    if OVuid[-1] != sor[13]: OVuid.append(sor[13])
-    if sor[7] == 'Évvégi':
-        if not sor[13] in OV: OV[sor[13]] = []
-        OV[sor[13]].extend([sor[2], jegy[sor[8]], sor[0]])
-del(OVuid[0]) # Az első ("tmp") törlése
 
-for uid in OVuid:
-    targy, jegy, nev = OV[uid][:3]
-    OVout.append("        '%s': ['%s', '%s', '---'" % (uid, targy, jegy))
-    del(OV[uid][:3])
-    while OV[uid]:
-        targy, jegy, nev = OV[uid][:3]
-        OVout[-1] += ","
-        OVout.append("                        '%s', '%s', '---'" % (targy, jegy))
-        del(OV[uid][:3])
-    OVout[-1] += "],  # %s" % nev
+OVjegyFile = xlrd.open_workbook('TanVizsgaEditPeda.xls').sheet_by_index(0)
+head = OVjegyFile.row_values(0)
+
+uids = [] # itt lesz az eredeti sorrendben az egyedi uid: ['uid1', 'uid2', ...]
+OV = {}   # az OV bejegyzések uid szerint: {'uid1': [["'Angol nyelv', 'jó', '---',", 'nev1'], ["..."]], 'uid2': ...}
+
+for i in range(1, OVjegyFile.nrows):
+    sor = dict(zip(head, [string(i) for i in OVjegyFile.row_values(i)]))
+    if sor['Értékelés tipusa'] != 'Évvégi':
+        continue
+
+    uid = sor['Közoktatási azonosító']
+
+    if uid not in uids: uids.append(uid)
+    targy_sor = "'%s', '%s', '---'" % (sor['Tantárgy - Tantárgy neve'], jegy_nev[sor['Eredmény']])
+    nev = sor['Tanuló neve']
+
+    if uid not in OV:
+        OV[uid] = []
+    OV[uid].append([targy_sor, sor['Tanuló neve']])
+
+OV_out = []
+for uid in uids:
+    # Az uid utolsó bejegyzése: ["'Angol nyelv', 'jó', '---'", ...] => ["'Angol nyelv', 'jó', '---'],    # Név", ...]
+    OV[uid][-1][0] = '%-35s  # %s' % (OV[uid][-1][0] + '],', OV[uid][-1][1])
+    OV_out.append("        '%s': [" % uid \
+        + ",\n                        ".join(t[0] for t in OV[uid]) \
+    )
 
 out = '''
 # EZT NE SZERKESZD! - a gen-plugin* generálja
@@ -43,14 +61,16 @@ if diak['uid'] in OV:
 
 # Ez nincs benne a tantárgylistában, bele kell csempészni.
 if diak['ev'] == '2015':
-    if diak['uid'] == '79088302529': # Rózsa Bence Attila 12b
-        self.targyValodiNev['belügyi rendészeti ismeretek'] = 'belügyi rendészeti ismeretek'
-        self.targyHely['belügyi rendészeti ismeretek'] = 'f'
-        sor[-8:-8] = ['Belügyi rendészeti ismeretek', 'jó', '---']
+    pass
+#    if diak['uid'] == '79088302529': # Rózsa Bence Attila 12b
+#        self.targyValodiNev['belügyi rendészeti ismeretek'] = 'belügyi rendészeti ismeretek'
+#        self.targyHely['belügyi rendészeti ismeretek'] = 'f'
+#        sor[-8:-8] = ['Belügyi rendészeti ismeretek', 'jó', '---']
 
-# HORVÁTH Mártonnak van írva...
+
+# HORVÁTH Mártonnak van írva... 2015-ig kell
 if diak['uid'] == '75455330219':
     diak['nev'] = 'Horváth Márton'
-''' % '\n'.join(OVout)
+''' % '\n'.join(OV_out)
 
 print(out, file=open('pluginTantargy.py', 'w'))
