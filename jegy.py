@@ -172,11 +172,25 @@ class Bizonyitvany():
                         E[szabad.pop(0)] = [targy.capitalize(), oraszam, jegy]
 
                     elif hely == 'n': # ez egy nyelvi tárgy
-                        try:
-                            targy = targy.split()[0]
-                            E[nyelv.pop(0)] = [targy.capitalize(), oraszam, jegy]
-                        except IndexError: # Elfogyott a nyelvi hely, mehet a rendes faktoshoz
-                            E[szabad.pop(0)] = [targy.capitalize(), oraszam, jegy]
+                        targy = targy.split()[0]
+                        Targy = targy.capitalize()
+
+                        # Az osztályzóvizsgás nyelvi tárgyak szerepelnek a rendes bizonyítványban
+                        # óraszámmal együtt. Ha van már ilyen tárgy, azt írjuk felül óraszám nélkül.
+                        E_targyak = [[i, bejegyzes] for i, bejegyzes in enumerate(E) if Targy == bejegyzes[0]]
+                        if E_targyak:
+                            # Az eddig feldolgozott tárgyak közt találtunk egy ilyen nevűt
+                            i, bejegyzes = E_targyak[0]
+                            E[i] = [Targy, '---', jegy]
+
+                        else:
+                            try:
+                                E[nyelv.pop(0)] = [Targy, oraszam, jegy]
+                            except IndexError: # Elfogyott a nyelvi hely, mehet a rendes faktoshoz
+                                try:
+                                    E[szabad.pop(0)] = [Targy, oraszam, jegy]
+                                except IndexError: # Elfogyott az összes hely
+                                    print('Elfogyott az összes hely:', diak)
 
                     else:
                         hely = int(hely)
