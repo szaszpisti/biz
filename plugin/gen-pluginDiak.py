@@ -13,8 +13,6 @@ from datetime import datetime, timedelta
 year = (datetime.now() - timedelta(days=210)).year
 tanev = '%d-%d' % (year, year-1999)
 
-jegy = {'1': 'elégtelen', '2': 'elégséges', '3': 'közepes', '4': 'jó', '5': 'jeles'}
-
 # Több évfolyamnyi záradék is megtalálható, ezeket külön, az "uid-evfolyam" kulcsokhoz pakoljuk
 # zaradek = { '01234567890-11': ['elso záradék', 'második záradék'], ... }
 
