@@ -312,6 +312,7 @@ if (typeof(jQuery) == 'undefined') {
             $('#frame').prop('checked', !$('#frame').prop('checked'));
         }
 
+        // kapcsolja a debug-ot is
         var toggleDownload = function(){
             if($('#download').prop('checked')) {
                 $('#download').prop('checked', 0);
@@ -347,7 +348,8 @@ if (typeof(jQuery) == 'undefined') {
             shortcut.add("G", function(){ $('#gerinc').focus(); });
             shortcut.add("N", function(){ $('#nevsor').focus(); });
             shortcut.add("O", function(){ $('#oszt').focus(); });
-            shortcut.add("D", function(){ toggleDebug(); });
+            shortcut.add("P", function(){ toggleDebug(); });
+            shortcut.add("D", function(){ toggleDownload(); });
             shortcut.add("E", function(){ toggleFrame(); });
 
             shortcut.add("Up",   function(){ $('#gerinc').val(parseInt($('#gerinc').val())+1); }, {'target': document.biz.gerinc});
