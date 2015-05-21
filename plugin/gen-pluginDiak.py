@@ -48,8 +48,9 @@ for i in range(1, tesziFile.nrows):
     sor = dict(zip(head, [string(i) for i in tesziFile.row_values(i)]))
     if sor['ora'] in ['', 'ora']:
         continue
-    evfolyam = sor['osztaly'].split('.')[0]
-    uid = '%s-%s' % (sor['uid'], evfolyam)
+
+    evfolyam = sor['osztaly'].split('.')[0]  # 12. a => 12
+    uid = '%s-%s' % (sor['uid'], evfolyam)   # 1234567890-12
     if not uid in zaradek: zaradek[uid] = []
     zaradek[uid].append(sor['ora'] + ' óra közösségi szolgálatot teljesített.')
 
