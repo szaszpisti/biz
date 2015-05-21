@@ -39,9 +39,8 @@ def application(environ, start_response):
     if tip == 'sablon':
         sablon = query['sablon']
         '''Az aktuális sablonhoz tartozó adatok (méretek, stb.)'''
-        res = load(open(os.path.join(BASE, 'sablon', sablon+'.ini')))
-#        res = load(open(os.path.join(BASE, 'sablon', '68b-also', 'sablon.ini')))
-        return [json.dumps(res)]
+        res = load(open(os.path.join(BASE, 'sablon', sablon + '.ini')))
+        return [json.dumps(res).encode('utf-8')]
 
     elif tip == 'oszt':
         ''' beírja az elérhető bizonyítványok osztályait egy HTML SELECT-be '''
@@ -55,7 +54,7 @@ def application(environ, start_response):
         res[0] = pre + ' selected>' + post
 
         data = json.dumps('\n'.join(['<select id="oszt" name="oszt">'] + res + ['</select>']))
-        return [data]
+        return [data.encode('utf-8')]
 
     elif tip == 'nevsor':
         # adott osztálynévhez tartozó osztálynévsor
@@ -68,7 +67,7 @@ def application(environ, start_response):
         res[0] = pre + ' selected>' + post
 
         data = json.dumps('\n'.join(res))
-        return [data]
+        return [data.encode('utf-8')]
 
     elif tip == 'uid':
         oszt = query['oszt']
@@ -77,7 +76,7 @@ def application(environ, start_response):
         res = Bizonyitvany(oszt, quiet=True).bizOsztaly[uid]
 
         data = json.dumps(res)
-        return [data]
+        return [data.encode('utf-8')]
 
     elif tip == 'nyomtat':
         uid  = query['uid']
@@ -139,7 +138,7 @@ def application(environ, start_response):
             unlink(b.filename)
 
         data = json.dumps ({'message': 'NYOMTATVA (<span style="color: white;">%s</span>) %s' % (b.filename, arg)})
-        return [data]
+        return [data.encode('utf-8')]
 
 def printPDF(filename):
     '''A pdf fájlt elküldi nyomtatóra
