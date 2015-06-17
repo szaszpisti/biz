@@ -62,14 +62,10 @@ class getOsztalyLista():
 
         @return <tt>['10b', '10. B', 10, 'B', '4oszt']</tt>
         '''
-        import re
-        for reOszt, sablon in self.config['tip']:
-            if re.match(reOszt, oszt):
-                break
+        sablon = self.config['tip'][oszt]
+        evfolyam = int(oszt[:-1])
+        ab = oszt[-1].upper()
 
-        m = re.match(r'^(\d+)[^a-zA-Z]*([a-zA-Z]*)', oszt).groups()
-        evfolyam = int(m[0])
-        ab = m[1].upper()
         osztaly = '%d. %s' % (evfolyam, ab)
 
         return [oszt, osztaly, evfolyam, ab, sablon]
