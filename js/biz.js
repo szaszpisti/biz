@@ -33,6 +33,12 @@ if (typeof(jQuery) == 'undefined') {
 
     $(document).ready(function() {
 
+        if(document.location.hostname != "localhost"){
+          $('#nyomtat').hide();
+          $('#divRadio').hide();
+          $('#printOptions').hide();
+        }
+
         goPage(3);
         var jsonFile = 'biz-json.py';
         var verbose = false;
