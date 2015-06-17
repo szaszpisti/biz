@@ -62,10 +62,9 @@ if diak['uid'] in OV:
 # Ez nincs benne a tantárgylistában, bele kell csempészni.
 if diak['ev'] == '2015':
     pass
-#    if diak['uid'] == '79088302529': # Rózsa Bence Attila 12b
-#        self.targyValodiNev['belügyi rendészeti ismeretek'] = 'belügyi rendészeti ismeretek'
-#        self.targyHely['belügyi rendészeti ismeretek'] = 'f'
-#        sor[-8:-8] = ['Belügyi rendészeti ismeretek', 'jó', '---']
+    if diak['uid'] == '79088302529': # Rózsa Bence Attila 12b
+        self.targyValodiNev['belügyi rendészeti ismeretek'] = 'belügyi rendészeti ismeretek'
+        self.targyHely['belügyi rendészeti ismeretek'] = 'f'
 
 
 # HORVÁTH Mártonnak van írva... 2015-ig kell
