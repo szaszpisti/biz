@@ -5,7 +5,7 @@ require 'date'
 require 'pry' # Bárhol a forrásban: "binding.pry" parancssorba vált
 TIMEOUT = 500 # Ennyi ideig fogja figyelni a letöltés könyvtárat, hogy leérkezett-e a kért dokumentum
 DEBUG = false
-ORASZAM = [37, 32] # A normál ill. végzős (12-es) osztályok éves óraszáma
+ORASZAM = [36, 32] # A normál ill. végzős (12-es) osztályok éves óraszáma
 
 class Taninform
   def initialize(tip: 'firefox', tanev: '')
@@ -149,6 +149,7 @@ class Taninform
       # űrlap kitöltése (a tanév már be van írva)
       @b.input(:xpath => '//*[@id="osztalyFieldLTFITextField"]').when_present.click
       @b.td(:text => osztaly).when_present.click
+      @b.text_field(:name => 'hetekField').when_present.set ORASZAM[0]
       @b.text_field(:name => 'hetekField').when_present.set ORASZAM[1] if oszt =~ /12/
       @b.link(:text => 'Eredmények készítése').when_present.click
 
