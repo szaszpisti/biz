@@ -279,10 +279,6 @@ if (typeof(jQuery) == 'undefined') {
             if($('#download').prop('checked')) {
                 $('#iframe').remove();
                 url = jsonFile + '?' + $('#biz').serialize() + '&tip=nyomtat'
-                    /*
-                $.post(url, null, function(result) {
-                    $("body").append('<iframe id="iframe" src="' + url + '" style="display: none;" ></iframe>');
-                    */
                 $.ajax({
                     url: url,
                     success: function(result) {
