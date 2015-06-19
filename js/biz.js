@@ -160,8 +160,11 @@ if (typeof(jQuery) == 'undefined') {
             /* 2. lap */
             putField('#page2', 'nev2', sablon['P2']['nev']);
             putField('#page2', 'hely2', sablon['P2']['hely']);
+
             $.each(['uid', 'szulhely', 'szulido', 'pnev', 'mnev', 'kev', 'kho', 'knap'], function(i, key){
-                putField('#page2', key, sablon['P2'][key]);
+                if(key in sablon['P2']){
+                    putField('#page2', key, sablon['P2'][key]);
+                }
             });
 
             goPage(3);

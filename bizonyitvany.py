@@ -128,7 +128,9 @@ class Biz:
         return len(a.lines)
 
     def outText(self, c, page, tid):
-        '''Print text entry to canvas c'''
+        '''Print text entry "tid" to "page" on canvas "c"'''
+        if not tid in self.sablon[page]:
+            return
         x, y, width, size, align = self.sablon[page][tid]
         if align == 'C':
             draw = c.drawCentredString
