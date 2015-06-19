@@ -14,6 +14,15 @@ from reportlab.lib.pagesizes import A4
 BASE = os.path.dirname(__file__)
 sys.path.append(BASE)
 
+# A sablon könyvtárból lehet include-olni pl. így
+# P2: !include biz-2a.ini
+def yaml_include(loader, node):
+    # return yaml.load(open('%s/%s/%s' % (BASE, 'sablon', node.value)))
+    with open(os.path.join(BASE, 'sablon', node.value)) as inputfile:
+        return yaml.load(inputfile)
+
+yaml.add_constructor("!include", yaml_include)
+
 from locale import setlocale, LC_ALL
 setlocale(LC_ALL, 'hu_HU.UTF-8')
 
