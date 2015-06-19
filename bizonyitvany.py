@@ -89,6 +89,7 @@ class Biz:
         pdfmetrics.registerFont(TTFont('LinBiolinum', os.path.join(BASE, 'font', 'LinBiolinum_R.ttf')))
         pdfmetrics.registerFont(TTFont('LinBiolinum-SC', os.path.join(BASE, 'font', 'LinBiolinum_aS.ttf')))
         pdfmetrics.registerFont(TTFont('LinBiolinum-Bold', os.path.join(BASE, 'font', 'LinBiolinum_RB.ttf')))
+        pdfmetrics.registerFont(TTFont('Winterthur', os.path.join(BASE, 'font', 'WinterthurCondensed.ttf')))
         pdfmetrics.registerFont(TTFont('DejaVu', 'DejaVuSansCondensed.ttf'))
         pdfmetrics.registerFont(TTFont('DejaVu-Bold', 'DejaVuSansCondensed-Bold.ttf'))
 
@@ -211,7 +212,17 @@ class Biz3(Biz):
         '''Az adott helyre kiír egy bizonyítvány sor adatot'''
         s = '%02d' % i
         padX = 2.5
-        c.drawString((x[0]+padX)*mm, (y-padY)*mm, self.data['t'+s])
+
+        targyNev = self.data['t'+s]
+        # Ha túl hosszú a tárgynév, akkor nem fér ki: kisebb betűkkel kell írni
+        if targyNev == 'Természettudományi laborgyakorlat':
+            c.saveState()
+            c.setFont('Winterthur', 10)
+            c.drawString((x[0]+padX)*mm, (y-padY)*mm, self.data['t'+s])
+            c.restoreState()
+        else:
+            c.drawString((x[0]+padX)*mm, (y-padY)*mm, self.data['t'+s])
+
         c.drawRightString((x[2]-padX)*mm, (y-padY)*mm, self.data['o'+s])
         c.drawCentredString((x[2]+x[3])/2*mm, (y-padY)*mm, self.data['j'+s])
 
