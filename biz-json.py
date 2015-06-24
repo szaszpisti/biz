@@ -143,23 +143,20 @@ def application(environ, start_response):
         else:
             from os import unlink
             b.genPDF()
-            printPDF(b.filename)
+            printPDF(b.filename, '%s (%s) - %s' % (b.data['nev'], oszt, pp))
             unlink(b.filename)
 
+        # data = json.dumps ({'message': 'NYOMTATVA (<span style="color: white;">%s</span>) %s' % (b.filename, b.data)})
         data = json.dumps ({'message': 'NYOMTATVA (<span style="color: white;">%s</span>) %s' % (b.filename, arg)})
         return [data.encode('utf-8')]
 
-def printPDF(filename):
+def printPDF(filename, nev):
     '''A pdf fájlt elküldi nyomtatóra
 
     @param filename ezt a fájlt kell elküldeni
     '''
-    from subprocess import Popen, PIPE
-    from os import waitpid
-
-    p = Popen("gs -dSAFER -dBATCH -dNOPAUSE -dQUIET -sDEVICE=epsonc -r180 -sOutputFile=- %s | lpr -P TallyGenicom_5040" % filename, shell=True)
-    sts = waitpid(p.pid, 0)
-
+    import subprocess
+    subprocess.call(("gs -dSAFER -dBATCH -dNOPAUSE -dQUIET -sDEVICE=epsonc -r180 -sOutputFile=- %s | lpr -T '%s' -U szaszi -P TallyGenicom_5040" % (filename, nev)).encode('utf-8'), shell=True)
 
 if __name__ == '__main__':
     print("Content-type: text/plain\n")
