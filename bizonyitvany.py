@@ -297,7 +297,7 @@ class Biz3(Biz):
         # HACK: azért van itt, mert különben nem jól pozícionál. Miert???
         pData = p.breakLines(width)
         # Ha két soros a szöveg (pl. bukott), akkor kicsit föntebb legyen.
-        p.drawOn(c, pad*mm, (63-2*len(pData.lines))*mm + 2*style.fontSize)
+        p.drawOn(c, pad*mm, (self.sablon['P3']['tovabb'][1]-2*len(pData.lines))*mm + 2*style.fontSize)
 
         style.fontSize = self.fSize['small']
 
@@ -309,7 +309,7 @@ class Biz3(Biz):
         p.wrap(width, 0)
         # HACK: azért van itt, mert különben nem jól pozícionál. Miert???
         p.breakLines(width)
-        p.drawOn(c, pad*mm, 118*mm + 2*style.fontSize)
+        p.drawOn(c, pad*mm, self.sablon['P3']['jegyzet'][1]*mm + 2*style.fontSize)
 
         c.restoreState()
         c.showPage()
