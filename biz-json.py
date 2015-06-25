@@ -116,7 +116,9 @@ def application(environ, start_response):
         if 'download' in query:
 
             from tempfile import mkstemp
-            NULL, filename = mkstemp('.pdf', 'biz-%s-%s-' % (oszt, uid))
+            import unicodedata
+            nev = unicodedata.normalize('NFKD', b.data['nev']).encode('ascii','ignore').decode('utf-8').replace(' ', '_')
+            NULL, filename = mkstemp('.pdf', 'biz-%s-%s-%s-' % (oszt, nev, uid))
             b.genPDF(filename, download=True)
             file_path = filename
             size = os.path.getsize(filename)
