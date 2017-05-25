@@ -283,6 +283,7 @@ if (typeof(jQuery) == 'undefined') {
 
         // ha változott a tanév
         var changeTanev = function() {
+            getOsztaly();
             changeOsztaly();
         };
 
