@@ -98,3 +98,11 @@ img.emil { vertical-align: bottom; }
 input[name=diff].egesz { margin-right: 0; }
 input[name=diff].fel { position: relative; top: 8px; margin-left: 0; }
 
+#ref {
+	margin-top: 1em;
+	padding-top: .2em;
+	text-transform: uppercase;
+	font-weight: bold;
+	text-decoration: overline;
+	font-family: "Book Antiqua", Georgia, Palatino, Times, "Times New Roman", serif;
+}

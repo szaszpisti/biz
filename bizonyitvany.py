@@ -1,6 +1,8 @@
 #!/usr/bin/python3
 
-import sys, os.path, yaml, jegy
+import sys, os.path, yaml
+import jegy
+import local
 
 from reportlab.pdfgen import canvas
 from reportlab.lib.units import mm
@@ -14,14 +16,7 @@ from reportlab.lib.pagesizes import A4
 BASE = os.path.dirname(__file__)
 sys.path.append(BASE)
 
-# A sablon könyvtárból lehet include-olni pl. így
-# P2: !include biz-2a.ini
-def yaml_include(loader, node):
-    # return yaml.load(open('%s/%s/%s' % (BASE, 'sablon', node.value)))
-    with open(os.path.join(BASE, 'sablon', node.value)) as inputfile:
-        return yaml.load(inputfile)
-
-yaml.add_constructor("!include", yaml_include)
+sablonok = local.sablonok()
 
 from locale import setlocale, LC_ALL
 setlocale(LC_ALL, 'hu_HU.UTF-8')
@@ -31,7 +26,7 @@ padX, padY = 2, 1
 
 class Biz:
     global BASE
-    def __init__(self, oszt, uid, bal, gerinc, diff, frame):
+    def __init__(self, tanev, oszt, uid, bal, gerinc, diff, frame):
 
         '''
         Egy ember (uid) bizonyítványát készíti el.
@@ -41,13 +36,13 @@ class Biz:
         gerinc = 12    # a két tükör közötti távolság
         diff = 0       # a jobb oldal mennyivel van fentebb mint a bal
         '''
-        self.data = jegy.Bizonyitvany(oszt).bizOsztaly[uid]
-        self.data.update(yaml.load(open(os.path.join(BASE, 'biz.ini'))))
+        self.data = jegy.Bizonyitvany(tanev, oszt).bizOsztaly[uid]
+        self.data.update(yaml.load(open(os.path.join(BASE, 'tanev', str(tanev), 'biz.ini'))))
 
         self.data.update({'bal': bal, 'gerinc': gerinc, 'diff': diff, 'frame': frame })
 
         # A mezők koordinátái a sablonban vannak.
-        self.sablon = yaml.load(open(os.path.join(BASE, 'sablon', self.data['sablon'] + '.ini')))
+        self.sablon = sablonok[self.data['sablon']]
 
         self.data['tukor'] = self.sablon['tukor']
 
@@ -61,9 +56,9 @@ class Biz:
 
     def setFontSize(self, base):
         # betűméretek:
-        #   9.00 10.80 12.96 15.55 18.66
-        #  10.00 12.00 14.40 17.28 20.73
-        fontNames = ['small', 'normal', 'large', 'Large', 'LARGE']
+        # base=7.5 => [7.5, 9.0, 10.8, 12.95, 15.55, 18.66]
+        # base=8.335 =>[8.33, 10.0, 12.0, 14.4, 17.28, 20.74]
+        fontNames = ['tiny', 'small', 'normal', 'large', 'Large', 'LARGE']
         self.fSize = {}
         for i in range(len(fontNames)):
             self.fSize[fontNames[i]] = base*(1.2**i)
@@ -80,7 +75,7 @@ class Biz:
 
         ###########################################################################################
 
-        self.setFontSize(10)
+        self.setFontSize(8.335)
         self.fontBase = "DejaVu" # "Vera" # "Helvetica"
 
         # "DejaVu Sans Semi-Condensed" "DejaVu Sans Bold Semi-Condensed"
@@ -96,13 +91,17 @@ class Biz:
         c = canvas.Canvas(pdf, pagesize=A4, bottomup=0)
         # Egy picikét meg kell nyújtani, rosszul pozícionál
         # c.scale(1, 140/139)
+        # illetve összenyomni...
+        # c.scale(1, 0.99)
 
         if download:
             c.saveState()
             c.scale(1, -1)
             # c.translate(0, -842+self.sablon['posY']*mm)
-            c.translate(0-2*mm, -842-1*mm)
-            c.drawImage(os.path.join(BASE, 'sablon', self.sablon['P3']['hatter']), -3, 290, 595, 543)
+            # c.translate(0-2*mm, -842-1*mm)
+            c.translate(0-2*mm, -842+1.7*mm)
+            # c.drawImage(os.path.join(BASE, 'sablon', self.sablon['P3']['hatter']), -3, 280, 595, 549)
+            c.drawImage(os.path.join(BASE, 'sablon', self.sablon['P3']['hatter']), -3, 280, 595, 543)
             c.restoreState()
 
         return c
@@ -157,8 +156,8 @@ class Biz:
 ##############################################################################################
 
 class Biz1(Biz):
-    def __init__(self, oszt, uid, bal=7, gerinc=12, diff=0, frame=False):
-        Biz.__init__(self, oszt, uid, bal, gerinc, diff, frame)
+    def __init__(self, tanev, oszt, uid, bal=7, gerinc=12, diff=0, frame=False):
+        Biz.__init__(self, tanev, oszt, uid, bal, gerinc, diff, frame)
 
     def drawPDF(self, c):
 
@@ -171,7 +170,11 @@ class Biz1(Biz):
         # JOBB OLDAL
 
         # jobb oldal eltolása
-        c.translate((self.sablon['posX']+data['bal']+self.sablon['tukor']+data['gerinc'])*mm, (self.sablon['posY']-data['diff'])*mm)
+        if 'posY' in self.sablon['P1']:
+            posY = self.sablon['P1']['posY']
+        else:
+            posY = self.sablon['posY']
+        c.translate((self.sablon['posX']+data['bal']+self.sablon['tukor']+data['gerinc'])*mm, (posY-data['diff'])*mm)
 
         if data['frame']: self.drawFrame(c)
 
@@ -183,14 +186,18 @@ class Biz1(Biz):
 ##############################################################################################
 # Törzslap
 class Biz2(Biz):
-    def __init__(self, oszt, uid, bal=7, gerinc=12, diff=0, frame=False, megj1='', megj2=''):
-        Biz.__init__(self, oszt, uid, bal, gerinc, diff, frame)
+    def __init__(self, tanev, oszt, uid, bal=7, gerinc=12, diff=0, frame=False, megj1='', megj2=''):
+        Biz.__init__(self, tanev, oszt, uid, bal, gerinc, diff, frame)
 
     def drawPDF(self, c):
         data = self.data
 
         # jobb oldal eltolása
-        c.translate((self.sablon['posX']+data['bal']+self.sablon['tukor']+data['gerinc'])*mm, (self.sablon['posY']-data['diff'])*mm)
+        if 'posY' in self.sablon['P2']:
+            posY = self.sablon['P2']['posY']
+        else:
+            posY = self.sablon['posY']
+        c.translate((self.sablon['posX']+data['bal']+self.sablon['tukor']+data['gerinc'])*mm, (posY-data['diff'])*mm)
 
         if data['frame'] == 'on': data['frame'] = True
         if data['frame']: self.drawFrame(c)
@@ -205,8 +212,8 @@ class Biz2(Biz):
 ##############################################################################################
 
 class Biz3(Biz):
-    def __init__(self, oszt, uid, bal=7, gerinc=12, diff=0, frame=False):
-        Biz.__init__(self, oszt, uid, bal, gerinc, diff, frame)
+    def __init__(self, tanev, oszt, uid, bal=7, gerinc=12, diff=0, frame=False):
+        Biz.__init__(self, tanev, oszt, uid, bal, gerinc, diff, frame)
 
     def targySor(self, c, i, x, y):
         '''Az adott helyre kiír egy bizonyítvány sor adatot'''
@@ -215,7 +222,7 @@ class Biz3(Biz):
 
         targyNev = self.data['t'+s]
         # Ha túl hosszú a tárgynév, akkor nem fér ki: kisebb betűkkel kell írni
-        if targyNev == 'Természettudományi laborgyakorlat':
+        if targyNev == 'Természettudományos laborgyakorlat':
             c.saveState()
             c.setFont('Winterthur', 10)
             c.drawString((x[0]+padX)*mm, (y-padY)*mm, self.data['t'+s])
@@ -245,7 +252,11 @@ class Biz3(Biz):
         c.saveState()
 
         # bal oldal eltolása
-        c.translate((self.sablon['posX']+data['bal'])*mm, (self.sablon['posY'])*mm)
+        if 'posY' in self.sablon['P3']['bal']:
+            posY = self.sablon['P3']['bal']['posY']
+        else:
+            posY = self.sablon['posY']
+        c.translate((self.sablon['posX']+data['bal'])*mm, posY*mm)
 
         if data['frame']: self.drawFrame(c)
 
@@ -268,7 +279,11 @@ class Biz3(Biz):
         c.saveState()
 
         # jobb oldal eltolása
-        c.translate((self.sablon['posX']+data['bal']+self.sablon['tukor']+data['gerinc'])*mm, (self.sablon['posY']-data['diff'])*mm)
+        if 'posY' in self.sablon['P3']['jobb']:
+            posY = self.sablon['P3']['jobb']['posY']
+        else:
+            posY = self.sablon['posY']
+        c.translate((self.sablon['posX']+data['bal']+self.sablon['tukor']+data['gerinc'])*mm, (posY-data['diff'])*mm)
 
         if data['frame']: self.drawFrame(c)
 
@@ -299,12 +314,21 @@ class Biz3(Biz):
         # Ha két soros a szöveg (pl. bukott), akkor kicsit föntebb legyen.
         p.drawOn(c, pad*mm, (self.sablon['P3']['tovabb'][1]-2*len(pData.lines))*mm + 2*style.fontSize)
 
-        style.fontSize = self.fSize['small']
-
         ######### jegyzet ########
+#        style.fontSize = 8
+#        style.leading = 1.0 * 8
+        style.fontSize = self.fSize['tiny']
         style.leading = 1.4 * style.fontSize
-        style.spaceBefore = 20
-        style.spaceAfter = 20
+#        style.spaceBefore = 8
+#        style.spaceAfter = 8
+        '''
+        for par in data['jegyzet'].split('+'):
+            p = Paragraph(par, style)
+            p.wrap(width, 0)
+            p.breakLines(width)
+            p.drawOn(c, pad*mm, self.sablon['P3']['jegyzet'][1]*mm + 2*style.fontSize)
+        '''
+
         p = Paragraph(data['jegyzet'], style)
         p.wrap(width, 0)
         # HACK: azért van itt, mert különben nem jól pozícionál. Miert???
@@ -317,7 +341,7 @@ class Biz3(Biz):
 if __name__ == '__main__':
 
     oszt, uid = '11b', '74134134313'
-    oszt, uid = '9c', '79009318453'
+    oszt, uid = '10a', '76281657728'
 
     '''
     t = Biz1(oszt, uid, frame=True)
@@ -329,14 +353,16 @@ if __name__ == '__main__':
     print(t.filename)
     #'''
 
-    t = Biz3(oszt, uid, frame=True)
-    t.genPDF('3.pdf')
-    print(t.filename)
+#    t = Biz3(oszt, uid, frame=True)
+#    t.genPDF('3.pdf')
+#    print(t.filename)
 
     #'''
-    t = Biz3('9a', '73589407036')
+    t = Biz3(2014, '8a', '77431667278')
     t.genPDF('3r.pdf', download=True)
-    print(t.filename)
+#    t = Biz2('9b', '73741404057')
+#    t.genPDF('2r.pdf', download=True)
+#    print(t.filename)
     #'''
 
     '''

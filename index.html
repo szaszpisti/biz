@@ -19,7 +19,7 @@ document.getElementById("jsTest").style.display = 'none';
 
 <div class="menu">
   <div style="float: left;"><span id="message" style="margin-left: 1em;">&nbsp;</span></div>
-  <div style="float: right;"><a id="url" href="https://start.taninform.hu/application/start?intezmenyIndex=" target="_blank">Taninform</a></div>
+  <div style="float: right;"><a id="url" href="https://naplo.szepi.hu" target="_blank">Napló</a></div>
   <div style="clear: both;"></div>
 </div>
 
@@ -27,6 +27,7 @@ document.getElementById("jsTest").style.display = 'none';
 <form name="biz" id="biz">
 
  <div id="divDb" style="text-align: left; padding-bottom: 1em;"><!-- db -->
+   <span id="spanTanev"><select id="selectTanev" name="tanev"><option value="2017">2017</option><option value="2018" selected>2018</option></select></span><hr>
    <span id="spanOsztaly"></span>
    <span><button id="nyomtat" style="float: right;">Nyomtat (Ctrl+P)</button></span>
  </div><!-- /db -->
@@ -83,6 +84,9 @@ document.getElementById("jsTest").style.display = 'none';
 <div>
    (Sablon: <span id="sablon"></span>)
 </div>
+<div>
+   <p id="ref"></p>
+</div>
 
 </div><!-- /bal oldal -->
 
@@ -98,16 +102,16 @@ document.getElementById("jsTest").style.display = 'none';
 </div><!-- page2 -->
 
 
-<div id="page3-container" class="page" style="width: 215mm; background-image: url(''); background-size: 208mm 191mm; background-repeat: no-repeat;">
+<div id="page3-container" class="page" style="width: 215mm; background-image: url(''); background-size: 208mm 194mm; background-repeat: no-repeat;">
   <div class="bg1" style="position: relative; float: left; width: 6.5mm; height: 100mm;"></div>
-  <div class="bg2" id="page3-bal" style="position: relative; float: left; width: 93mm; height: 151.5mm; margin-top: 5.5mm;"></div>
+  <div class="bg2" id="page3-bal" style="position: relative; float: left; width: 93mm; height: 151.5mm; margin-top: 6.0mm;"></div>
   <div class="bg1" style="position: relative; float: left; width: 10.5mm; height: 120mm;"></div>
-  <div class="bg3" id="page3-jobb" style="position: relative; float: left; width: 100mm; height: 100mm; margin-top: 5.5mm;"></div>
+  <div class="bg3" id="page3-jobb" style="position: relative; float: left; width: 100mm; height: 100mm; margin-top: 7.5mm;"></div>
 </div><!-- page3 -->
 
 <div style="clear: both"></div>
 
-<p><hr><img src="image/szaszi.png" alt="szaszi@szepi_PONT_hu" style="vertial-align: top;">
+<p><hr><img src="image/szaszi.png" alt="szaszi@szepi_PONT_hu" style="vertical-align: top;">
 </body>
 </html>
 

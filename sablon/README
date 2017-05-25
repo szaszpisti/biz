@@ -1,8 +1,52 @@
-68b-also: K. KÖ. 6103 - 2014. 04. 09.
-68b-felso: K. KÖ. 6103 - 2014. 04. 09.
-4:
+adatok                         | sablonnév  | 1. o   | 2.o     | 3.o ->  | 3.o bal     | 3.o jobb
+#
+45-A: K. KÖ. 6102 - 2014-04-09 | 45-A       | biz-p1 | biz-p2a | biz-p3b | biz-p3a-bal | biz-p3-jobb | 45-A-3.png
+45-B: K. KÖ. 6102 - 2015-03-16 | 45-B       | biz-p1 | biz-p2c | biz-p3a | biz-p3a-bal | biz-p3-jobb + =2016-02-29
+45-C: K. KÖ. 6102 - 2008-12-03 | 45-C       | biz-p1 | biz-p2b | biz-p3b | biz-p3b-bal | biz-p3-jobb
+#
+68-A: K. KÖ. 6103 - 2009-12-16 | 68-A-also  | biz-p1 | biz-p2a | biz-p3b | biz-p3b-bal | biz-p3-jobb | 68-A-also-3.png +
+                                 68-A-felso                    | biz-p3b | biz-p3b-bal | biz-p3-jobb | 68-A-felso-3.png +
+68-B: K. KÖ. 6103 - 2014-04-09 | 68-B-also  | biz-p1 | biz-p2a | biz-p3c | biz-p3a-bal | biz-p3-jobb | 68-B-also-3.png
+                                 68-B-felso                    | biz-p3c | biz-p3a-bal | biz-p3-jobb | 68-B-felso-3.png
+68-C: K. KÖ. 6103 - 2015-03-16 | 68-C-also  | biz-p1 | biz-p2c | biz-p3c | biz-p3c-bal | biz-p3-jobb | 68-C-also-3.png =2016-02-29
+                                 68-C-felso                    | biz-p3c | biz-p3c-bal | biz-p3-jobb | 68-C-felso-3.png
+68-D: K. KÖ. 6103 - 2010-12-02 | 68-D-also  | biz-p1 | biz-p2a | biz-p3d | biz-p3d-bal | biz-p3-jobb | 68-D-also-3.png
+                                 68-D-felso                    | biz-p3d | biz-p3d-bal | biz-p3-jobb | 68-D-felso-3.png
 
+sablon ini jelölések:
+
+1. oldal
+--------
+mindenhol megegyezik:
+biz-p1
+
+2. oldal:
+---------
+biz-p2a - dupla "Kiállította"   + "Apa"
+biz-p2b - szimpla "Kiállította" + "Apa"
+biz-p2c - szimpla "Kiállította" - "Apa"
+
+3. oldal:
+---------
+a jobb oldal mindenhol megegyezik: biz-p3-jobb.ini
+45-A: p3a
+45-B: p3a
+68-A-also: p3b-also
+68-A-felso: p3b-felso
+68-D-also: p3d-also
+68-D-felso: p3d-felso
+
+
+# biz-p3a - (45-A)
+# biz-p3a-bal - (45-A)
+# biz-p3a-jobb - (45-A)
+#
+# biz-p3b-b - (45-B)
+
+
+--------------------
 Az ini fájlok mezői:
+--------------------
 
 # Mely mezőkben vannak a nyelvek és melyek szabadok
 nyelv: [3, 4]
@@ -13,8 +57,8 @@ posX: -1
 posY: 10
 
 # A koordináták a cím bal fölső sarkától számítanak, a szövegek referenciapontja
-# azoknak bal alsó sarka, közepe vagy jobb alsó sarka,
-# továbbhaladásnál a középvonal, jegzetnél a bal felső sarok
+# azoknak bal alsó sarka, közepe vagy jobb alsó sarka, továbbhaladásnál a középvonal,
+# jegyzetnél a bal felső sarok
 
 P1:
   hatter: 68b-1.png
@@ -47,7 +91,7 @@ P3:
   nap: [78, 76, 11, large, C]
 
   tovabb: [0, 65, 93, small, L]
-  jegyzet: [5, 120, 83, small, L]
+  jegyzet: [5, 120, 83, tiny, L]
 
   bal:
     x: [0, 42, 54, 93]
@@ -55,90 +99,4 @@ P3:
   jobb:
     x: [0, 44, 56, 93]
     y: [10.5, 15.5, 20.3, 25.2, 31, 36, 41, 46, 51.5]
-
-# Az év mintha jobbra húzna.
-
-# ide a rögzített/egyéni neveket kellene írni, az alternatív nevek egy közös tárgyak.ini-ben lenne
-## a "hely" a sablonok indexe szerint az adott tárgy helyét mutatja az adott sablonban
-targyak:
- - nevek: [magyar nyelv és irodalom]
-   hely:  [1, 1, 1]
- - nevek: [magyar irodalom, irodalom]
-   hely:  [1, 1, 1]
- - nevek: [magyar nyelv]
-   hely:  [2, 2, 2]
- - nevek: [történelem]
-   hely:  [3, 3, 6]
- - nevek: [filozófia]
-   hely:  [f, 9, f]
- - nevek: [angol nyelv, angol]
-   hely:  [n, n, n]
- - nevek: [latin nyelv, latin]
-   hely:  [n, n, n]
- - nevek: [német nyelv, német]
-   hely:  [n, n, n]
- - nevek: [olasz nyelv, olasz]
-   hely:  [n, n, n]
- - nevek: [matematika]
-   hely:  [6, 7, 5]
- - nevek: [fizika]
-   hely:  [9, 10, 9]
- - nevek: [kémia]
-   hely:  [11, 12, 10]
- - nevek: [biológia]
-   hely:  [10, 11, 8]
- - nevek: [földrajz]
-   hely:  [12, 13, 11]
- - nevek: [ének-zene]
-   hely:  [13, 14, 12]
- - nevek: [rajz és vizuális kultúra]
-   hely:  [14, 15, f]
- - nevek: [testnevelés és sport]
-   hely:  [16, 16, 17]
- - nevek: [informatika]
-   hely:  [7, 8, 15]
- - nevek: [magyar emelt szint, magyar irodalom fakultáció, magyar irodalom - emelt szint, magyar - emelt szint]
-   hely:  [f, f, f]
- - nevek: [rajz emelt szint, rajz fakultáció, rajz - emelt szint]
-   hely:  [f, f, f]
- - nevek: [földrajz emelt szint, földrajz fakultáció, földrajz - emelt szint]
-   hely:  [f, f, f]
- - nevek: [történelem emelt szint, történelem fakultáció, történelem - emelt szint]
-   hely:  [f, f, f]
- - nevek: [matematika emelt szint, matematika fakultáció, matematika - emelt szint]
-   hely:  [f, f, f]
- - nevek: [fizika emelt szint, fizika fakultáció, fizika - emelt szint]
-   hely:  [f, f, f]
- - nevek: [kémia emelt szint, kémia fakultáció, kémia - emelt szint]
-   hely:  [f, f, f]
- - nevek: [biológia emelt szint, biológia fakultáció, biológia - emelt szint]
-   hely:  [f, f, f]
- - nevek: [ének-zene emelt szint, ének-zene fakultáció, ének-zene - emelt szint]
-   hely:  [f, f, f]
- - nevek: [informatika emelt szint, informatika fakultáció, informatika - emelt szint]
-   hely:  [f, f, f]
- - nevek: [testnevelés emelt szint, testnevelés fakultáció, testnevelés - emelt szint, testenevelés - emelt szint]
-   hely:  [f, f, f]
- - nevek: [hittan emelt szint, hittan fakultáció, hittan - emelt szint]
-   hely:  [f, f, f]
- - nevek: [gyógytestnevelés]
-   hely:  [f, f, f]
- - nevek: [sportelmélet]
-   hely:  [f, f, f]
- - nevek: [tanulásmódszertan]
-   hely:  [f, f, f]
- - nevek: [társadalmi ismeretek]
-   hely:  [21, 17, 6]
- - nevek: ["művészeti nevelés. médiaismeretek, dráma", művészeti nevelés, média]
-   hely:  [22, 20, 13]
- - nevek: [hittan]
-   hely:  [17, 21, 18]
- - nevek: [osszes, igazolt]
-   hely:  [28, 28, 28]
- - nevek: [igazolatlan]
-   hely:  [29, 29, 29]
- - nevek: [magatartás]
-   hely:  [26, 26, 26]
- - nevek: [szorgalom]
-   hely:  [27, 27, 27]
 
