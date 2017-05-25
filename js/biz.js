@@ -32,6 +32,7 @@ if (typeof(jQuery) == 'undefined') {
     }
 
     $(document).ready(function() {
+//        jQuery.ajaxSetup({async:false});
 
         if(document.location.hostname != "localhost"){
           $('#nyomtat').hide();
@@ -47,29 +48,92 @@ if (typeof(jQuery) == 'undefined') {
         var balMax = 9;
         var balDefault = 5;
 
-        // Első az osztálylista betöltése
-        $.ajax({
-            type: 'GET',
-            url: jsonFile,
-            dataType: 'json',
-            success: function(result) { $('#spanOsztaly').html(result); },
-            data: { tip: 'oszt' },
-            async: false
-        });
+        var tanev = 0;
+        var sablon = '';
+
+        // Első a tanévlista betöltése
+        var getTanev = function() { 
+          $.get({
+              url: jsonFile,
+              data: { tip: 'tanev' },
+              success: function(result) {
+                $('#spanTanev').html(result);
+                tanev = $('#selectTanev').val();
+                getOsztaly();
+              },
+          });
+        };
+
+        // majd az osztálylista
+        var getOsztaly = function() { 
+          $.get({
+              url: jsonFile,
+              data: { tip: 'oszt', tanev: $('#selectTanev').val() },
+              success: function(result) {
+                $('#spanOsztaly').html(result);
+                getNevsor();
+              },
+          });
+        };
 
         // majd az osztályhoz tartozó névsor
         var getNevsor = function() {
-            $.ajax({
-                type: 'GET',
+            $.get({
                 url: jsonFile,
-                dataType: 'json',
-                async: false,
-                data: { tip: 'nevsor', oszt: $('#oszt').val() },
+                //data: { tip: 'nevsor', oszt: $('#oszt').val(), tanev: tanev },
+                data: { tip: 'nevsor', oszt: $('#oszt').val(), tanev: $('#selectTanev').val() },
                 success: function(result) {
                     $('#nevsor').html(result);
+                    getData();
+            $('#nevsor').focus();
                 },
             });
         };
+
+        // egy diák adatainak betöltése
+        var getData = function() {
+            var send = $('#biz').serialize();
+            send += '&tip=uid';
+            if (verbose) $('#message').html(send); else $('#message').html('');
+            $.get({
+                url: jsonFile,
+                data: send,
+                dataType: 'json',
+                success: function(data){
+
+                    sablonNev = data['sablon'];
+                    $('#sablon').html(sablonNev);
+
+                    if(sablonCurrent == sablonNev) {
+                        // Ha nem változott a sablon, nem kell újra létrehozni a mezőket, csak kitölteni.
+                        useData(data);
+                    }
+
+                    else if(jQuery.inArray(sablonNev, sablonNevek) >= 0) {
+                        // Ha már le van töltve, használatba kell venni és kitölteni.
+                        useSablon(sablonNev);
+                        useData(data);
+                    }
+
+                    else {
+                        // Ha még nincs eltárolva a sablon, akkor lekérjük és mentjük az adatait.
+                        send = 'tip=sablon&sablon=' + sablonNev;
+                        $.get({
+                            url: jsonFile,
+                            data: send,
+                            dataType: 'json',
+                            success: function(sablonData){
+                                sablonok.push(sablonData);
+                                sablonNevek.push(sablonNev);
+                                // majd használjuk a sablont és beírjuk az adatokat
+                                useSablon(sablonNev);
+                                useData(data);
+                            }
+                        }); // get
+                    }; // if(sablonCurrent == sablonNev)
+                } // success
+            }); // get
+        }; // getData
 
         // a "bal" gombok generálása a korábban megadott értékekkel
         for (i=balMin; i<=balMax; i++) {
@@ -85,6 +149,7 @@ if (typeof(jQuery) == 'undefined') {
          */
         var putField = function(parentDiv, id, field){
             switch(field[3]){
+                case "tiny": tag="p"; break;
                 case "small": tag="p"; break;
                 case "normal": tag="h4"; break;
                 case "large": tag="h3"; break;
@@ -120,25 +185,7 @@ if (typeof(jQuery) == 'undefined') {
             return((x-h*Dim)+"mm");
         }
 
-        var getSablon = function(sablonNev) {
-            // Ha nem változott a sablon, nem kell újra létrehozni a mezőket!
-            if(sablonCurrent == sablonNev) { return 0; }
-
-            // Ha még nincs eltárolva a sablon, akkor lekérjük és mentjük az adatait.
-            if(sablonNevek.indexOf(sablonNev) == -1){
-                send = 'tip=sablon&sablon=' + sablonNev;
-                $.ajax({
-                    url: jsonFile,
-                    dataType: 'json',
-                    async: false,
-                    data: send,
-                    success: function(sablonData){
-                        sablonok.push(sablonData);
-                        sablonNevek.push(sablonNev);
-                    }
-                });
-            }
-
+        var useSablon = function(sablonNev) {
             // Most már biztosan benne van a listában, fel lehet használni.
             sablonCurrent = sablonNev;
             n = sablonNevek.indexOf(sablonNev);
@@ -188,6 +235,10 @@ if (typeof(jQuery) == 'undefined') {
             /* 3. lap jobb oldala */
             var side = 'jobb';
             var pID = '#page3-' + side;
+            // Apró módosítások a html megjelenítéshez
+            // alert(sablon['P3']['jegyzet']);
+            sablon['P3']['jegyzet'][1] = 120; // orig: 115
+            sablon['P3']['tovabb'][1] = 63; // orig: 61
             $.each(['hely', 'ev', 'ho', 'nap', 'tovabb', 'jegyzet'], function(i, key){
                 putField(pID, key, sablon['P3'][key]);
             });
@@ -206,33 +257,33 @@ if (typeof(jQuery) == 'undefined') {
             goPage(oldPage);
         };
 
+
         // egy diák adatainak betöltése
-        var getData = function() {
-            var send = $('#biz').serialize();
-            send += '&tip=uid';
-            if (verbose) $('#message').html(send); else $('#message').html('');
-            $.getJSON(jsonFile, send, function(data){
-                $('#sablon').html(data['sablon']);
-                getSablon(data['sablon']);
+        var useData = function(data) {
+            $('#ref').html('&nbsp;' + sablon['ref'] + '&nbsp;');
 
-                // 3 név van összesen, ezeket megkülönböztetjük
-                data['nev1'] = data['nev'];
-                data['nev2'] = data['nev'];
-                data['nev3'] = data['nev'];
-                data['hely2'] = data['hely'];
-                // a kapott key/val párokat bepakolja a megfelelő id-ekbe
-                $.each(data, function(name, value){
-                    $("#" + name).html(value);
-                });
-                $("#uid").val(data['uid']);
-                // a "nyelv és" kihúzása, ha szükséges
-                s = $('#t01').html();
-                if (s.substr(-3, 3) == '---') $('#t01').html('<span style="padding-left: 10mm;">' + s + '</span>');
-
-                // Taninform link: az aktuális link "=" előtti részéhez hozzárakjuk az om azonosítót
-                url = $("#url").attr('href').split('=')[0] + '=' + data['om']
-                $("#url").attr('href', url)
+            // 3 név van összesen, ezeket megkülönböztetjük
+            data['nev1'] = data['nev'];
+            data['nev2'] = data['nev'];
+            data['nev3'] = data['nev'];
+            data['hely2'] = data['hely'];
+            // a kapott key/val párokat bepakolja a megfelelő id-ekbe
+            $.each(data, function(name, value){
+                $("#" + name).html(value);
             });
+            $("#uid").val(data['uid']);
+            // a "nyelv és" kihúzása, ha szükséges
+            s = $('#t01').html();
+            if (s.substr(-3, 3) == '---') $('#t01').html('<span style="padding-left: 10mm;">' + s + '</span>');
+
+            // Taninform link: az aktuális link "=" előtti részéhez hozzárakjuk az om azonosítót
+            url = $("#url").attr('href').split('=')[0] + '=' + data['om']
+            $("#url").attr('href', url)
+        };
+
+        // ha változott a tanév
+        var changeTanev = function() {
+            changeOsztaly();
         };
 
         // ha változott az osztály
@@ -241,8 +292,6 @@ if (typeof(jQuery) == 'undefined') {
             onev = $('#oszt option:selected').text();
             evf = parseInt(onev.substring(0, onev.indexOf('.')));
             getNevsor();
-            $('#nevsor').focus();
-            getData();
         };
 
         /*
@@ -281,13 +330,12 @@ if (typeof(jQuery) == 'undefined') {
 
             if($('#download').prop('checked')) {
                 $('#iframe').remove();
-                url = jsonFile + '?' + $('#biz').serialize() + '&tip=nyomtat'
-                $.ajax({
+                var url = jsonFile + '?' + $('#biz').serialize() + '&tip=nyomtat'
+                $.get({
                     url: url,
                     success: function(result) {
-                            $("body").append('<iframe id="iframe" src="' + url + '" style="display: none;" ></iframe>');
-                        },
-                    async: false
+                        $("body").append('<iframe id="iframe" src="' + url + '" style="display: none;" ></iframe>');
+                    },
                 });
             }
             else {
@@ -328,6 +376,7 @@ if (typeof(jQuery) == 'undefined') {
             }
         };
 
+        $('#spanTanev').change ( function(){ changeTanev(); });
         $('#spanOsztaly').change ( function(){ changeOsztaly(); });
         $('#nevsor').change( function(){ getData(); });
         $("#nyomtat").click( function(){ nyomtat(); });
@@ -361,6 +410,6 @@ if (typeof(jQuery) == 'undefined') {
             shortcut.add("Down", function(){ $('#gerinc').val(parseInt($('#gerinc').val())-1); }, {'target': document.biz.gerinc});
         }
 
-        changeOsztaly();
+        getTanev();
     });
 }
