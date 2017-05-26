@@ -281,14 +281,6 @@ if (typeof(jQuery) == 'undefined') {
             $("#url").attr('href', url)
         };
 
-        // ha változott az osztály
-        var changeOsztaly = function() {
-            // felsőbb évfolyam más oldalra kerül, más háttér kell neki
-            onev = $('#oszt option:selected').text();
-            evf = parseInt(onev.substring(0, onev.indexOf('.')));
-            getNevsor();
-        };
-
         /*
          * Egérgörgetések
          */
@@ -372,7 +364,7 @@ if (typeof(jQuery) == 'undefined') {
         };
 
         $('#spanTanev').change ( function(){ getOsztaly(); });
-        $('#spanOsztaly').change ( function(){ changeOsztaly(); });
+        $('#spanOsztaly').change ( function(){ getNevsor(); });
         $('#nevsor').change( function(){ getData(); });
         $("#nyomtat").click( function(){ nyomtat(); });
         $('#biz').submit(function() { return false; });
