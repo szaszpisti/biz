@@ -281,12 +281,6 @@ if (typeof(jQuery) == 'undefined') {
             $("#url").attr('href', url)
         };
 
-        // ha változott a tanév
-        var changeTanev = function() {
-            getOsztaly();
-            changeOsztaly();
-        };
-
         // ha változott az osztály
         var changeOsztaly = function() {
             // felsőbb évfolyam más oldalra kerül, más háttér kell neki
@@ -377,7 +371,7 @@ if (typeof(jQuery) == 'undefined') {
             }
         };
 
-        $('#spanTanev').change ( function(){ changeTanev(); });
+        $('#spanTanev').change ( function(){ getOsztaly(); });
         $('#spanOsztaly').change ( function(){ changeOsztaly(); });
         $('#nevsor').change( function(){ getData(); });
         $("#nyomtat").click( function(){ nyomtat(); });
