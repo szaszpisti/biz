@@ -350,6 +350,9 @@ class Diak():
         # A diák adatait feltöltjük a feldolgozott bizonyítvány-értékekkel
         for i in range(1, len(E)):
             t, o, j = E[i]
+            # Ha van jegye de nincs óraszáma (osztályozó vizsga), akkor az óraszám is legyen kihúzva!
+            if j and not o:
+                o = '---'
             diak.update({'t%02d'%i: t, 'o%02d'%i: o, 'j%02d'%i: j})
 
         # Hozzáadjuk a továbbhaladást és a záradékot
