@@ -12,6 +12,10 @@ import yaml
 import grp
 
 ev = str((datetime.date.today() - datetime.timedelta(days=210)).year)
+# meg lehet adni az évet első paraméterként
+if len(sys.argv) > 1 and len(sys.argv[1]) == 4:
+    ev = sys.argv[1]
+    del(sys.argv[1])
 
 def chgrp(filepath, group):
     uid = os.stat(filepath).st_uid
@@ -67,6 +71,8 @@ for option in control.get_items():
     if label == ev + ' / 2':
         break
 print(label)
+control.set_value_by_label([label])
+br.submit()
 
 # [osztalyId]
 control = get_form(br, 'osztalySelectTool').find_control("osztalyId", type="select")
