@@ -227,9 +227,9 @@ if (typeof(jQuery) == 'undefined') {
             $.each(sablon['P3'][side]['y'], function(i, y){
                 nTargy += 1;
                 si = ("0"+nTargy).slice(-2);
-                putField(pID, 't'+si, [x[0], y, x[1]-x[0], 'small', 'L']);
-                putField(pID, 'o'+si, [x[1], y, x[2]-x[1], 'small', 'R']);
-                putField(pID, 'j'+si, [x[2], y, x[3]-x[2], 'small', 'C']);
+                putField(pID, 't'+si, [x[0]+1, y*1.015, x[1]-x[0], 'small', 'L']);
+                putField(pID, 'o'+si, [x[1], y*1.015, x[2]-x[1], 'small', 'R']);
+                putField(pID, 'j'+si, [x[2], y*1.015, x[3]-x[2], 'small', 'C']);
             });
 
             /* 3. lap jobb oldala */
