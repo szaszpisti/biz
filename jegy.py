@@ -27,17 +27,19 @@ sablonok = local.sablonok()
 def main():
     '''Főprogram'''
 
-    if len(sys.argv) > 1:
+    if len(sys.argv) > 1 and len(sys.argv[1]) == 4:
         ev = int(sys.argv[1])
+        del(sys.argv[1])
     else:
         ev = local.get_last_tanev()
 
-#    print Bizonyitvany('9c', True).bizOsztaly['79536523141']
-#    print(getOsztalyLista().lista)
-    for oszt, osztaly, _, _, _ in getOsztalyLista(ev).lista:
+    osztalyok = [oszt for oszt, _, _, _, _ in getOsztalyLista(ev).lista]
+    if len(sys.argv) > 1:
+        osztalyok = sys.argv[1:]
+
+    for oszt in sorted(osztalyok):
         print(oszt, end=' ', flush=True)
         t = Bizonyitvany(ev, oszt, quiet=True)
-#        t.csvOut()
     print()
 
 class getOsztalyLista():
