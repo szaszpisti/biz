@@ -270,6 +270,13 @@ if (typeof(jQuery) == 'undefined') {
             // a kapott key/val párokat bepakolja a megfelelő id-ekbe
             $.each(data, function(name, value){
                 $("#" + name).html(value);
+                if(value == 'Természettudományos laborgyakorlat') {
+                    $("#" + name).css({
+                      'font-size': '80%',
+                      'padding': '0 1mm',
+                      'width': '47mm',
+                    });
+                }
             });
             $("#uid").val(data['uid']);
             // a "nyelv és" kihúzása, ha szükséges
