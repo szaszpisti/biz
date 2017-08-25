@@ -350,7 +350,10 @@ class Diak():
         E[int(sablon['targyHely']['magatartás'])][2] = d['magatartás']
         E[int(sablon['targyHely']['szorgalom'])][2]  = d['szorgalom']
         E[int(sablon['targyHely']['igazolatlan'])][1]  = d['igazolatlan']
-        E[int(sablon['targyHely']['osszes'])][1]  = '%d' % (int(d['igazolt']) + int(d['igazolatlan']))
+        try:
+            E[int(sablon['targyHely']['osszes'])][1]  = '%d' % (int(d['igazolt']) + int(d['igazolatlan']))
+        except:
+            print('HIBA: az igazolt vagy az igazolatlan hiányzik:', d['igazolt'], d['igazolatlan'])
 
         # A diák adatait feltöltjük a feldolgozott bizonyítvány-értékekkel
         for i in range(1, len(E)):
