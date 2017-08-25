@@ -1,35 +1,26 @@
 #!/bin/bash
 
-# A meglévő forras/*.xls-ekből gyártja a teszi-TANEV.xls-t, amit ki kell tölteni.
-# Ezután kell futtatni a gen-pluginDiak.py-t, ami ezeket is hozzáveszi a záradékokhoz.
+# MaYoR:
+# cd ~/bin/teszi; teszi.sql ==> teszi.csv; put teszi.csv - ebben vannak az osztálynévsorok fejlécestül
+# fules:
+# $ mv ~/p/mayor/teszi.csv .; ./teszi-gen.sh
+
+## echo 'SELECT oId, osztalyJel, viseltNev FROM local.diak' | mysql -N | ssh szaszi@10.0.0.2 dd of=mayor/nevsor-`date +%F`.csv
 
 EXT=xls # xls legyen, azt lehet olvasni az xlrd-vel
 YEAR=$(date -d '210 days ago' +%Y)
 TANEV=$( printf "%04d-%02d" $YEAR $((YEAR-1999)) )
 
 OUT=teszi-$TANEV.$EXT
-TMP=$( tempfile -s '.csv' )
+NEVSOR=teszi.csv
 
 if [ -f "$OUT" ]; then
 	echo "$OUT már létezik. Előbb töröld!"
+	echo "unoconv -f csv -e FilterOptions=9,,UTF-8 teszi-$TANEV.xls"
 	exit
 fi
 
-ls ../forras/[0-9]*.xls \
-| sort -t'/' -k3 -n \
-| while read FILE; do
+unoconv -f $EXT -i FilterOptions=9,,UTF-8 -o $OUT $NEVSOR
 
-	i=${FILE##*/} # levágjuk a bevezető könyvtárakat
-	i=${i%.xls}   # és a .xls-t
-	oszt="${i%%[a-z]*}. ${i##*[0-9]}" # 12a => 12. a
-	xls2csv -q0 $FILE \
-		| sed '1d;/^$/d;/\x0c/d' \
-		| awk -v o="$oszt" -F, 'BEGIN{print "uid,osztaly,nev,ora"}{ OFS=","; print $2, o, $1}'
+echo "A $OUT-t el kell küldeni a teszisnek, aki beírja a TESZI óraszámokat!"
 
-done > $TMP
-
-unoconv -f $EXT -i FilterOptions=44,,UTF-8 -o $OUT $TMP
-
-echo "A $OUT-t el kell küldeni Anikónak, beírja a TESZI óraszámokat!"
-
-rm $TMP
