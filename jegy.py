@@ -81,7 +81,10 @@ class getOsztalyLista():
         '''
         evfolyam = int(oszt[:-1])
         ab = oszt[-1].upper()
-        oid = 'd' + str(self.ev - evfolyam - 1987) + ab.lower()
+        evf = self.ev + (12-evfolyam) - 2000
+        if evf < 0:
+            evf = evf + 100
+        oid = 'd%02d%s' % (evf, ab.lower())
 
         osztaly = '%d. %s' % (evfolyam, ab)
 
