@@ -57,7 +57,7 @@ if (typeof(jQuery) == 'undefined') {
               url: jsonFile,
               data: { tip: 'tanev' },
               success: function(result) {
-                $('#spanTanev').html(result);
+                $('#divTanev').html(result);
                 tanev = $('#selectTanev').val();
                 getOsztaly();
               },
@@ -370,7 +370,7 @@ if (typeof(jQuery) == 'undefined') {
             }
         };
 
-        $('#spanTanev').change ( function(){ getOsztaly(); });
+        $('#divTanev').change ( function(){ getOsztaly(); });
         $('#spanOsztaly').change ( function(){ getNevsor(); });
         $('#nevsor').change( function(){ getData(); });
         $("#nyomtat").click( function(){ nyomtat(); });
