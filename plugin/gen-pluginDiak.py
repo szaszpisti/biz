@@ -17,6 +17,7 @@ tanev = '%d-%d' % (year, year-1999)
 # zaradek = { '01234567890-11': ['elso záradék', 'második záradék'], ... }
 
 zaradek = {}
+'''
 zaradekFile = xlrd.open_workbook('TanEvvzaradekEdit.xls').sheet_by_index(0)
 head = zaradekFile.row_values(0)
 
@@ -35,6 +36,7 @@ for i in range(1, zaradekFile.nrows):
         zaradek[uid].append(sor['Záradék szövege'])
     except:
         print(sor['Tanuló - Név'], sor['Záradék szövege'])
+'''
 
 tesziFile = xlrd.open_workbook('teszi-%s.xls' % tanev).sheet_by_index(0)
 head = tesziFile.row_values(0)
@@ -46,13 +48,14 @@ def string(i):
 
 for i in range(1, tesziFile.nrows):
     sor = dict(zip(head, [string(i) for i in tesziFile.row_values(i)]))
-    if sor['ora'] in ['', 'ora']:
+    if sor['ora'] in ['', 'óra']:
         continue
 
     evfolyam = sor['osztaly'].split('.')[0]  # 12. a => 12
-    uid = '%s-%s' % (sor['uid'], evfolyam)   # 1234567890-12
-    if not uid in zaradek: zaradek[uid] = []
-    zaradek[uid].append(sor['ora'] + ' óra közösségi szolgálatot teljesített.')
+    uid = '%s-%s' % (sor['oId'], evfolyam)   # 1234567890-12
+    if not uid in zaradek:
+        zaradek[uid] = []
+    zaradek[uid].append('Igazolom, hogy a tanuló a ' + tanev + ' tanévben ' + sor['ora'] + ' óra közösségi szolgálatot teljesített.')
 
 out = []
 for uid in sorted(zaradek.keys()):
